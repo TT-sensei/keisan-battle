@@ -20,7 +20,7 @@ multiplication:{label:"かけ算",description:"九九から大きな数のかけ
 {id:"mul-decimal",title:"小数のかけ算",detail:"今後追加予定",grade:[5,6],level:5,generator:"future",config:{}}]},
 division:{label:"わり算",description:"わり切れる計算やあまりのある計算に挑戦。",units:[
 {id:"div-table",title:"九九を使うわり算",detail:"わり切れる・九九の逆算",grade:[3],level:1,generator:"division",config:{maxDivisor:9,maxQuotient:9,remainder:false}},
-{id:"div-remainder",title:"あまりのあるわり算",detail:"あまりはわる数より小さく",grade:[3],level:2,generator:"division",config:{maxDivisor:9,maxQuotient:9,remainder:true}},
+{id:"div-remainder",title:"あまりのあるわり算（準備中）",detail:"商とあまりの入力に対応後に公開",grade:[3],level:2,generator:"future",config:{}},
 {id:"div-two-one",title:"2けた÷1けた",detail:"商を考えて計算",grade:[4],level:3,generator:"division",config:{maxDivisor:9,maxQuotient:99,remainder:false}},
 {id:"div-three-one",title:"3けた÷1けた",detail:"大きな数のわり算",grade:[4],level:4,generator:"division",config:{maxDivisor:9,maxQuotient:999,remainder:false}},
 {id:"div-decimal",title:"小数のわり算",detail:"今後追加予定",grade:[5,6],level:5,generator:"future",config:{}}]}};
