@@ -123,3 +123,4 @@ ruby rt{font-size:.52em;color:#8494a3;letter-spacing:0;font-weight:700}
 .mistake-item small{color:#68798a;font-size:11px;line-height:1.5}
 .result-card .levelinfo{font-weight:900;color:#a86f14;background:#fff6e0;border:1px solid #f0dfc7;border-radius:11px;padding:10px 12px;font-size:13px}
 .unit small.unit-xp{color:#b77a25;font-weight:700}
+.mistake-item small.mistake-type{color:#b77a25;font-weight:700}

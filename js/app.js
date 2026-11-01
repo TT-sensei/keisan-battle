@@ -1,6 +1,6 @@
 import{OPERATIONS,UNIT_BY_ID}from"./data/units.js";import{generateQuestion}from"./engine/question-generator.js";import{Battle}from"./game/battle.js";
 import{CHARACTERS,HERO_IMAGE,BACKGROUNDS,MONSTER_LIST,poseImg,GROUP_SCENES}from"./data/monsters.js";
-import{startFurigana,stopFurigana}from"./furigana.js";
+import{startFurigana,stopFurigana}from"./furigana.js";import{classifyMistake,MISTAKE_TYPE_LABELS}from"./engine/mistake-types.js";
 const $=id=>document.getElementById(id),state={op:"addition",unit:"add-within-20",char:"riku",battle:null,answer:"",answer2:"",activeField:1,mode:"battle",training:null,currentEnemy:null};
 const DIFF_LABELS={easy:"やさしい",normal:"ふつう",hard:"つよい"};
 let settings={count:10,difficulty:"normal",sound:true,furigana:true};
@@ -100,6 +100,11 @@ const accuracy=totalAnswered?Math.round(totalCorrect/totalAnswered*100):0;
 $("record-summary").textContent=sessions.length
 ? "記録 "+sessions.length+"回　／　正解 "+totalCorrect+"問　／　正答率 "+accuracy+"%"
 :"まだ記録はありません。まずはバトルに挑戦しよう！";
+const typeStats=save.typeStats||{};const typeEntries=Object.entries(typeStats).filter(([k,v])=>v>0&&MISTAKE_TYPE_LABELS[k]).sort((a,b)=>b[1]-a[1]);
+$("type-summary").textContent=typeEntries.length?("間違いの型の記録："+typeEntries.slice(0,3).map(([k,v])=>MISTAKE_TYPE_LABELS[k]+" "+v+"件").join("／")+((save.overcomeCount||0)?("　／　特訓で克服した問題 "+save.overcomeCount+"問"):"")):"間違いの型は、バトルで間違えると記録されるよ";
+const byUnit={};sessions.filter(x=>x.mode==="battle").forEach(x=>{const u=byUnit[x.unitId]=byUnit[x.unitId]||{c:0,a:0};u.c+=x.correct||0;u.a+=x.answered||0;});
+const rated=Object.entries(byUnit).filter(([id,u])=>u.a>=10&&UNIT_BY_ID[id]).map(([id,u])=>({id,rate:Math.round(u.c/u.a*100)})).sort((a,b)=>b.rate-a.rate);
+$("unit-summary").textContent=rated.length?("とくいな単元："+UNIT_BY_ID[rated[0].id].title+"（正答率 "+rated[0].rate+"%）"+(rated.length>1&&rated[rated.length-1].id!==rated[0].id?("　／　にがてな単元："+UNIT_BY_ID[rated[rated.length-1].id].title+"（正答率 "+rated[rated.length-1].rate+"%）"):"")):"単元ごとの記録は、同じ単元を10問以上解くと分かるよ";
 const li=levelInfo(save.xp);
 $("level-progress").textContent="レベル "+li.level+"（バトルの HP "+li.maxHp+"）"+(li.next?("　／　つぎのレベルまで あと "+(li.next-save.xp)+" XP"):"　／　レベル MAX！");
 const dex=save.dex||{};const registered=Object.keys(dex).length;
@@ -236,14 +241,14 @@ requestAnimationFrame(resizeCanvas);
 function storeMistake(m){
 const existing=save.mistakes.find(x=>x.unitId===m.unitId&&x.display===m.display);
 if(existing){existing.count=(existing.count||1)+1;existing.at=Date.now();}
-else save.mistakes.push({...m,at:Date.now(),count:1});
+else{save.mistakes.push({...m,at:Date.now(),count:1});if(m.type){save.typeStats=save.typeStats||{};save.typeStats[m.type]=(save.typeStats[m.type]||0)+1;}}
 }
 function finish(r){
 const beforeLevel=levelOf(save.xp);
 if(r.win&&state.currentEnemy){const id=state.currentEnemy.id;save.dex[id]=(save.dex[id]||0)+1;}
 save.xp+=r.xp;if(r.win)save.wins++;
 save.sessions.push({mode:"battle",unitId:r.unitId,win:r.win,correct:r.correct,answered:r.answered,accuracy:r.accuracy,duration:r.duration,at:Date.now()});
-persist();state.mode="battle";document.body.classList.remove("training-mode");$("resulticon").textContent=r.win?"🏆":"💪";$("resulttitle").textContent=r.win?"クエストクリア！":"もう少し！";$("resultmessage").textContent=r.win?(state.currentEnemy?("「"+state.currentEnemy.name+"」に勝利！ 図鑑に登録したよ（"+(save.dex[state.currentEnemy.id]||1)+"回目）。"):"ナビアンに勝利！計算の力がアップしたね。"):"最後までよく挑戦したね。特訓して再挑戦しよう！";$("correct").textContent=r.correct+"/"+r.answered;$("accuracy").textContent=r.accuracy+"%";$("earned").textContent="+"+r.xp;$("bestcombo").textContent=r.bestCombo;$("mistakes").classList.toggle("hidden",!r.mistakes.length);$("mistakelist").innerHTML="";r.mistakes.forEach(m=>{const d=document.createElement("div");d.className="mistake-item";const s=document.createElement("span");s.textContent=m.display+" = "+(m.answerText||m.answer);d.append(s);if(m.explanation){const ex=document.createElement("small");ex.textContent=m.explanation;d.append(ex);}$("mistakelist").append(d);});
+persist();state.mode="battle";document.body.classList.remove("training-mode");$("resulticon").textContent=r.win?"🏆":"💪";$("resulttitle").textContent=r.win?"クエストクリア！":"もう少し！";$("resultmessage").textContent=r.win?(state.currentEnemy?("「"+state.currentEnemy.name+"」に勝利！ 図鑑に登録したよ（"+(save.dex[state.currentEnemy.id]||1)+"回目）。"):"ナビアンに勝利！計算の力がアップしたね。"):"最後までよく挑戦したね。特訓して再挑戦しよう！";$("correct").textContent=r.correct+"/"+r.answered;$("accuracy").textContent=r.accuracy+"%";$("earned").textContent="+"+r.xp;$("bestcombo").textContent=r.bestCombo;$("mistakes").classList.toggle("hidden",!r.mistakes.length);$("mistakelist").innerHTML="";r.mistakes.forEach(m=>{const d=document.createElement("div");d.className="mistake-item";const s=document.createElement("span");s.textContent=m.display+" = "+(m.answerText||m.answer);d.append(s);if(m.explanation){const ex=document.createElement("small");ex.textContent=m.explanation;d.append(ex);}if(m.type&&MISTAKE_TYPE_LABELS[m.type]){const tp=document.createElement("small");tp.className="mistake-type";tp.textContent="ミスの型："+MISTAKE_TYPE_LABELS[m.type];d.append(tp);}$("mistakelist").append(d);});
 if(state.xpRate===0)$("resultmessage").textContent+=" この単元はもう身についているので、経験値は入らないよ。もっと上の単元に挑戦しよう！";
 else if(state.xpRate===0.5)$("resultmessage").textContent+=" この単元はレベルより易しいので、経験値は半分だよ。";
 showLevelResult(beforeLevel);
@@ -270,10 +275,10 @@ function mistakeToQuestion(m){
 const fmt=m.answerFormat||(m.answerText&&m.answerText.indexOf("あまり")>=0?"remainder":null);
 let remainder=(m.remainder??null);
 if(fmt==="remainder"&&remainder===null&&m.answerText){const mm=/あまり\s*(\d+)/.exec(m.answerText);if(mm)remainder=Number(mm[1]);}
-return {display:m.display,answer:m.answer,answerText:m.answerText||null,answerFormat:fmt,remainder,pairAnswer:(m.pairAnswer??null),pairLabels:m.pairLabels||null,explanation:m.explanation||null,unitId:m.unitId,unitTitle:m.unitTitle,fromRecord:true};
+return {display:m.display,answer:m.answer,answerText:m.answerText||null,answerFormat:fmt,remainder,pairAnswer:(m.pairAnswer??null),pairLabels:m.pairLabels||null,explanation:m.explanation||null,unitId:m.unitId,unitTitle:m.unitTitle,type:m.type||null,fromRecord:true};
 }
-function questionToMistake(q){
-return {display:q.display,answer:q.answer,answerText:q.answerText||(q.answerFormat==="remainder"?q.answer+" あまり "+q.remainder:null),answerFormat:q.answerFormat||null,remainder:q.remainder??null,pairAnswer:q.pairAnswer??null,pairLabels:q.pairLabels||null,explanation:q.explanation||null,unitId:q.unitId,unitTitle:q.unitTitle};
+function questionToMistake(q,type){
+return {type:type||q.type||null,display:q.display,answer:q.answer,answerText:q.answerText||(q.answerFormat==="remainder"?q.answer+" あまり "+q.remainder:null),answerFormat:q.answerFormat||null,remainder:q.remainder??null,pairAnswer:q.pairAnswer??null,pairLabels:q.pairLabels||null,explanation:q.explanation||null,unitId:q.unitId,unitTitle:q.unitTitle};
 }
 function startTraining(targetIds){
 const ids=(targetIds||[...new Set(save.mistakes.map(m=>m.unitId))]).filter(id=>UNIT_BY_ID[id]&&UNIT_BY_ID[id].generator!=="future");
@@ -297,13 +302,14 @@ let q,unitId;
 if(t.queue&&t.queue.length){q=t.queue.shift();unitId=q.unitId;}
 else{unitId=t.targetUnitIds[Math.floor(Math.random()*t.targetUnitIds.length)];q=generateQuestion(UNIT_BY_ID[unitId]);}
 t.current=q;t.currentUnitId=unitId;setupAnswerFields(q);
+if(q.fromRecord&&q.type&&MISTAKE_TYPE_LABELS[q.type])feedback("まえのミスは「"+MISTAKE_TYPE_LABELS[q.type]+"」。気をつけて解こう！");
 $("qnum").textContent="TRAINING "+String(t.solved+1).padStart(2,"0");
 $("question").textContent=q.display+" = ?";
 $("round").textContent="正解 "+t.solved+" / "+t.maxQuestions;
 $("progressbar").style.width=(t.solved/t.maxQuestions*100)+"%";
 clearCanvas();
 }
-function recordTrainingMistake(q){storeMistake(questionToMistake(q));}
+function recordTrainingMistake(q){storeMistake(questionToMistake(q,classifyMistake(q,Number(state.answer),Number(state.answer2))));}
 function submitTraining(){
 const t=state.training;if(!t||!t.current||!state.answer)return;
 if(isPair(t.current)&&state.answer2===""){setActiveField(2);feedback(pairPrompt(t.current));return;}
@@ -316,7 +322,9 @@ if(ok){
 playSound("correct");
 t.solved++;
 if(t.current.fromRecord){
+const beforeCount=save.mistakes.length;
 save.mistakes=save.mistakes.filter(m=>!(m.unitId===t.currentUnitId&&m.display===t.current.display));
+save.overcomeCount=(save.overcomeCount||0)+(beforeCount-save.mistakes.length);
 feedback("正解！ この問題を克服したよ！");
 }else feedback("正解！");
 state.answer="";state.answer2="";$("answer").textContent="✓";$("answer2").textContent="✓";persist();

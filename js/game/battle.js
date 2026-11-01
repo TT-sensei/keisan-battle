@@ -1,3 +1,4 @@
+import { classifyMistake } from "../engine/mistake-types.js";
 // CPUバトル進行。問題への回答とナビアンの攻撃周期を独立して管理する。
 // 敵の攻撃間隔は単元レベルで大きく開く（大きい数の計算ほど考える・書く時間がかかるため）
 const ATTACK_INTERVALS = { 1: 20000, 2: 26000, 3: 32000, 4: 39000, 5: 46000 };
@@ -200,7 +201,8 @@ export class Battle {
         pairLabels: this.question.pairLabels || null,
         explanation: this.question.explanation || null,
         unitId: this.question.unitId,
-        unitTitle: this.question.unitTitle
+        unitTitle: this.question.unitTitle,
+        type: classifyMistake(this.question, value, twoField ? Number(remainderRaw) : undefined)
       });
     }
     // 2回間違えたら、解説をヒントとして出す（進行は止めない）
