@@ -200,6 +200,11 @@ function divisionRemainder(config) {
 function formatDecimal(scaledValue, places) {
   return (scaledValue / (10 ** places)).toFixed(places);
 }
+// 解説内の答え表記用: 末尾の0を落として、子どもが入力する答えと同じ表記にする
+function trimDecimal(scaledValue, places) {
+  const t = formatDecimal(scaledValue, places);
+  return t.includes(".") ? t.replace(/0+$/, "").replace(/\.$/, "") : t;
+}
 
 function decimalAddition(config) {
   const c = config || {}, places = c.places ?? 1;
@@ -209,7 +214,7 @@ function decimalAddition(config) {
   return {
     a, b, operator: "+", answer,
     display: formatDecimal(a, places) + " + " + formatDecimal(b, places),
-    explanation: formatDecimal(a, places) + " と " + formatDecimal(b, places) + " を合わせると " + formatDecimal(total, places) + " です。"
+    explanation: formatDecimal(a, places) + " と " + formatDecimal(b, places) + " を合わせると " + trimDecimal(total, places) + " です。"
   };
 }
 
@@ -223,7 +228,7 @@ function decimalSubtraction(config) {
     return {
       a, b, operator: "−", answer,
       display: formatDecimal(a, places) + " − " + formatDecimal(b, places),
-      explanation: formatDecimal(a, places) + " から " + formatDecimal(b, places) + " をひくと " + formatDecimal(difference, places) + " です。"
+      explanation: formatDecimal(a, places) + " から " + formatDecimal(b, places) + " をひくと " + trimDecimal(difference, places) + " です。"
     };
   }
   throw new Error("この条件に合う小数のひき算を作れませんでした。");
@@ -238,7 +243,7 @@ function decimalMultiplication(config) {
   return {
     a, b, operator: "×", answer,
     display: formatDecimal(a, placesA) + " × " + formatDecimal(b, placesB),
-    explanation: formatDecimal(a, placesA) + " に " + formatDecimal(b, placesB) + " をかけると " + formatDecimal(product, places) + " です。"
+    explanation: formatDecimal(a, placesA) + " に " + formatDecimal(b, placesB) + " をかけると " + trimDecimal(product, places) + " です。"
   };
 }
 
@@ -283,6 +288,7 @@ function average(config) {
     const minValue = c.minAverage ?? 10, maxValue = c.maxAverage ?? 100;
     if ([a, b, remaining].some(value => value < minValue || value > maxValue)) continue;
     const values = [a, b, remaining];
+    if (new Set(values).size < 3) continue;
     return {
       a, b, operator: "平均", answer: averageValue,
       display: values.join("・") + " の平均",
@@ -404,6 +410,10 @@ function reduceFraction(n, d) {
   return [n / g, d / g];
 }
 function fracText(n, d) { return n + "/" + d; }
+// 約分が実際に起きるときだけ「約分すると」と書く
+function yakubunSuffix(n, d, rn, rd) {
+  return gcd(n, d) > 1 ? "約分すると " + fracText(rn, rd) + " です。" : "答えは " + fracText(rn, rd) + " です。";
+}
 function fractionResult(n, d, display, explanation) {
   const [rn, rd] = reduceFraction(n, d);
   return {
@@ -419,6 +429,7 @@ function fractionAdd(config) {
     if (c.sameDenominator) {
       const d = rand(c.minDenominator ?? 2, c.maxDenominator ?? 12);
       const n1 = rand(1, d - 1), n2 = rand(1, d - 1);
+      if (gcd(n1, d) !== 1 || gcd(n2, d) !== 1) continue;
       if ((n1 + n2) % d === 0) continue;
       const [rn, rd] = reduceFraction(n1 + n2, d);
       return fractionResult(n1 + n2, d,
@@ -429,13 +440,14 @@ function fractionAdd(config) {
     const d2 = rand(c.minDenominator ?? 2, c.maxDenominator ?? 9);
     if (d1 === d2) continue;
     const n1 = rand(1, d1 - 1), n2 = rand(1, d2 - 1);
+    if (gcd(n1, d1) !== 1 || gcd(n2, d2) !== 1) continue;
     const lcm = (d1 * d2) / gcd(d1, d2);
     const sum = n1 * (lcm / d1) + n2 * (lcm / d2);
     if (sum % lcm === 0) continue;
     const [rn, rd] = reduceFraction(sum, lcm);
     return fractionResult(sum, lcm,
       fracText(n1, d1) + " + " + fracText(n2, d2),
-      "分母を " + lcm + " にそろえると " + fracText(n1 * (lcm / d1), lcm) + " + " + fracText(n2 * (lcm / d2), lcm) + " = " + fracText(sum, lcm) + "。約分すると " + fracText(rn, rd) + " です。");
+      "分母を " + lcm + " にそろえると " + fracText(n1 * (lcm / d1), lcm) + " + " + fracText(n2 * (lcm / d2), lcm) + " = " + fracText(sum, lcm) + "。" + yakubunSuffix(sum, lcm, rn, rd));
   }
   throw new Error("分数のたし算を作れませんでした。");
 }
@@ -444,9 +456,10 @@ function fractionSub(config) {
   for (let attempt = 0; attempt < 5000; attempt++) {
     if (c.sameDenominator) {
       const d = rand(c.minDenominator ?? 2, c.maxDenominator ?? 12);
-      const n1 = rand(2, 2 * d - 1), n2 = rand(1, d - 1);
-      if (n1 === d) continue;
-      if (n1 <= n2 || (n1 - n2) % d === 0) continue;
+      if (d < 3) continue;
+      const n1 = rand(2, d - 1), n2 = rand(1, d - 1);
+      if (gcd(n1, d) !== 1 || gcd(n2, d) !== 1) continue;
+      if (n1 <= n2) continue;
       const [rn, rd] = reduceFraction(n1 - n2, d);
       return fractionResult(n1 - n2, d,
         fracText(n1, d) + " − " + fracText(n2, d),
@@ -456,6 +469,7 @@ function fractionSub(config) {
     const d2 = rand(c.minDenominator ?? 2, c.maxDenominator ?? 9);
     if (d1 === d2) continue;
     const n1 = rand(1, d1 - 1), n2 = rand(1, d2 - 1);
+    if (gcd(n1, d1) !== 1 || gcd(n2, d2) !== 1) continue;
     if (n1 * d2 <= n2 * d1) continue;
     const lcm = (d1 * d2) / gcd(d1, d2);
     const diff = n1 * (lcm / d1) - n2 * (lcm / d2);
@@ -463,7 +477,7 @@ function fractionSub(config) {
     const [rn, rd] = reduceFraction(diff, lcm);
     return fractionResult(diff, lcm,
       fracText(n1, d1) + " − " + fracText(n2, d2),
-      "分母を " + lcm + " にそろえると " + fracText(n1 * (lcm / d1), lcm) + " − " + fracText(n2 * (lcm / d2), lcm) + " = " + fracText(diff, lcm) + "。約分すると " + fracText(rn, rd) + " です。");
+      "分母を " + lcm + " にそろえると " + fracText(n1 * (lcm / d1), lcm) + " − " + fracText(n2 * (lcm / d2), lcm) + " = " + fracText(diff, lcm) + "。" + yakubunSuffix(diff, lcm, rn, rd));
   }
   throw new Error("分数のひき算を作れませんでした。");
 }
@@ -472,6 +486,7 @@ function fractionMulInt(config) {
   for (let attempt = 0; attempt < 5000; attempt++) {
     const d = rand(c.minDenominator ?? 2, c.maxDenominator ?? 12);
     const n = rand(1, d - 1);
+    if (gcd(n, d) !== 1) continue;
     const k = rand(c.minMultiplier ?? 2, c.maxMultiplier ?? 9);
     if ((n * k) % d === 0) continue;
     const [rn, rd] = reduceFraction(n * k, d);
@@ -483,13 +498,17 @@ function fractionMulInt(config) {
 }
 function fractionDivInt(config) {
   const c = config || {};
+  for (let attempt = 0; attempt < 5000; attempt++) {
   const d = rand(c.minDenominator ?? 2, c.maxDenominator ?? 12);
   const n = rand(1, d - 1);
+  if (gcd(n, d) !== 1) continue;
   const k = rand(c.minDivisor ?? 2, c.maxDivisor ?? 9);
   const [rn, rd] = reduceFraction(n, d * k);
   return fractionResult(n, d * k,
     fracText(n, d) + " ÷ " + k,
     "分母に " + k + " をかけます。" + d + " × " + k + " = " + (d * k) + "。答えは " + fracText(rn, rd) + " です。");
+  }
+  throw new Error("分数÷整数の問題を作れませんでした。");
 }
 function fractionMul(config) {
   const c = config || {};
@@ -497,12 +516,13 @@ function fractionMul(config) {
     const d1 = rand(c.minDenominator ?? 2, c.maxDenominator ?? 9);
     const d2 = rand(c.minDenominator ?? 2, c.maxDenominator ?? 9);
     const n1 = rand(1, d1 - 1), n2 = rand(1, d2 - 1);
+    if (gcd(n1, d1) !== 1 || gcd(n2, d2) !== 1) continue;
     const n = n1 * n2, d = d1 * d2;
     if (n % d === 0) continue;
     const [rn, rd] = reduceFraction(n, d);
     return fractionResult(n, d,
       fracText(n1, d1) + " × " + fracText(n2, d2),
-      "分子どうし、分母どうしをかけます。" + n1 + " × " + n2 + " = " + n + "、" + d1 + " × " + d2 + " = " + d + "。約分すると " + fracText(rn, rd) + " です。");
+      "分子どうし、分母どうしをかけます。" + n1 + " × " + n2 + " = " + n + "、" + d1 + " × " + d2 + " = " + d + "。" + yakubunSuffix(n, d, rn, rd));
   }
   throw new Error("分数×分数の問題を作れませんでした。");
 }
@@ -512,12 +532,13 @@ function fractionDiv(config) {
     const d1 = rand(c.minDenominator ?? 2, c.maxDenominator ?? 9);
     const d2 = rand(c.minDenominator ?? 2, c.maxDenominator ?? 9);
     const n1 = rand(1, d1 - 1), n2 = rand(1, d2 - 1);
+    if (gcd(n1, d1) !== 1 || gcd(n2, d2) !== 1) continue;
     const n = n1 * d2, d = d1 * n2;
     if (n % d === 0) continue;
     const [rn, rd] = reduceFraction(n, d);
     return fractionResult(n, d,
       fracText(n1, d1) + " ÷ " + fracText(n2, d2),
-      "わる数の分子と分母をひっくり返してかけます。" + fracText(n1, d1) + " × " + fracText(d2, n2) + " = " + fracText(n, d) + "。約分すると " + fracText(rn, rd) + " です。");
+      "わる数の分子と分母をひっくり返してかけます。" + fracText(n1, d1) + " × " + fracText(d2, n2) + " = " + fracText(n, d) + "。" + yakubunSuffix(n, d, rn, rd));
   }
   throw new Error("分数÷分数の問題を作れませんでした。");
 }

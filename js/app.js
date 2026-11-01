@@ -75,7 +75,12 @@ setActiveField(1);
 }
 function fieldValue(){return state.activeField===2?state.answer2:state.answer;}
 function setFieldValue(v){if(state.activeField===2){state.answer2=v;$("answer2").textContent=v||"?";}else{state.answer=v;$("answer").textContent=v||"?";}}
-let save=JSON.parse(localStorage.getItem("keisanBattleSave")||'{"xp":0,"wins":0,"mistakes":[]}' ),enemy;
+let save,enemy;
+try{save=JSON.parse(localStorage.getItem("keisanBattleSave")||"null");}catch(e){save=null;}
+if(!save||typeof save!=="object"||Array.isArray(save))save={xp:0,wins:0,mistakes:[]};
+if(typeof save.xp!=="number"||!(save.xp>=0))save.xp=0;
+if(typeof save.wins!=="number"||!(save.wins>=0))save.wins=0;
+if(!Array.isArray(save.mistakes))save.mistakes=[];
 
 // プレイヤーのレベル: XPで上がり、レベルが上がると最大HPが増える（攻撃力は上げない＝演習量を保つ）
 const LEVEL_CAP=20;const xpStart=L=>25*L*(L-1);
