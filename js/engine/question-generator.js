@@ -88,6 +88,54 @@ function subtraction(config) {
   throw new Error("この条件に合うひき算を作れませんでした。単元の数の範囲を確認してください。");
 }
 
+function missingAddend(config) {
+  const c = config || {};
+  const missing = rand(c.min ?? 1, c.max ?? 10);
+  const known = rand(c.min ?? 1, c.max ?? 10);
+  const total = missing + known;
+  if (total > (c.maxTotal ?? 20)) return missingAddend(config);
+  return {
+    a: missing, b: known, operator: "+", answer: missing,
+    display: "□ + " + known + " = " + total,
+    explanation: total + " − " + known + " = " + missing + " です。"
+  };
+}
+
+function missingSubtrahend(config) {
+  const c = config || {};
+  const result = rand(1, 9);
+  const missing = rand(1, 9);
+  const total = result + missing;
+  return {
+    a: total, b: missing, operator: "−", answer: missing,
+    display: total + " − □ = " + result,
+    explanation: total + " − " + result + " = " + missing + " です。"
+  };
+}
+
+function missingFactor(config) {
+  const c = config || {};
+  const factor = rand(c.min ?? 2, c.max ?? 9);
+  const known = rand(c.min ?? 2, c.max ?? 9);
+  return {
+    a: factor, b: known, operator: "×", answer: factor,
+    display: "□ × " + known + " = " + (factor * known),
+    explanation: (factor * known) + " ÷ " + known + " = " + factor + " です。"
+  };
+}
+
+function missingDivisor(config) {
+  const c = config || {};
+  const divisor = rand(c.min ?? 2, c.max ?? 9);
+  const quotient = rand(1, 9);
+  const dividend = divisor * quotient;
+  return {
+    a: dividend, b: divisor, operator: "÷", answer: divisor,
+    display: dividend + " ÷ □ = " + quotient,
+    explanation: dividend + " ÷ " + quotient + " = " + divisor + " です。"
+  };
+}
+
 function multiplication(config) {
   const c = config || {};
   const a = rand(c.minA ?? 1, c.maxA ?? 9999);
@@ -315,7 +363,7 @@ function speed(config) {
   };
 }
 
-const generators = { addition, subtraction, multiplication, division, decimalAddition, decimalSubtraction, decimalMultiplication, decimalDivision, average, commonMultiple, commonDivisor, sum, percentage, percentageRate, percentageBase, speed };
+const generators = { addition, subtraction, multiplication, division, missingAddend, missingSubtrahend, missingFactor, missingDivisor, decimalAddition, decimalSubtraction, decimalMultiplication, decimalDivision, average, commonMultiple, commonDivisor, sum, percentage, percentageRate, percentageBase, speed };
 
 export function generateQuestion(unit) {
   if (!unit || !generators[unit.generator]) {
