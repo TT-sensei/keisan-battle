@@ -204,7 +204,82 @@ function decimalDivision(config) {
   };
 }
 
-const generators = { addition, subtraction, multiplication, division, decimalAddition, decimalSubtraction, decimalMultiplication, decimalDivision };
+
+function gcd(a, b) {
+  while (b !== 0) [a, b] = [b, a % b];
+  return a;
+}
+
+function average(config) {
+  const c = config || {};
+  for (let attempt = 0; attempt < 5000; attempt++) {
+    const averageValue = rand(c.minAverage ?? 10, c.maxAverage ?? 100);
+    const spread = c.spread ?? 12;
+    const a = averageValue + rand(-spread, spread);
+    const b = averageValue + rand(-spread, spread);
+    const remaining = averageValue * 3 - a - b;
+    if (remaining < (c.minAverage ?? 10) || remaining > (c.maxAverage ?? 100)) continue;
+    const values = [a, b, remaining];
+    return {
+      a, b, operator: "平均", answer: averageValue,
+      display: values.join("・") + " の平均",
+      explanation: values.join(" + ") + " = " + (averageValue * 3) + "。3つの数の平均は " + averageValue + " です。"
+    };
+  }
+  throw new Error("平均の問題を作れませんでした。");
+}
+
+function commonMultiple(config) {
+  const c = config || {};
+  const a = rand(c.min ?? 2, c.max ?? 30);
+  let b = rand(c.min ?? 2, c.max ?? 30);
+  if (a === b) b = b === (c.max ?? 30) ? b - 1 : b + 1;
+  const answer = (a * b) / gcd(a, b);
+  return {
+    a, b, operator: "最小公倍数", answer,
+    display: a + " と " + b + " の最小公倍数",
+    explanation: a + " と " + b + " の最小公倍数は " + answer + " です。"
+  };
+}
+
+function commonDivisor(config) {
+  const c = config || {};
+  const a = rand(c.min ?? 2, c.max ?? 60);
+  let b = rand(c.min ?? 2, c.max ?? 60);
+  if (a === b) b = b === (c.max ?? 60) ? b - 1 : b + 1;
+  const answer = gcd(a, b);
+  return {
+    a, b, operator: "最大公約数", answer,
+    display: a + " と " + b + " の最大公約数",
+    explanation: a + " と " + b + " の最大公約数は " + answer + " です。"
+  };
+}
+
+function percentage(config) {
+  const c = config || {};
+  const base = rand(Math.ceil((c.minBase ?? 100) / 20), Math.floor((c.maxBase ?? 1000) / 20)) * 20;
+  const percent = [10, 15, 20, 25, 30, 40, 50, 60, 75, 80][rand(0, 9)];
+  const answer = base * percent / 100;
+  return {
+    a: base, b: percent, operator: "%", answer,
+    display: base + " の " + percent + "%",
+    explanation: base + " × " + percent + " ÷ 100 = " + answer + " です。"
+  };
+}
+
+function speed(config) {
+  const c = config || {};
+  const speedValue = rand(c.minSpeed ?? 20, c.maxSpeed ?? 120);
+  const time = rand(c.minTime ?? 2, c.maxTime ?? 10);
+  const distance = speedValue * time;
+  return {
+    a: distance, b: time, operator: "速さ", answer: speedValue,
+    display: "道のり " + distance + " m・時間 " + time + " 分。速さ（m/分）",
+    explanation: distance + " ÷ " + time + " = " + speedValue + " m/分 です。"
+  };
+}
+
+const generators = { addition, subtraction, multiplication, division, decimalAddition, decimalSubtraction, decimalMultiplication, decimalDivision, average, commonMultiple, commonDivisor, percentage, speed };
 
 export function generateQuestion(unit) {
   if (!unit || !generators[unit.generator]) {
