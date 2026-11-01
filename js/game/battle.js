@@ -25,8 +25,9 @@ export class Battle {
     this.onFeedback = onFeedback;
     this.maxRounds = options.maxRounds || 10;
     this.round = 1;
-    this.playerHp = 100;
-    this.playerMaxHp = 100;
+    this.playerMaxHp = Number.isFinite(options.playerMaxHp) ? options.playerMaxHp : 100;
+    this.xpRate = Number.isFinite(options.xpRate) ? options.xpRate : 1; // 経験値の入り具合（自分のレベルより易しい単元の周回防止）
+    this.playerHp = this.playerMaxHp;
     this.enemyMaxHp = options.enemyMaxHp || 100;
     this.enemyHp = this.enemyMaxHp;
     this.combo = 0;
@@ -260,7 +261,7 @@ export class Battle {
       answered: this.answered,
       accuracy,
       bestCombo: this.bestCombo,
-      xp: this.xp + (win ? 20 : 5),
+      xp: Math.round((this.xp + (win ? 20 : 5)) * this.xpRate),
       mistakes: this.mistakes,
       unitId: this.unit.id,
       duration: Math.round((Date.now() - this.startedAt) / 1000)

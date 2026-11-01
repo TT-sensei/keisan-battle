@@ -76,6 +76,14 @@ setActiveField(1);
 function fieldValue(){return state.activeField===2?state.answer2:state.answer;}
 function setFieldValue(v){if(state.activeField===2){state.answer2=v;$("answer2").textContent=v||"?";}else{state.answer=v;$("answer").textContent=v||"?";}}
 let save=JSON.parse(localStorage.getItem("keisanBattleSave")||'{"xp":0,"wins":0,"mistakes":[]}' ),enemy;
+
+// プレイヤーのレベル: XPで上がり、レベルが上がると最大HPが増える（攻撃力は上げない＝演習量を保つ）
+const LEVEL_CAP=20;const xpStart=L=>25*L*(L-1);
+function levelOf(xp){let L=1;while(L<LEVEL_CAP&&xp>=xpStart(L+1))L++;return L;}
+function levelInfo(xp){const level=levelOf(xp);return{level,start:xpStart(level),next:level>=LEVEL_CAP?null:xpStart(level+1),maxHp:100+(level-1)*10};}
+function xpRateFor(unitLevel){const tier=Math.ceil(levelOf(save.xp)/4);const d=tier-unitLevel;return d<=0?1:d===1?0.5:0;}
+function xpRateNote(unitLevel){const r=xpRateFor(unitLevel);return r===1?"":"<small class=\"unit-xp\">"+(r===0?"経験値は入らないよ（もう身についている単元）":"経験値は半分になるよ")+"</small>";}
+function showLevelResult(beforeLevel){const info=levelInfo(save.xp);const el=$("levelinfo");if(info.level>beforeLevel){el.textContent="🎉 レベルアップ！ レベル"+info.level+" になったよ。つぎのバトルから HP が "+info.maxHp+" になるよ！";el.classList.remove("hidden");}else el.classList.add("hidden");}
 function renderHomeStats(){
 const pending=[...new Set(save.mistakes.map(m=>m.unitId))].filter(id=>UNIT_BY_ID[id]);
 $("training-count").textContent=pending.length?pending.length+"単元・"+save.mistakes.length+"問が練習待ち":"まちがえた問題はまだないよ";
@@ -87,11 +95,13 @@ const accuracy=totalAnswered?Math.round(totalCorrect/totalAnswered*100):0;
 $("record-summary").textContent=sessions.length
 ? "記録 "+sessions.length+"回　／　正解 "+totalCorrect+"問　／　正答率 "+accuracy+"%"
 :"まだ記録はありません。まずはバトルに挑戦しよう！";
+const li=levelInfo(save.xp);
+$("level-progress").textContent="レベル "+li.level+"（バトルの HP "+li.maxHp+"）"+(li.next?("　／　つぎのレベルまで あと "+(li.next-save.xp)+" XP"):"　／　レベル MAX！");
 const dex=save.dex||{};const registered=Object.keys(dex).length;
 $("dex-count").textContent=registered?("登録 "+registered+" / "+MONSTER_LIST.length+" 体"):"たおしたナビアンが登録されるよ";
 }
-function persist(){localStorage.setItem("keisanBattleSave",JSON.stringify(save));$("xp").textContent=save.xp;$("wins").textContent=save.wins;renderHomeStats();}
-function renderUnits(){const group=OPERATIONS[state.op];$("unit-title").textContent=group.label+"の単元";$("unit-desc").textContent=group.description;$("unit-count").textContent=group.units.length+" UNITS";$("units").innerHTML="";const recId=recommendedUnitId(state.op);group.units.forEach(u=>{const b=document.createElement("button");const records=save.sessions.filter(x=>x.mode==="battle"&&x.unitId===u.id);const answered=records.reduce((n,x)=>n+(x.answered||0),0);const correct=records.reduce((n,x)=>n+(x.correct||0),0);const rate=answered?Math.round(correct/answered*100):0;const cleared=records.some(x=>x.win);b.className="unit"+(u.id===state.unit?" selected":"")+(u.id===recId?" recommended":"");b.disabled=u.generator==="future";b.innerHTML="<b>"+(u.id===recId?"⭐ つぎはこれ！ ":"")+u.title+"</b><small>"+u.detail+" · "+u.grade.map(g=>"小"+g).join("・")+"</small><small class=\"unit-record\">"+(records.length?("挑戦 "+records.length+"回 · 正答率 "+rate+"%"+(cleared?" · ✓ クリア":"")):"まだ挑戦していないよ")+"</small>";b.onclick=()=>{state.unit=u.id;renderUnits();};$("units").append(b);});updateSummary();}
+function persist(){localStorage.setItem("keisanBattleSave",JSON.stringify(save));$("level").textContent=levelOf(save.xp);$("xp").textContent=save.xp;$("wins").textContent=save.wins;renderHomeStats();}
+function renderUnits(){const group=OPERATIONS[state.op];$("unit-title").textContent=group.label+"の単元";$("unit-desc").textContent=group.description;$("unit-count").textContent=group.units.length+" UNITS";$("units").innerHTML="";const recId=recommendedUnitId(state.op);group.units.forEach(u=>{const b=document.createElement("button");const records=save.sessions.filter(x=>x.mode==="battle"&&x.unitId===u.id);const answered=records.reduce((n,x)=>n+(x.answered||0),0);const correct=records.reduce((n,x)=>n+(x.correct||0),0);const rate=answered?Math.round(correct/answered*100):0;const cleared=records.some(x=>x.win);b.className="unit"+(u.id===state.unit?" selected":"")+(u.id===recId?" recommended":"");b.disabled=u.generator==="future";b.innerHTML="<b>"+(u.id===recId?"⭐ つぎはこれ！ ":"")+u.title+"</b><small>"+u.detail+" · "+u.grade.map(g=>"小"+g).join("・")+"</small><small class=\"unit-record\">"+(records.length?("挑戦 "+records.length+"回 · 正答率 "+rate+"%"+(cleared?" · ✓ クリア":"")):"まだ挑戦していないよ")+"</small>"+xpRateNote(u.level);b.onclick=()=>{state.unit=u.id;renderUnits();};$("units").append(b);});updateSummary();}
 document.querySelectorAll(".op").forEach(b=>b.onclick=()=>{state.op=b.dataset.op;state.unit=OPERATIONS[state.op].units.find(u=>u.generator!=="future").id;document.querySelectorAll(".op").forEach(x=>x.classList.toggle("active",x===b));renderUnits();});
 document.querySelectorAll(".char").forEach(b=>b.onclick=()=>{state.char=b.dataset.char;document.querySelectorAll(".char").forEach(x=>x.classList.toggle("selected",x===b));});
 document.querySelectorAll(".count-btn").forEach(b=>{b.classList.toggle("selected",Number(b.dataset.count)===settings.count);b.onclick=()=>{settings.count=Number(b.dataset.count);saveSettings();document.querySelectorAll(".count-btn").forEach(x=>x.classList.toggle("selected",x===b));updateSummary();};});
@@ -224,10 +234,14 @@ if(existing){existing.count=(existing.count||1)+1;existing.at=Date.now();}
 else save.mistakes.push({...m,at:Date.now(),count:1});
 }
 function finish(r){
+const beforeLevel=levelOf(save.xp);
 if(r.win&&state.currentEnemy){const id=state.currentEnemy.id;save.dex[id]=(save.dex[id]||0)+1;}
 save.xp+=r.xp;if(r.win)save.wins++;
 save.sessions.push({mode:"battle",unitId:r.unitId,win:r.win,correct:r.correct,answered:r.answered,accuracy:r.accuracy,duration:r.duration,at:Date.now()});
 persist();state.mode="battle";document.body.classList.remove("training-mode");$("resulticon").textContent=r.win?"🏆":"💪";$("resulttitle").textContent=r.win?"クエストクリア！":"もう少し！";$("resultmessage").textContent=r.win?(state.currentEnemy?("「"+state.currentEnemy.name+"」に勝利！ 図鑑に登録したよ（"+(save.dex[state.currentEnemy.id]||1)+"回目）。"):"ナビアンに勝利！計算の力がアップしたね。"):"最後までよく挑戦したね。特訓して再挑戦しよう！";$("correct").textContent=r.correct+"/"+r.answered;$("accuracy").textContent=r.accuracy+"%";$("earned").textContent="+"+r.xp;$("bestcombo").textContent=r.bestCombo;$("mistakes").classList.toggle("hidden",!r.mistakes.length);$("mistakelist").innerHTML="";r.mistakes.forEach(m=>{const d=document.createElement("div");d.className="mistake-item";const s=document.createElement("span");s.textContent=m.display+" = "+(m.answerText||m.answer);d.append(s);if(m.explanation){const ex=document.createElement("small");ex.textContent=m.explanation;d.append(ex);}$("mistakelist").append(d);});
+if(state.xpRate===0)$("resultmessage").textContent+=" この単元はもう身についているので、経験値は入らないよ。もっと上の単元に挑戦しよう！";
+else if(state.xpRate===0.5)$("resultmessage").textContent+=" この単元はレベルより易しいので、経験値は半分だよ。";
+showLevelResult(beforeLevel);
 const nextBtn=$("next-unit");
 if(r.win){
 const opKey=Object.keys(OPERATIONS).find(k=>OPERATIONS[k].units.some(u=>u.id===r.unitId));
@@ -246,7 +260,7 @@ const reImg=$("result-enemy");reImg.src=state.currentEnemy.img;reImg.classList.t
 playSound(r.win?"win":"lose");
 if(r.win){$("enemy-img").classList.add("defeated");setTimeout(()=>screen("result"),950);}
 else screen("result");}
-function start(){state.mode="battle";state.training=null;$("retry").textContent="もう一度挑戦 ↻";document.body.classList.remove("training-mode");$("arena").classList.remove("hidden");$("enemy-clock").classList.remove("hidden");$("toolbar-note").textContent="CPU BATTLE";$("stage").textContent="STAGE 01";const unit=UNIT_BY_ID[state.unit];enemy=pickEnemy(unit.level);state.currentEnemy=enemy;$("enemy-img").classList.remove("defeated");$("player-img").src=CHARACTERS[state.char].img;["attack","damage","special"].forEach(k=>{const pre=new Image();pre.src=poseImg(state.char,k);});$("player-name").textContent=CHARACTERS[state.char].name;$("enemy-img").src=enemy.img;$("enemy-name").textContent=enemy.name;$("enemy-kind").textContent=enemy.set==="boss"?"ボスナビアン":enemy.set==="evo"?"進化ナビアン":"ナビアン";const bg=BACKGROUNDS[Math.floor(Math.random()*BACKGROUNDS.length)];$("arena").style.backgroundImage="url("+bg.img+")";$("stage").textContent="STAGE "+String(unit.level).padStart(2,"0");feedback("バトルスタート！");state.answer="";state.battle=new Battle({unit,onUpdate:render,onFinish:finish,onFeedback:f=>feedback(f.hint?f.text+" ヒント："+f.hint:f.text),options:{maxRounds:settings.count,difficulty:settings.difficulty,trait:state.char,enemyMaxHp:enemy.hp}});screen("battle");showVsSplash();}
+function start(){state.mode="battle";state.training=null;$("retry").textContent="もう一度挑戦 ↻";document.body.classList.remove("training-mode");$("arena").classList.remove("hidden");$("enemy-clock").classList.remove("hidden");$("toolbar-note").textContent="CPU BATTLE";$("stage").textContent="STAGE 01";const unit=UNIT_BY_ID[state.unit];state.xpRate=xpRateFor(unit.level);enemy=pickEnemy(unit.level);state.currentEnemy=enemy;$("enemy-img").classList.remove("defeated");$("player-img").src=CHARACTERS[state.char].img;["attack","damage","special"].forEach(k=>{const pre=new Image();pre.src=poseImg(state.char,k);});$("player-name").textContent=CHARACTERS[state.char].name;$("enemy-img").src=enemy.img;$("enemy-name").textContent=enemy.name;$("enemy-kind").textContent=enemy.set==="boss"?"ボスナビアン":enemy.set==="evo"?"進化ナビアン":"ナビアン";const bg=BACKGROUNDS[Math.floor(Math.random()*BACKGROUNDS.length)];$("arena").style.backgroundImage="url("+bg.img+")";$("stage").textContent="STAGE "+String(unit.level).padStart(2,"0");feedback("バトルスタート！");state.answer="";state.battle=new Battle({unit,onUpdate:render,onFinish:finish,onFeedback:f=>feedback(f.hint?f.text+" ヒント："+f.hint:f.text),options:{maxRounds:settings.count,difficulty:settings.difficulty,trait:state.char,enemyMaxHp:enemy.hp,playerMaxHp:levelInfo(save.xp).maxHp,xpRate:xpRateFor(unit.level)}});screen("battle");showVsSplash();}
 function mistakeToQuestion(m){
 const fmt=m.answerFormat||(m.answerText&&m.answerText.indexOf("あまり")>=0?"remainder":null);
 let remainder=(m.remainder??null);
@@ -314,7 +328,7 @@ $("question-card").classList.remove("retry-shake");void $("question-card").offse
 function finishTraining(){
 const t=state.training;if(!t)return;
 const accuracy=t.answered?Math.round(t.solved/t.answered*100):0;
-const xp=t.solved*2;save.xp+=xp;
+const beforeLevel=levelOf(save.xp);const xp=t.solved*2;save.xp+=xp;
 save.sessions.push({mode:"training",unitId:"mixed-training",correct:t.solved,answered:t.answered,accuracy,duration:Math.round((Date.now()-t.startedAt)/1000),at:Date.now()});
 persist();$("resulticon").textContent="✦";$("result-visual").classList.add("hidden");const rb2=$("result-banner");rb2.src=GROUP_SCENES.rest;rb2.classList.remove("hidden");$("resulttitle").textContent="特訓終了！";
 $("resultmessage").textContent="最後までよく取り組んだね。記録した問題は、特訓で正解すると1つずつ克服できるよ。";
@@ -322,7 +336,7 @@ $("correct").textContent=t.solved+"/"+t.maxQuestions;$("accuracy").textContent=a
 $("mistakes").classList.toggle("hidden",!save.mistakes.length);$("mistakelist").innerHTML="";
 save.mistakes.slice(0,12).forEach(m=>{const s=document.createElement("span");s.textContent=m.unitTitle+" · "+m.display;$("mistakelist").append(s);});
 $("mistakes").querySelector("b").textContent="練習中の単元";
-$("retry").textContent="もう一度特訓 ↻";state.mode="training";document.body.classList.remove("training-mode");screen("result");
+$("retry").textContent="もう一度特訓 ↻";showLevelResult(beforeLevel);state.mode="training";document.body.classList.remove("training-mode");screen("result");
 }
 function key(k){
 const active = state.mode==="training" ? !!(state.training&&state.training.current) : !!(state.battle&&!state.battle.finished);
