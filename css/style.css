@@ -116,3 +116,8 @@
 @media(max-width:720px){.result-banner{height:104px}.dex-banner{height:92px}.home-banner img{height:120px}}
 
 ruby rt{font-size:.52em;color:#8494a3;letter-spacing:0;font-weight:700}
+
+.img-hidden{display:none!important}
+.fighter-fallback{font-size:64px;line-height:1.1}
+.mistake-item{display:flex;flex-direction:column;gap:2px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0;text-align:left}
+.mistake-item small{color:#68798a;font-size:11px;line-height:1.5}

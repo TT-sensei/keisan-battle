@@ -59,15 +59,18 @@ el.style.left=(target==="enemy"?60+Math.random()*16:10+Math.random()*12)+"%";
 el.style.top=(26+Math.random()*14)+"%";
 layer.append(el);setTimeout(()=>el.remove(),950);
 }
-// 答え入力欄（あまりのあるわり算では商とあまりの2欄になる）
-function isRemainder(q){return !!(q&&q.answerFormat==="remainder");}
+// 答え入力欄（あまりのあるわり算・分数・比では2欄になる）
+function isPair(q){return !!(q&&(q.answerFormat==="remainder"||q.answerFormat==="pair"));}
+function pairLabels(q){if(q&&q.answerFormat==="pair"&&q.pairLabels)return q.pairLabels;return ["しょう","あまり"];}
+function pairPrompt(q){return q&&q.answerFormat==="pair"?(q.pairLabels?q.pairLabels[1]:"ふたつめ")+"も入力してね":"あまりも入力してね";}
 function setActiveField(n){state.activeField=n;$("answer").classList.toggle("active",n===1);$("answer2").classList.toggle("active",n===2);}
 function setupAnswerFields(q){
 state.answer="";state.answer2="";
 $("answer").textContent="?";$("answer2").textContent="?";
-const rem=isRemainder(q);
+const rem=isPair(q);
 $("remainder-part").classList.toggle("hidden",!rem);
 $("quotient-label").classList.toggle("hidden",!rem);
+if(rem){const labels=pairLabels(q);$("quotient-label").textContent=labels[0];$("remainder-label").textContent=labels[1];}
 setActiveField(1);
 }
 function fieldValue(){return state.activeField===2?state.answer2:state.answer;}
@@ -93,7 +96,7 @@ document.querySelectorAll(".op").forEach(b=>b.onclick=()=>{state.op=b.dataset.op
 document.querySelectorAll(".char").forEach(b=>b.onclick=()=>{state.char=b.dataset.char;document.querySelectorAll(".char").forEach(x=>x.classList.toggle("selected",x===b));});
 document.querySelectorAll(".count-btn").forEach(b=>{b.classList.toggle("selected",Number(b.dataset.count)===settings.count);b.onclick=()=>{settings.count=Number(b.dataset.count);saveSettings();document.querySelectorAll(".count-btn").forEach(x=>x.classList.toggle("selected",x===b));updateSummary();};});
 document.querySelectorAll(".diff-btn").forEach(b=>{b.classList.toggle("selected",b.dataset.diff===settings.difficulty);b.onclick=()=>{settings.difficulty=b.dataset.diff;saveSettings();document.querySelectorAll(".diff-btn").forEach(x=>x.classList.toggle("selected",x===b));updateSummary();};});
-function screen(id){["home","battle","result","dex"].forEach(x=>$(x).classList.toggle("hidden",x!==id));if(id!=="battle")$("vs-splash").classList.add("hidden");window.scrollTo({top:0,behavior:"smooth"});}
+function screen(id){["home","battle","result","dex"].forEach(x=>$(x).classList.toggle("hidden",x!==id));if(id!=="battle")$("vs-splash").classList.add("hidden");if(id==="home")renderUnits();window.scrollTo({top:0,behavior:"smooth"});}
 let poseTimer=null;
 function showPose(kind,ms){
 const c=CHARACTERS[state.char];if(!c)return;
@@ -128,7 +131,8 @@ $("enemy-attack-bar").style.width=b.attackProgress+"%";
 $("enemy-attack-time").textContent="あと "+b.attackRemaining+" 秒";
 $("enemy-clock").classList.toggle("urgent",b.attackRemaining<=4);
 $("specialbar").style.width=b.special+"%";
-$("specialtext").textContent=b.special>=100?"必殺技ゲージ MAX！":"あと"+Math.ceil((100-b.special)/25)+"回正解で必殺技！";
+const specialGain=state.char==="kai"?34:25;
+$("specialtext").textContent=b.special>=100?"必殺技ゲージ MAX！":"あと"+Math.ceil((100-b.special)/specialGain)+"回正解で必殺技！";
 $("special-use").disabled=b.special<100||state.battle.finished;
 if(event.type==="question-needed"){
   const q=generateQuestion(UNIT_BY_ID[state.unit]);
@@ -215,7 +219,6 @@ window.addEventListener("resize",resizeCanvas);
 if("ResizeObserver"in window)new ResizeObserver(resizeCanvas).observe(canvas);
 requestAnimationFrame(resizeCanvas);
 function storeMistake(m){
-save.mastery[m.unitId]=0;
 const existing=save.mistakes.find(x=>x.unitId===m.unitId&&x.display===m.display);
 if(existing){existing.count=(existing.count||1)+1;existing.at=Date.now();}
 else save.mistakes.push({...m,at:Date.now(),count:1});
@@ -224,7 +227,7 @@ function finish(r){
 if(r.win&&state.currentEnemy){const id=state.currentEnemy.id;save.dex[id]=(save.dex[id]||0)+1;}
 save.xp+=r.xp;if(r.win)save.wins++;
 save.sessions.push({mode:"battle",unitId:r.unitId,win:r.win,correct:r.correct,answered:r.answered,accuracy:r.accuracy,duration:r.duration,at:Date.now()});
-persist();state.mode="battle";document.body.classList.remove("training-mode");$("resulticon").textContent=r.win?"🏆":"💪";$("resulttitle").textContent=r.win?"クエストクリア！":"もう少し！";$("resultmessage").textContent=r.win?(state.currentEnemy?("「"+state.currentEnemy.name+"」に勝利！ 図鑑に登録したよ（"+(save.dex[state.currentEnemy.id]||1)+"回目）。"):"ナビアンに勝利！計算の力がアップしたね。"):"最後までよく挑戦したね。特訓して再挑戦しよう！";$("correct").textContent=r.correct+"/"+r.answered;$("accuracy").textContent=r.accuracy+"%";$("earned").textContent="+"+r.xp;$("bestcombo").textContent=r.bestCombo;$("mistakes").classList.toggle("hidden",!r.mistakes.length);$("mistakelist").innerHTML="";r.mistakes.forEach(m=>{const s=document.createElement("span");s.textContent=m.display+" = "+(m.answerText||m.answer);$("mistakelist").append(s);});
+persist();state.mode="battle";document.body.classList.remove("training-mode");$("resulticon").textContent=r.win?"🏆":"💪";$("resulttitle").textContent=r.win?"クエストクリア！":"もう少し！";$("resultmessage").textContent=r.win?(state.currentEnemy?("「"+state.currentEnemy.name+"」に勝利！ 図鑑に登録したよ（"+(save.dex[state.currentEnemy.id]||1)+"回目）。"):"ナビアンに勝利！計算の力がアップしたね。"):"最後までよく挑戦したね。特訓して再挑戦しよう！";$("correct").textContent=r.correct+"/"+r.answered;$("accuracy").textContent=r.accuracy+"%";$("earned").textContent="+"+r.xp;$("bestcombo").textContent=r.bestCombo;$("mistakes").classList.toggle("hidden",!r.mistakes.length);$("mistakelist").innerHTML="";r.mistakes.forEach(m=>{const d=document.createElement("div");d.className="mistake-item";const s=document.createElement("span");s.textContent=m.display+" = "+(m.answerText||m.answer);d.append(s);if(m.explanation){const ex=document.createElement("small");ex.textContent=m.explanation;d.append(ex);}$("mistakelist").append(d);});
 const nextBtn=$("next-unit");
 if(r.win){
 const opKey=Object.keys(OPERATIONS).find(k=>OPERATIONS[k].units.some(u=>u.id===r.unitId));
@@ -243,11 +246,23 @@ const reImg=$("result-enemy");reImg.src=state.currentEnemy.img;reImg.classList.t
 playSound(r.win?"win":"lose");
 if(r.win){$("enemy-img").classList.add("defeated");setTimeout(()=>screen("result"),950);}
 else screen("result");}
-function start(){state.mode="battle";state.training=null;$("retry").textContent="もう一度挑戦 ↻";document.body.classList.remove("training-mode");$("arena").classList.remove("hidden");$("enemy-clock").classList.remove("hidden");$("toolbar-note").textContent="CPU BATTLE";$("stage").textContent="STAGE 01";const unit=UNIT_BY_ID[state.unit];enemy=pickEnemy(unit.level);state.currentEnemy=enemy;$("enemy-img").classList.remove("defeated");$("player-img").src=CHARACTERS[state.char].img;["attack","damage","special"].forEach(k=>{const pre=new Image();pre.src=poseImg(state.char,k);});$("player-name").textContent=CHARACTERS[state.char].name;$("enemy-img").src=enemy.img;$("enemy-name").textContent=enemy.name;$("enemy-kind").textContent=enemy.set==="boss"?"ボスナビアン":enemy.set==="evo"?"進化ナビアン":"ナビアン";const bg=BACKGROUNDS[Math.floor(Math.random()*BACKGROUNDS.length)];$("arena").style.backgroundImage="url("+bg.img+")";$("stage").textContent="STAGE "+String(unit.level).padStart(2,"0");feedback("バトルスタート！");state.answer="";state.battle=new Battle({unit,onUpdate:render,onFinish:finish,onFeedback:f=>feedback(f.text),options:{maxRounds:settings.count,difficulty:settings.difficulty,trait:state.char,enemyMaxHp:enemy.hp}});screen("battle");showVsSplash();}
+function start(){state.mode="battle";state.training=null;$("retry").textContent="もう一度挑戦 ↻";document.body.classList.remove("training-mode");$("arena").classList.remove("hidden");$("enemy-clock").classList.remove("hidden");$("toolbar-note").textContent="CPU BATTLE";$("stage").textContent="STAGE 01";const unit=UNIT_BY_ID[state.unit];enemy=pickEnemy(unit.level);state.currentEnemy=enemy;$("enemy-img").classList.remove("defeated");$("player-img").src=CHARACTERS[state.char].img;["attack","damage","special"].forEach(k=>{const pre=new Image();pre.src=poseImg(state.char,k);});$("player-name").textContent=CHARACTERS[state.char].name;$("enemy-img").src=enemy.img;$("enemy-name").textContent=enemy.name;$("enemy-kind").textContent=enemy.set==="boss"?"ボスナビアン":enemy.set==="evo"?"進化ナビアン":"ナビアン";const bg=BACKGROUNDS[Math.floor(Math.random()*BACKGROUNDS.length)];$("arena").style.backgroundImage="url("+bg.img+")";$("stage").textContent="STAGE "+String(unit.level).padStart(2,"0");feedback("バトルスタート！");state.answer="";state.battle=new Battle({unit,onUpdate:render,onFinish:finish,onFeedback:f=>feedback(f.hint?f.text+" ヒント："+f.hint:f.text),options:{maxRounds:settings.count,difficulty:settings.difficulty,trait:state.char,enemyMaxHp:enemy.hp}});screen("battle");showVsSplash();}
+function mistakeToQuestion(m){
+const fmt=m.answerFormat||(m.answerText&&m.answerText.indexOf("あまり")>=0?"remainder":null);
+let remainder=(m.remainder??null);
+if(fmt==="remainder"&&remainder===null&&m.answerText){const mm=/あまり\s*(\d+)/.exec(m.answerText);if(mm)remainder=Number(mm[1]);}
+return {display:m.display,answer:m.answer,answerText:m.answerText||null,answerFormat:fmt,remainder,pairAnswer:(m.pairAnswer??null),pairLabels:m.pairLabels||null,explanation:m.explanation||null,unitId:m.unitId,unitTitle:m.unitTitle,fromRecord:true};
+}
+function questionToMistake(q){
+return {display:q.display,answer:q.answer,answerText:q.answerText||(q.answerFormat==="remainder"?q.answer+" あまり "+q.remainder:null),answerFormat:q.answerFormat||null,remainder:q.remainder??null,pairAnswer:q.pairAnswer??null,pairLabels:q.pairLabels||null,explanation:q.explanation||null,unitId:q.unitId,unitTitle:q.unitTitle};
+}
 function startTraining(targetIds){
 const ids=(targetIds||[...new Set(save.mistakes.map(m=>m.unitId))]).filter(id=>UNIT_BY_ID[id]&&UNIT_BY_ID[id].generator!=="future");
 if(!ids.length)return;
-state.mode="training";state.battle=null;state.training={targetUnitIds:ids,solved:0,answered:0,maxQuestions:10,current:null,currentUnitId:null,startedAt:Date.now()};
+// 特訓は、記録した「間違えた問題そのもの」から出す。足りない分は単元の新しい問題で補う
+const queue=save.mistakes.filter(m=>ids.includes(m.unitId)).map(mistakeToQuestion);
+for(let i=queue.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[queue[i],queue[j]]=[queue[j],queue[i]];}
+state.mode="training";state.battle=null;state.training={targetUnitIds:ids,queue,solved:0,answered:0,maxQuestions:10,current:null,currentUnitId:null,startedAt:Date.now()};
 document.body.classList.add("training-mode");
 $("stage").textContent="特訓モード";$("toolbar-note").textContent="TIME FREE";
 $("back").textContent="← クエスト選択";
@@ -259,8 +274,9 @@ screen("battle");nextTrainingQuestion();
 }
 function nextTrainingQuestion(){
 const t=state.training;if(!t)return;
-const unitId=t.targetUnitIds[Math.floor(Math.random()*t.targetUnitIds.length)];
-const q=generateQuestion(UNIT_BY_ID[unitId]);
+let q,unitId;
+if(t.queue&&t.queue.length){q=t.queue.shift();unitId=q.unitId;}
+else{unitId=t.targetUnitIds[Math.floor(Math.random()*t.targetUnitIds.length)];q=generateQuestion(UNIT_BY_ID[unitId]);}
 t.current=q;t.currentUnitId=unitId;setupAnswerFields(q);
 $("qnum").textContent="TRAINING "+String(t.solved+1).padStart(2,"0");
 $("question").textContent=q.display+" = ?";
@@ -268,26 +284,29 @@ $("round").textContent="正解 "+t.solved+" / "+t.maxQuestions;
 $("progressbar").style.width=(t.solved/t.maxQuestions*100)+"%";
 clearCanvas();
 }
-function recordTrainingMistake(q){storeMistake(q);}
+function recordTrainingMistake(q){storeMistake(questionToMistake(q));}
 function submitTraining(){
 const t=state.training;if(!t||!t.current||!state.answer)return;
-if(isRemainder(t.current)&&state.answer2===""){setActiveField(2);feedback("あまりも入力してね");return;}
+if(isPair(t.current)&&state.answer2===""){setActiveField(2);feedback(pairPrompt(t.current));return;}
 t.answered++;
-const ok=isRemainder(t.current)
-?(Number(state.answer)===t.current.answer&&Number(state.answer2)===t.current.remainder)
+const secondExpected=t.current.answerFormat==="pair"?t.current.pairAnswer:t.current.remainder;
+const ok=isPair(t.current)
+?(Number(state.answer)===t.current.answer&&Number(state.answer2)===secondExpected)
 :(Number(state.answer)===t.current.answer);
 if(ok){
 playSound("correct");
-t.solved++;const id=t.currentUnitId;
-save.mastery[id]=(save.mastery[id]||0)+1;
-if(save.mastery[id]>=3){save.mistakes=save.mistakes.filter(m=>m.unitId!==id);delete save.mastery[id];feedback("すばらしい！ "+UNIT_BY_ID[id].title+" を克服したよ！");}
-else feedback("正解！ あと"+(3-save.mastery[id])+"回正解でこの単元を克服！");
+t.solved++;
+if(t.current.fromRecord){
+save.mistakes=save.mistakes.filter(m=>!(m.unitId===t.currentUnitId&&m.display===t.current.display));
+feedback("正解！ この問題を克服したよ！");
+}else feedback("正解！");
 state.answer="";state.answer2="";$("answer").textContent="✓";$("answer2").textContent="✓";persist();
 if(t.solved>=t.maxQuestions){finishTraining();return;}
 setTimeout(()=>{if(state.mode==="training")nextTrainingQuestion();},350);
 }else{
 playSound("wrong");
-save.mastery[t.currentUnitId]=0;recordTrainingMistake(t.current);feedback("もう一度！ 問題はそのまま。ゆっくり考えよう。");
+recordTrainingMistake(t.current);
+feedback(t.current.explanation?("もう一度！ ヒント："+t.current.explanation):"もう一度！ 問題はそのまま。ゆっくり考えよう。");
 $("answer").textContent="もう一度";$("answer2").textContent="?";state.answer="";state.answer2="";setActiveField(1);persist();
 $("question-card").classList.remove("retry-shake");void $("question-card").offsetWidth;$("question-card").classList.add("retry-shake");
 }
@@ -298,7 +317,7 @@ const accuracy=t.answered?Math.round(t.solved/t.answered*100):0;
 const xp=t.solved*2;save.xp+=xp;
 save.sessions.push({mode:"training",unitId:"mixed-training",correct:t.solved,answered:t.answered,accuracy,duration:Math.round((Date.now()-t.startedAt)/1000),at:Date.now()});
 persist();$("resulticon").textContent="✦";$("result-visual").classList.add("hidden");const rb2=$("result-banner");rb2.src=GROUP_SCENES.rest;rb2.classList.remove("hidden");$("resulttitle").textContent="特訓終了！";
-$("resultmessage").textContent="最後までよく取り組んだね。正解を重ねて、苦手を少しずつ減らそう。";
+$("resultmessage").textContent="最後までよく取り組んだね。記録した問題は、特訓で正解すると1つずつ克服できるよ。";
 $("correct").textContent=t.solved+"/"+t.maxQuestions;$("accuracy").textContent=accuracy+"%";$("earned").textContent="+"+xp;$("bestcombo").textContent="—";
 $("mistakes").classList.toggle("hidden",!save.mistakes.length);$("mistakelist").innerHTML="";
 save.mistakes.slice(0,12).forEach(m=>{const s=document.createElement("span");s.textContent=m.unitTitle+" · "+m.display;$("mistakelist").append(s);});
@@ -318,11 +337,11 @@ if(k==="enter"){
   if(state.mode==="training"){submitTraining();return;}
   if(state.answer==="")return;
   const q=state.battle.question;
-  if(isRemainder(q)&&state.answer2===""){setActiveField(2);feedback("あまりも入力してね");return;}
+  if(isPair(q)&&state.answer2===""){setActiveField(2);feedback(pairPrompt(q));return;}
   const submitted=state.answer,submitted2=state.answer2;
   const result=state.battle.submit(submitted,submitted2);
   if(result.accepted){
-    if(result.correct){$("answer").textContent=submitted+" ✓";if(isRemainder(q))$("answer2").textContent=submitted2+" ✓";}
+    if(result.correct){$("answer").textContent=submitted+" ✓";if(isPair(q))$("answer2").textContent=submitted2+" ✓";}
     else{state.answer="";state.answer2="";$("answer").textContent="もう一度";$("answer2").textContent="?";setActiveField(1);}
   }
   return;
@@ -356,7 +375,20 @@ if(settings.furigana)startFurigana();
 const heroBg=BACKGROUNDS[Math.floor(Math.random()*BACKGROUNDS.length)];
 $("hero").style.backgroundImage="linear-gradient(rgba(255,255,255,.52),rgba(255,255,255,.78)),url("+heroBg.img+")";
 const strip=$("monster-strip");
-[...MONSTER_LIST].sort(()=>Math.random()-0.5).slice(0,10).forEach(m=>{const i=document.createElement("img");i.src=m.img;i.alt=m.name;i.title=m.name;i.loading="lazy";strip.append(i);});
+[...MONSTER_LIST].sort(()=>Math.random()-0.5).slice(0,10).forEach(m=>{const i=document.createElement("img");i.src=m.img;i.alt=m.name;i.title=m.name;i.loading="lazy";i.addEventListener("error",()=>i.classList.add("img-hidden"));strip.append(i);});
+// 画像が読み込めなかったときの逃げ道（キャラ・敵は絵文字に、他は隠す）
+function guardImg(img,fallback){if(!img)return;img.addEventListener("error",()=>{img.classList.add("img-hidden");if(fallback)fallback.classList.remove("hidden");});img.addEventListener("load",()=>{img.classList.remove("img-hidden");if(fallback)fallback.classList.add("hidden");});}
+guardImg($("player-img"),$("player-fallback"));
+guardImg($("enemy-img"),$("enemy-fallback"));
+guardImg($("hero-img"),null);
+guardImg($("dex-thumb"),null);
+guardImg($("dex-banner"),null);
+guardImg($("home-banner-img"),null);
+guardImg($("result-banner"),null);
+guardImg($("result-player"),null);
+guardImg($("result-enemy"),null);
+guardImg($("vs-player"),null);
+guardImg($("vs-enemy"),null);
 $("dex-thumb").src=MONSTER_LIST[Math.floor(Math.random()*MONSTER_LIST.length)].img;
 $("dex-banner").src=GROUP_SCENES.standby;
 $("home-banner-img").src=GROUP_SCENES.ending;

@@ -1,14 +1,21 @@
 // CPUバトル進行。問題への回答とナビアンの攻撃周期を独立して管理する。
-const ATTACK_INTERVALS = { 1: 18000, 2: 21000, 3: 24000, 4: 27000, 5: 30000 };
+// 敵の攻撃間隔は単元レベルで大きく開く（大きい数の計算ほど考える・書く時間がかかるため）
+const ATTACK_INTERVALS = { 1: 20000, 2: 26000, 3: 32000, 4: 39000, 5: 46000 };
 // 難易度は敵の攻撃間隔とダメージだけを変える。問題の数や内容は変えない。
 const DIFFICULTY = {
   easy: { intervalFactor: 1.3, enemyDamage: 8 },
   normal: { intervalFactor: 1.0, enemyDamage: 10 },
   hard: { intervalFactor: 0.75, enemyDamage: 14 }
 };
-// 何秒以内に正解するとスピードボーナスが付くか
-const SPEED_BONUS_MS = 6000;
-const SPEED_BONUS_DAMAGE = 4;
+// 速く解くほどスピードボーナスが大きくなる（遅くてもペナルティはない）。
+// 最速の目安は単元レベルで変わる（大きい数の計算ほど時間がかかるため）。
+function speedBonusDamage(elapsedMs, level) {
+  const fast = (3 + level) * 1000;
+  if (elapsedMs <= fast) return 10;
+  if (elapsedMs <= fast * 2) return 6;
+  if (elapsedMs <= fast * 3.5) return 3;
+  return 0;
+}
 
 export class Battle {
   constructor({ unit, onUpdate, onFinish, onFeedback, options = {} }) {
@@ -40,6 +47,8 @@ export class Battle {
     const difficulty = DIFFICULTY[options.difficulty] || DIFFICULTY.normal;
     this.enemyDamage = difficulty.enemyDamage;
     const level = Math.max(1, Math.min(5, Number(unit.level) || 1));
+    this.level = level;
+    this.wrongCount = 0;
     let interval = ATTACK_INTERVALS[level] * difficulty.intervalFactor;
     if (this.trait === "tsuki") interval *= 1.15; // ツキ特性: 敵の攻撃が少しおそくなる
     this.enemyAttackInterval = Math.round(interval);
@@ -90,6 +99,7 @@ export class Battle {
   setQuestion(question) {
     if (this.finished) return;
     this.question = question;
+    this.wrongCount = 0;
     this.questionStartedAt = Date.now();
     this.acceptingAnswer = true;
     this.onUpdate({ type: "question", battle: this.snapshot() });
@@ -114,12 +124,13 @@ export class Battle {
     }
     const value = Number(raw);
     if (!Number.isFinite(value)) return { accepted: false };
-    const isRemainder = this.question.answerFormat === "remainder";
-    if (isRemainder && (remainderRaw === "" || remainderRaw === undefined || !Number.isFinite(Number(remainderRaw)))) {
+    const twoField = this.question.answerFormat === "remainder" || this.question.answerFormat === "pair";
+    if (twoField && (remainderRaw === "" || remainderRaw === undefined || !Number.isFinite(Number(remainderRaw)))) {
       return { accepted: false };
     }
-    const isCorrect = isRemainder
-      ? (value === this.question.answer && Number(remainderRaw) === this.question.remainder)
+    const expectedSecond = this.question.answerFormat === "pair" ? this.question.pairAnswer : this.question.remainder;
+    const isCorrect = twoField
+      ? (value === this.question.answer && Number(remainderRaw) === expectedSecond)
       : (value === this.question.answer);
 
     this.answered++;
@@ -128,9 +139,9 @@ export class Battle {
       this.correct++;
       this.combo++;
       this.bestCombo = Math.max(this.bestCombo, this.combo);
-      // スピードボーナス: 速く正確に解くと少し強く打てる（遅くてもペナルティはない）
+      // スピードボーナス: 速く正確に解くほど強く打てる（遅くてもペナルティはない）
       const elapsed = this.questionStartedAt === null ? Infinity : Date.now() - this.questionStartedAt;
-      const speedBonus = elapsed <= SPEED_BONUS_MS ? SPEED_BONUS_DAMAGE : 0;
+      const speedBonus = speedBonusDamage(elapsed, this.level);
       let damage = 12 + Math.min(12, this.combo * 2);
       if (this.trait === "nami") damage = Math.round(damage * 1.25); // ナミ特性: パワー
       damage += speedBonus;
@@ -147,7 +158,9 @@ export class Battle {
       this.questionStartedAt = null;
       this.resetEnemyAttackTimer();
       let text = "正解！ " + damage + " ダメージ！";
-      if (speedBonus) text = "すばやい正解！ " + damage + " ダメージ！";
+      if (speedBonus >= 10) text = "⚡⚡ とてもすばやい正解！ " + damage + " ダメージ！";
+      else if (speedBonus >= 6) text = "⚡ すばやい正解！ " + damage + " ダメージ！";
+      else if (speedBonus >= 3) text = "はやい正解！ " + damage + " ダメージ！";
       if (healed) text += " HPが " + healed + " 回復！";
       if (this.special === 100) text = "正解！ 必殺技ゲージ MAX！";
       this.onFeedback({ kind: "success", text });
@@ -168,6 +181,7 @@ export class Battle {
     }
 
     this.combo = 0;
+    this.wrongCount++;
     const alreadyRecorded = this.mistakes.some(m =>
       m.unitId === this.question.unitId && m.display === this.question.display
     );
@@ -175,14 +189,25 @@ export class Battle {
       this.mistakes.push({
         display: this.question.display,
         answer: this.question.answer,
-        answerText: this.question.answerFormat === "remainder"
-          ? this.question.answer + " あまり " + this.question.remainder
-          : null,
+        answerText: this.question.answerText
+          || (this.question.answerFormat === "remainder"
+            ? this.question.answer + " あまり " + this.question.remainder
+            : null),
+        answerFormat: this.question.answerFormat || null,
+        remainder: this.question.remainder ?? null,
+        pairAnswer: this.question.pairAnswer ?? null,
+        pairLabels: this.question.pairLabels || null,
+        explanation: this.question.explanation || null,
         unitId: this.question.unitId,
         unitTitle: this.question.unitTitle
       });
     }
-    this.onFeedback({ kind: "miss", text: "ちがうよ。もう一度考えてみよう！" });
+    // 2回間違えたら、解説をヒントとして出す（進行は止めない）
+    this.onFeedback({
+      kind: "miss",
+      text: "ちがうよ。もう一度考えてみよう！",
+      hint: this.wrongCount >= 2 ? (this.question.explanation || null) : null
+    });
     this.onUpdate({ type: "wrong", battle: this.snapshot() });
     return { accepted: true, correct: false };
   }

@@ -307,15 +307,22 @@ function commonMultiple(config) {
 
 function commonDivisor(config) {
   const c = config || {};
-  const a = rand(c.min ?? 2, c.max ?? 60);
-  let b = rand(c.min ?? 2, c.max ?? 60);
-  if (a === b) b = b === (c.max ?? 60) ? b - 1 : b + 1;
-  const answer = gcd(a, b);
-  return {
-    a, b, operator: "最大公約数", answer,
-    display: a + " と " + b + " の最大公約数",
-    explanation: a + " と " + b + " の最大公約数は " + answer + " です。"
-  };
+  const maxV = c.max ?? 60;
+  // 答え（最大公約数）が1ばかりにならないよう、先に公約数を決めてから2数を作る
+  for (let attempt = 0; attempt < 5000; attempt++) {
+    const g = rand(2, 12);
+    const x = rand(2, 15);
+    const y = rand(2, 15);
+    if (x === y || gcd(x, y) !== 1) continue;
+    const a = g * x, b = g * y;
+    if (a > maxV || b > maxV) continue;
+    return {
+      a, b, operator: "最大公約数", answer: g,
+      display: a + " と " + b + " の最大公約数",
+      explanation: a + " と " + b + " の最大公約数は " + g + " です。"
+    };
+  }
+  throw new Error("最大公約数の問題を作れませんでした。");
 }
 
 function sum(config) {
@@ -332,7 +339,7 @@ function sum(config) {
 function percentage(config) {
   const c = config || {};
   const base = rand(Math.ceil((c.minBase ?? 100) / 20), Math.floor((c.maxBase ?? 1000) / 20)) * 20;
-  const percent = [10, 15, 20, 25, 30, 40, 50, 60, 75, 80][rand(0, 9)];
+  const percent = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95][rand(0, 18)];
   const answer = base * percent / 100;
   return {
     a: base, b: percent, operator: "%", answer,
@@ -344,7 +351,7 @@ function percentage(config) {
 function percentageRate(config) {
   const c = config || {};
   const base = rand(Math.ceil((c.minBase ?? 100) / 20), Math.floor((c.maxBase ?? 1000) / 20)) * 20;
-  const percent = [10, 15, 20, 25, 30, 40, 50, 60, 75, 80][rand(0, 9)];
+  const percent = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95][rand(0, 18)];
   const part = base * percent / 100;
   return {
     a: part, b: base, operator: "割合", answer: percent,
@@ -356,7 +363,7 @@ function percentageRate(config) {
 function percentageBase(config) {
   const c = config || {};
   const base = rand(Math.ceil((c.minBase ?? 100) / 20), Math.floor((c.maxBase ?? 1000) / 20)) * 20;
-  const percent = [10, 15, 20, 25, 30, 40, 50, 60, 75, 80][rand(0, 9)];
+  const percent = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95][rand(0, 18)];
   const part = base * percent / 100;
   return {
     a: part, b: percent, operator: "もとにする量", answer: base,
@@ -370,6 +377,21 @@ function speed(config) {
   const speedValue = rand(c.minSpeed ?? 20, c.maxSpeed ?? 120);
   const time = rand(c.minTime ?? 2, c.maxTime ?? 10);
   const distance = speedValue * time;
+  const mode = rand(0, 2);
+  if (mode === 1) {
+    return {
+      a: speedValue, b: time, operator: "道のり", answer: distance,
+      display: "速さ " + speedValue + " m/分・時間 " + time + " 分。道のり（m）",
+      explanation: speedValue + " × " + time + " = " + distance + " m です。"
+    };
+  }
+  if (mode === 2) {
+    return {
+      a: distance, b: speedValue, operator: "時間", answer: time,
+      display: "道のり " + distance + " m・速さ " + speedValue + " m/分。時間（分）",
+      explanation: distance + " ÷ " + speedValue + " = " + time + " 分 です。"
+    };
+  }
   return {
     a: distance, b: time, operator: "速さ", answer: speedValue,
     display: "道のり " + distance + " m・時間 " + time + " 分。速さ（m/分）",
@@ -377,7 +399,184 @@ function speed(config) {
   };
 }
 
-const generators = { addition, subtraction, multiplication, division, divisionRemainder, missingAddend, missingSubtrahend, missingFactor, missingDivisor, decimalAddition, decimalSubtraction, decimalMultiplication, decimalDivision, average, commonMultiple, commonDivisor, sum, percentage, percentageRate, percentageBase, speed };
+function reduceFraction(n, d) {
+  const g = gcd(n, d);
+  return [n / g, d / g];
+}
+function fracText(n, d) { return n + "/" + d; }
+function fractionResult(n, d, display, explanation) {
+  const [rn, rd] = reduceFraction(n, d);
+  return {
+    a: n, b: d, operator: "分数", answer: rn, pairAnswer: rd,
+    answerFormat: "pair", pairLabels: ["ぶんし", "ぶんぼ"],
+    answerText: fracText(rn, rd),
+    display, explanation
+  };
+}
+function fractionAdd(config) {
+  const c = config || {};
+  for (let attempt = 0; attempt < 5000; attempt++) {
+    if (c.sameDenominator) {
+      const d = rand(c.minDenominator ?? 2, c.maxDenominator ?? 12);
+      const n1 = rand(1, d - 1), n2 = rand(1, d - 1);
+      if ((n1 + n2) % d === 0) continue;
+      const [rn, rd] = reduceFraction(n1 + n2, d);
+      return fractionResult(n1 + n2, d,
+        fracText(n1, d) + " + " + fracText(n2, d),
+        "分母はそのまま、分子どうしをたします。" + n1 + " + " + n2 + " = " + (n1 + n2) + "。答えは " + fracText(rn, rd) + " です。");
+    }
+    const d1 = rand(c.minDenominator ?? 2, c.maxDenominator ?? 9);
+    const d2 = rand(c.minDenominator ?? 2, c.maxDenominator ?? 9);
+    if (d1 === d2) continue;
+    const n1 = rand(1, d1 - 1), n2 = rand(1, d2 - 1);
+    const lcm = (d1 * d2) / gcd(d1, d2);
+    const sum = n1 * (lcm / d1) + n2 * (lcm / d2);
+    if (sum % lcm === 0) continue;
+    const [rn, rd] = reduceFraction(sum, lcm);
+    return fractionResult(sum, lcm,
+      fracText(n1, d1) + " + " + fracText(n2, d2),
+      "分母を " + lcm + " にそろえると " + fracText(n1 * (lcm / d1), lcm) + " + " + fracText(n2 * (lcm / d2), lcm) + " = " + fracText(sum, lcm) + "。約分すると " + fracText(rn, rd) + " です。");
+  }
+  throw new Error("分数のたし算を作れませんでした。");
+}
+function fractionSub(config) {
+  const c = config || {};
+  for (let attempt = 0; attempt < 5000; attempt++) {
+    if (c.sameDenominator) {
+      const d = rand(c.minDenominator ?? 2, c.maxDenominator ?? 12);
+      const n1 = rand(2, 2 * d - 1), n2 = rand(1, d - 1);
+      if (n1 === d) continue;
+      if (n1 <= n2 || (n1 - n2) % d === 0) continue;
+      const [rn, rd] = reduceFraction(n1 - n2, d);
+      return fractionResult(n1 - n2, d,
+        fracText(n1, d) + " − " + fracText(n2, d),
+        "分母はそのまま、分子どうしをひきます。" + n1 + " − " + n2 + " = " + (n1 - n2) + "。答えは " + fracText(rn, rd) + " です。");
+    }
+    const d1 = rand(c.minDenominator ?? 2, c.maxDenominator ?? 9);
+    const d2 = rand(c.minDenominator ?? 2, c.maxDenominator ?? 9);
+    if (d1 === d2) continue;
+    const n1 = rand(1, d1 - 1), n2 = rand(1, d2 - 1);
+    if (n1 * d2 <= n2 * d1) continue;
+    const lcm = (d1 * d2) / gcd(d1, d2);
+    const diff = n1 * (lcm / d1) - n2 * (lcm / d2);
+    if (diff <= 0 || diff % lcm === 0) continue;
+    const [rn, rd] = reduceFraction(diff, lcm);
+    return fractionResult(diff, lcm,
+      fracText(n1, d1) + " − " + fracText(n2, d2),
+      "分母を " + lcm + " にそろえると " + fracText(n1 * (lcm / d1), lcm) + " − " + fracText(n2 * (lcm / d2), lcm) + " = " + fracText(diff, lcm) + "。約分すると " + fracText(rn, rd) + " です。");
+  }
+  throw new Error("分数のひき算を作れませんでした。");
+}
+function fractionMulInt(config) {
+  const c = config || {};
+  for (let attempt = 0; attempt < 5000; attempt++) {
+    const d = rand(c.minDenominator ?? 2, c.maxDenominator ?? 12);
+    const n = rand(1, d - 1);
+    const k = rand(c.minMultiplier ?? 2, c.maxMultiplier ?? 9);
+    if ((n * k) % d === 0) continue;
+    const [rn, rd] = reduceFraction(n * k, d);
+    return fractionResult(n * k, d,
+      fracText(n, d) + " × " + k,
+      "分子に " + k + " をかけます。" + n + " × " + k + " = " + (n * k) + "。答えは " + fracText(rn, rd) + " です。");
+  }
+  throw new Error("分数×整数の問題を作れませんでした。");
+}
+function fractionDivInt(config) {
+  const c = config || {};
+  const d = rand(c.minDenominator ?? 2, c.maxDenominator ?? 12);
+  const n = rand(1, d - 1);
+  const k = rand(c.minDivisor ?? 2, c.maxDivisor ?? 9);
+  const [rn, rd] = reduceFraction(n, d * k);
+  return fractionResult(n, d * k,
+    fracText(n, d) + " ÷ " + k,
+    "分母に " + k + " をかけます。" + d + " × " + k + " = " + (d * k) + "。答えは " + fracText(rn, rd) + " です。");
+}
+function fractionMul(config) {
+  const c = config || {};
+  for (let attempt = 0; attempt < 5000; attempt++) {
+    const d1 = rand(c.minDenominator ?? 2, c.maxDenominator ?? 9);
+    const d2 = rand(c.minDenominator ?? 2, c.maxDenominator ?? 9);
+    const n1 = rand(1, d1 - 1), n2 = rand(1, d2 - 1);
+    const n = n1 * n2, d = d1 * d2;
+    if (n % d === 0) continue;
+    const [rn, rd] = reduceFraction(n, d);
+    return fractionResult(n, d,
+      fracText(n1, d1) + " × " + fracText(n2, d2),
+      "分子どうし、分母どうしをかけます。" + n1 + " × " + n2 + " = " + n + "、" + d1 + " × " + d2 + " = " + d + "。約分すると " + fracText(rn, rd) + " です。");
+  }
+  throw new Error("分数×分数の問題を作れませんでした。");
+}
+function fractionDiv(config) {
+  const c = config || {};
+  for (let attempt = 0; attempt < 5000; attempt++) {
+    const d1 = rand(c.minDenominator ?? 2, c.maxDenominator ?? 9);
+    const d2 = rand(c.minDenominator ?? 2, c.maxDenominator ?? 9);
+    const n1 = rand(1, d1 - 1), n2 = rand(1, d2 - 1);
+    const n = n1 * d2, d = d1 * n2;
+    if (n % d === 0) continue;
+    const [rn, rd] = reduceFraction(n, d);
+    return fractionResult(n, d,
+      fracText(n1, d1) + " ÷ " + fracText(n2, d2),
+      "わる数の分子と分母をひっくり返してかけます。" + fracText(n1, d1) + " × " + fracText(d2, n2) + " = " + fracText(n, d) + "。約分すると " + fracText(rn, rd) + " です。");
+  }
+  throw new Error("分数÷分数の問題を作れませんでした。");
+}
+function proportion(config) {
+  const c = config || {};
+  const k = rand(c.minK ?? 2, c.maxK ?? 12);
+  const x = rand(2, c.maxX ?? 9);
+  const answer = k * x;
+  return {
+    a: x, b: k, operator: "比例", answer,
+    display: "yはxに比例し、x=1のときy=" + k + "。x=" + x + "のときのy",
+    explanation: "yはxの " + k + " 倍です。" + x + " × " + k + " = " + answer + " です。"
+  };
+}
+function algebraX(config) {
+  const c = config || {};
+  const maxV = c.maxValue ?? 50;
+  const type = rand(0, 2);
+  if (type === 0) {
+    const x = rand(2, 30), a = rand(2, maxV), b = x + a;
+    return {
+      a, b, operator: "文字と式", answer: x,
+      display: "x + " + a + " = " + b + " のxの値",
+      explanation: b + " − " + a + " = " + x + "。x = " + x + " です。"
+    };
+  }
+  if (type === 1) {
+    const x = rand(2, 12), a = rand(2, 9), b = x * a;
+    return {
+      a, b, operator: "文字と式", answer: x,
+      display: a + " × x = " + b + " のxの値",
+      explanation: b + " ÷ " + a + " = " + x + "。x = " + x + " です。"
+    };
+  }
+  const x = rand(2, 30), a = rand(2, maxV), b = x + a;
+  return {
+    a, b, operator: "文字と式", answer: x,
+    display: b + " − x = " + a + " のxの値",
+    explanation: b + " − " + a + " = " + x + "。x = " + x + " です。"
+  };
+}
+function ratioSimplify(config) {
+  const c = config || {};
+  for (let attempt = 0; attempt < 5000; attempt++) {
+    const g = rand(c.minG ?? 2, c.maxG ?? 12);
+    const p = rand(1, 9), q = rand(1, 9);
+    if (gcd(p, q) !== 1 || (p === 1 && q === 1)) continue;
+    return {
+      a: g * p, b: g * q, operator: "比", answer: p, pairAnswer: q,
+      answerFormat: "pair", pairLabels: ["ひだり", "みぎ"],
+      answerText: p + " : " + q,
+      display: (g * p) + " : " + (g * q) + " を簡単に",
+      explanation: "両方の数を " + g + " でわると " + p + " : " + q + " になります。"
+    };
+  }
+  throw new Error("比の問題を作れませんでした。");
+}
+
+const generators = { addition, subtraction, multiplication, division, divisionRemainder, missingAddend, missingSubtrahend, missingFactor, missingDivisor, decimalAddition, decimalSubtraction, decimalMultiplication, decimalDivision, average, commonMultiple, commonDivisor, sum, percentage, percentageRate, percentageBase, speed, fractionAdd, fractionSub, fractionMulInt, fractionDivInt, fractionMul, fractionDiv, proportion, algebraX, ratioSimplify };
 
 export function generateQuestion(unit) {
   if (!unit || !generators[unit.generator]) {
