@@ -19,10 +19,10 @@ export const OPERATIONS = {
     units: [
       { id: "sub-within-20", title: "20までのひき算", detail: "2けた−1けた", grade: [1], level: 1, generator: "subtraction", config: { minA: 10, maxA: 20, minB: 1, maxB: 9 } },
       { id: "sub-two-no-borrow", title: "2けたのひき算（くり下がりなし）", detail: "2けた−2けた", grade: [2], level: 2, generator: "subtraction", config: { minA: 10, maxA: 99, minB: 10, maxB: 99, borrow: false } },
-      { id: "sub-two-borrow", title: "2けたのひき算（くり下がりあり）", detail: "一の位からくり下がる", grade: [2], level: 3, generator: "subtraction", config: { minA: 20, maxA: 99, minB: 1, maxB: 89, borrow: true } },
+      { id: "sub-two-borrow", title: "2けたのひき算（くり下がりあり）", detail: "一の位からくり下がる", grade: [2], level: 3, generator: "subtraction", config: { minA: 20, maxA: 99, minB: 10, maxB: 89, borrow: true } },
       { id: "sub-three-no-borrow", title: "3けたのひき算（くり下がりなし）", detail: "3けた−3けた", grade: [3], level: 4, generator: "subtraction", config: { minA: 100, maxA: 999, minB: 100, maxB: 999, borrow: false } },
-      { id: "sub-three-borrow", title: "3けたのひき算（くり下がりあり）", detail: "3けた−3けた", grade: [3], level: 4, generator: "subtraction", config: { minA: 100, maxA: 999, minB: 1, maxB: 999, borrow: true } },
-      { id: "sub-four", title: "4けたのひき算", detail: "大きな数のひき算", grade: [4], level: 5, generator: "subtraction", config: { minA: 1000, maxA: 9999, minB: 1, maxB: 9999 } },
+      { id: "sub-three-borrow", title: "3けたのひき算（くり下がりあり）", detail: "3けた−3けた", grade: [3], level: 4, generator: "subtraction", config: { minA: 100, maxA: 999, minB: 100, maxB: 999, borrow: true } },
+      { id: "sub-four", title: "4けたのひき算", detail: "大きな数のひき算", grade: [4], level: 5, generator: "subtraction", config: { minA: 1000, maxA: 9999, minB: 1000, maxB: 9999 } },
       { id: "sub-decimal", title: "小数のひき算", detail: "今後追加予定", grade: [4, 5], level: 6, generator: "future", config: {} }
     ]
   },
