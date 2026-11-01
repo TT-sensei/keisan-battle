@@ -1,16 +1,27 @@
 // CPUバトル進行。問題への回答とナビアンの攻撃周期を独立して管理する。
 const ATTACK_INTERVALS = { 1: 18000, 2: 21000, 3: 24000, 4: 27000, 5: 30000 };
+// 難易度は敵の攻撃間隔とダメージだけを変える。問題の数や内容は変えない。
+const DIFFICULTY = {
+  easy: { intervalFactor: 1.3, enemyDamage: 8 },
+  normal: { intervalFactor: 1.0, enemyDamage: 10 },
+  hard: { intervalFactor: 0.75, enemyDamage: 14 }
+};
+// 何秒以内に正解するとスピードボーナスが付くか
+const SPEED_BONUS_MS = 6000;
+const SPEED_BONUS_DAMAGE = 4;
 
 export class Battle {
-  constructor({ unit, onUpdate, onFinish, onFeedback }) {
+  constructor({ unit, onUpdate, onFinish, onFeedback, options = {} }) {
     this.unit = unit;
     this.onUpdate = onUpdate;
     this.onFinish = onFinish;
     this.onFeedback = onFeedback;
-    this.maxRounds = 10;
+    this.maxRounds = options.maxRounds || 10;
     this.round = 1;
     this.playerHp = 100;
-    this.enemyHp = 100;
+    this.playerMaxHp = 100;
+    this.enemyMaxHp = options.enemyMaxHp || 100;
+    this.enemyHp = this.enemyMaxHp;
     this.combo = 0;
     this.bestCombo = 0;
     this.correct = 0;
@@ -23,8 +34,15 @@ export class Battle {
     this.acceptingAnswer = false;
     this.started = false;
     this.startedAt = Date.now();
+    this.questionStartedAt = null;
+    // ナビキャラ特性（trait）: riku=バランス / sora=まもり / kai=ひらめき / saku=回復 / tsuki=スピード / nami=パワー
+    this.trait = options.trait || "riku";
+    const difficulty = DIFFICULTY[options.difficulty] || DIFFICULTY.normal;
+    this.enemyDamage = difficulty.enemyDamage;
     const level = Math.max(1, Math.min(5, Number(unit.level) || 1));
-    this.enemyAttackInterval = ATTACK_INTERVALS[level];
+    let interval = ATTACK_INTERVALS[level] * difficulty.intervalFactor;
+    if (this.trait === "tsuki") interval *= 1.15; // ツキ特性: 敵の攻撃が少しおそくなる
+    this.enemyAttackInterval = Math.round(interval);
     this.nextEnemyAttackAt = null;
     this.clockTimer = null;
     this.nextQuestionTimer = null;
@@ -39,7 +57,9 @@ export class Battle {
       round: this.round,
       maxRounds: this.maxRounds,
       playerHp: this.playerHp,
+      playerMaxHp: this.playerMaxHp,
       enemyHp: this.enemyHp,
+      enemyMaxHp: this.enemyMaxHp,
       combo: this.combo,
       bestCombo: this.bestCombo,
       correct: this.correct,
@@ -70,6 +90,7 @@ export class Battle {
   setQuestion(question) {
     if (this.finished) return;
     this.question = question;
+    this.questionStartedAt = Date.now();
     this.acceptingAnswer = true;
     this.onUpdate({ type: "question", battle: this.snapshot() });
   }
@@ -100,16 +121,29 @@ export class Battle {
       this.correct++;
       this.combo++;
       this.bestCombo = Math.max(this.bestCombo, this.combo);
-      const damage = 12 + Math.min(12, this.combo * 2);
+      // スピードボーナス: 速く正確に解くと少し強く打てる（遅くてもペナルティはない）
+      const elapsed = this.questionStartedAt === null ? Infinity : Date.now() - this.questionStartedAt;
+      const speedBonus = elapsed <= SPEED_BONUS_MS ? SPEED_BONUS_DAMAGE : 0;
+      let damage = 12 + Math.min(12, this.combo * 2);
+      if (this.trait === "nami") damage = Math.round(damage * 1.25); // ナミ特性: パワー
+      damage += speedBonus;
       this.enemyHp = Math.max(0, this.enemyHp - damage);
       this.xp += 8 + Math.min(4, this.combo);
-      this.special = Math.min(100, this.special + 25);
+      const specialGain = this.trait === "kai" ? 34 : 25; // カイ特性: 必殺技がたまりやすい
+      this.special = Math.min(100, this.special + specialGain);
+      let healed = 0;
+      if (this.trait === "saku" && this.playerHp < this.playerMaxHp) { // サク特性: 正解で少し回復
+        healed = Math.min(3, this.playerMaxHp - this.playerHp);
+        this.playerHp += healed;
+      }
       this.question = null;
+      this.questionStartedAt = null;
       this.resetEnemyAttackTimer();
-      this.onFeedback({
-        kind: "success",
-        text: this.special === 100 ? "正解！ 必殺技ゲージ MAX！" : "正解！ " + damage + " ダメージ！"
-      });
+      let text = "正解！ " + damage + " ダメージ！";
+      if (speedBonus) text = "すばやい正解！ " + damage + " ダメージ！";
+      if (healed) text += " HPが " + healed + " 回復！";
+      if (this.special === 100) text = "正解！ 必殺技ゲージ MAX！";
+      this.onFeedback({ kind: "success", text });
       this.onUpdate({ type: "correct", battle: this.snapshot() });
 
       if (this.enemyHp <= 0) {
@@ -148,9 +182,11 @@ export class Battle {
     this.enemyAttackCount++;
     this.combo = 0;
     this.special = Math.max(0, this.special - 10);
-    this.playerHp = Math.max(0, this.playerHp - 10);
+    let damage = this.enemyDamage;
+    if (this.trait === "sora") damage = Math.max(1, Math.round(damage * 0.7)); // ソラ特性: まもり
+    this.playerHp = Math.max(0, this.playerHp - damage);
     this.resetEnemyAttackTimer();
-    this.onFeedback({ kind: "enemy", text: "ナビアンの攻撃！ 10 ダメージ" });
+    this.onFeedback({ kind: "enemy", text: "ナビアンの攻撃！ " + damage + " ダメージ" });
     this.onUpdate({ type: "cpu", battle: this.snapshot() });
     if (this.playerHp <= 0) this.finish(false);
   }

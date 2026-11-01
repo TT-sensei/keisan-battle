@@ -1,6 +1,18 @@
 import{OPERATIONS,UNIT_BY_ID}from"./data/units.js";import{generateQuestion}from"./engine/question-generator.js";import{Battle}from"./game/battle.js";
 const $=id=>document.getElementById(id),state={op:"addition",unit:"add-within-20",char:"riku",battle:null,answer:"",sound:true,mode:"battle",training:null};
-const chars={riku:["リク","🥷"],sora:["ソラ","🛡️"],kai:["カイ","🪄"],saku:["サク","🌿"],tsuki:["ツキ","🏹"],nami:["ナミ","⚔️"]},enemies=[["ぷにスライム","🟢"],["もくもくゴブリン","👺"],["いわころモンスター","🪨"],["まよいキノコ","🍄"]];
+const chars={riku:["リク","🥷"],sora:["ソラ","🛡️"],kai:["カイ","🪄"],saku:["サク","🌿"],tsuki:["ツキ","🏹"],nami:["ナミ","⚔️"]};
+// 敵ナビアンは単元のレベルで出し分ける（レベルが高い単元ほど強い敵）
+const ENEMY_TIERS=[
+{maxLevel:2,hp:100,list:[["ぷにスライム","🟢"],["まよいキノコ","🍄"],["まるまるモンスター","🟣"]]},
+{maxLevel:4,hp:120,list:[["もくもくゴブリン","👺"],["いわころモンスター","🪨"],["とげまるモンスター","🦔"]]},
+{maxLevel:99,hp:150,list:[["ほのおドラゴン","🐉"],["こおりドラゴン","🐲"],["らいめいゴーレム","🤖"]]}
+];
+const DIFF_LABELS={easy:"やさしい",normal:"ふつう",hard:"つよい"};
+let settings={count:10,difficulty:"normal"};
+try{const s=JSON.parse(localStorage.getItem("keisanBattleSettings")||"{}");if([5,10,15,20].includes(s.count))settings.count=s.count;if(DIFF_LABELS[s.difficulty])settings.difficulty=s.difficulty;}catch(e){}
+function saveSettings(){localStorage.setItem("keisanBattleSettings",JSON.stringify(settings));}
+function pickEnemy(level){const tier=ENEMY_TIERS.find(t=>level<=t.maxLevel)||ENEMY_TIERS[ENEMY_TIERS.length-1];const e=tier.list[Math.floor(Math.random()*tier.list.length)];return{name:e[0],emoji:e[1],hp:tier.hp};}
+function updateSummary(){$("summary").textContent=UNIT_BY_ID[state.unit].title+" ・ "+settings.count+"問 ・ "+DIFF_LABELS[settings.difficulty];}
 let save=JSON.parse(localStorage.getItem("keisanBattleSave")||'{"xp":0,"wins":0,"mistakes":[]}' ),enemy;
 function renderHomeStats(){
 const pending=[...new Set(save.mistakes.map(m=>m.unitId))].filter(id=>UNIT_BY_ID[id]);
@@ -15,18 +27,20 @@ $("record-summary").textContent=sessions.length
 :"まだ記録はありません。まずはバトルに挑戦しよう！";
 }
 function persist(){localStorage.setItem("keisanBattleSave",JSON.stringify(save));$("xp").textContent=save.xp;$("wins").textContent=save.wins;renderHomeStats();}
-function renderUnits(){const group=OPERATIONS[state.op];$("unit-title").textContent=group.label+"の単元";$("unit-desc").textContent=group.description;$("unit-count").textContent=group.units.length+" UNITS";$("units").innerHTML="";group.units.forEach(u=>{const b=document.createElement("button");const records=save.sessions.filter(x=>x.mode==="battle"&&x.unitId===u.id);const answered=records.reduce((n,x)=>n+(x.answered||0),0);const correct=records.reduce((n,x)=>n+(x.correct||0),0);const rate=answered?Math.round(correct/answered*100):0;const cleared=records.some(x=>x.win);b.className="unit"+(u.id===state.unit?" selected":"");b.disabled=u.generator==="future";b.innerHTML="<b>"+u.title+"</b><small>"+u.detail+" · "+u.grade.map(g=>"小"+g).join("・")+"</small><small class=\"unit-record\">"+(records.length?("挑戦 "+records.length+"回 · 正答率 "+rate+"%"+(cleared?" · ✓ クリア":"")):"まだ挑戦していないよ")+"</small>";b.onclick=()=>{state.unit=u.id;renderUnits();};$("units").append(b);});$("summary").textContent=UNIT_BY_ID[state.unit].title;}
+function renderUnits(){const group=OPERATIONS[state.op];$("unit-title").textContent=group.label+"の単元";$("unit-desc").textContent=group.description;$("unit-count").textContent=group.units.length+" UNITS";$("units").innerHTML="";group.units.forEach(u=>{const b=document.createElement("button");const records=save.sessions.filter(x=>x.mode==="battle"&&x.unitId===u.id);const answered=records.reduce((n,x)=>n+(x.answered||0),0);const correct=records.reduce((n,x)=>n+(x.correct||0),0);const rate=answered?Math.round(correct/answered*100):0;const cleared=records.some(x=>x.win);b.className="unit"+(u.id===state.unit?" selected":"");b.disabled=u.generator==="future";b.innerHTML="<b>"+u.title+"</b><small>"+u.detail+" · "+u.grade.map(g=>"小"+g).join("・")+"</small><small class=\"unit-record\">"+(records.length?("挑戦 "+records.length+"回 · 正答率 "+rate+"%"+(cleared?" · ✓ クリア":"")):"まだ挑戦していないよ")+"</small>";b.onclick=()=>{state.unit=u.id;renderUnits();};$("units").append(b);});updateSummary();}
 document.querySelectorAll(".op").forEach(b=>b.onclick=()=>{state.op=b.dataset.op;state.unit=OPERATIONS[state.op].units.find(u=>u.generator!=="future").id;document.querySelectorAll(".op").forEach(x=>x.classList.toggle("active",x===b));renderUnits();});
 document.querySelectorAll(".char").forEach(b=>b.onclick=()=>{state.char=b.dataset.char;document.querySelectorAll(".char").forEach(x=>x.classList.toggle("selected",x===b));});
+document.querySelectorAll(".count-btn").forEach(b=>{b.classList.toggle("selected",Number(b.dataset.count)===settings.count);b.onclick=()=>{settings.count=Number(b.dataset.count);saveSettings();document.querySelectorAll(".count-btn").forEach(x=>x.classList.toggle("selected",x===b));updateSummary();};});
+document.querySelectorAll(".diff-btn").forEach(b=>{b.classList.toggle("selected",b.dataset.diff===settings.difficulty);b.onclick=()=>{settings.difficulty=b.dataset.diff;saveSettings();document.querySelectorAll(".diff-btn").forEach(x=>x.classList.toggle("selected",x===b));updateSummary();};});
 function screen(id){["home","battle","result"].forEach(x=>$(x).classList.toggle("hidden",x!==id));window.scrollTo({top:0,behavior:"smooth"});}
 function feedback(text){$("feedback").textContent=text;}
 function render(event){
 const b=event.battle;
 $("round").textContent="正解 "+b.correct+" / "+b.maxRounds;
-$("php").style.width=b.playerHp+"%";
-$("ehp").style.width=b.enemyHp+"%";
-$("phptext").textContent="HP "+b.playerHp+" / 100";
-$("ehptext").textContent="HP "+b.enemyHp+" / 100";
+$("php").style.width=(b.playerHp/b.playerMaxHp*100)+"%";
+$("ehp").style.width=(b.enemyHp/b.enemyMaxHp*100)+"%";
+$("phptext").textContent="HP "+b.playerHp+" / "+b.playerMaxHp;
+$("ehptext").textContent="HP "+b.enemyHp+" / "+b.enemyMaxHp;
 $("combo").textContent="🔥 COMBO "+b.combo;
 $("progressbar").style.width=(b.correct/b.maxRounds*100)+"%";
 $("enemy-attack-bar").style.width=b.attackProgress+"%";
@@ -115,7 +129,7 @@ function finish(r){
 save.xp+=r.xp;if(r.win)save.wins++;
 save.sessions.push({mode:"battle",unitId:r.unitId,win:r.win,correct:r.correct,answered:r.answered,accuracy:r.accuracy,duration:r.duration,at:Date.now()});
 persist();state.mode="battle";document.body.classList.remove("training-mode");$("resulticon").textContent=r.win?"🏆":"💪";$("resulttitle").textContent=r.win?"クエストクリア！":"もう少し！";$("resultmessage").textContent=r.win?"ナビアンに勝利！計算の力がアップしたね。":"最後までよく挑戦したね。特訓して再挑戦しよう！";$("correct").textContent=r.correct+"/"+r.answered;$("accuracy").textContent=r.accuracy+"%";$("earned").textContent="+"+r.xp;$("bestcombo").textContent=r.bestCombo;$("mistakes").classList.toggle("hidden",!r.mistakes.length);$("mistakelist").innerHTML="";r.mistakes.forEach(m=>{const s=document.createElement("span");s.textContent=m.display+" = "+m.answer;$("mistakelist").append(s);});screen("result");}
-function start(){state.mode="battle";state.training=null;$("retry").textContent="もう一度挑戦 ↻";document.body.classList.remove("training-mode");$("arena").classList.remove("hidden");$("enemy-clock").classList.remove("hidden");$("toolbar-note").textContent="CPU BATTLE";$("stage").textContent="STAGE 01";const unit=UNIT_BY_ID[state.unit],c=chars[state.char];enemy=enemies[Math.floor(Math.random()*enemies.length)];$("player-emoji").textContent=c[1];$("player-name").textContent=c[0];$("enemy-emoji").textContent=enemy[1];$("enemy-name").textContent=enemy[0];$("stage").textContent="STAGE "+String(unit.level).padStart(2,"0");feedback("バトルスタート！");state.answer="";state.battle=new Battle({unit,onUpdate:render,onFinish:finish,onFeedback:f=>feedback(f.text)});screen("battle");state.battle.start();}
+function start(){state.mode="battle";state.training=null;$("retry").textContent="もう一度挑戦 ↻";document.body.classList.remove("training-mode");$("arena").classList.remove("hidden");$("enemy-clock").classList.remove("hidden");$("toolbar-note").textContent="CPU BATTLE";$("stage").textContent="STAGE 01";const unit=UNIT_BY_ID[state.unit],c=chars[state.char];enemy=pickEnemy(unit.level);$("player-emoji").textContent=c[1];$("player-name").textContent=c[0];$("enemy-emoji").textContent=enemy.emoji;$("enemy-name").textContent=enemy.name;$("stage").textContent="STAGE "+String(unit.level).padStart(2,"0");feedback("バトルスタート！");state.answer="";state.battle=new Battle({unit,onUpdate:render,onFinish:finish,onFeedback:f=>feedback(f.text),options:{maxRounds:settings.count,difficulty:settings.difficulty,trait:state.char,enemyMaxHp:enemy.hp}});screen("battle");state.battle.start();}
 function startTraining(targetIds){
 const ids=(targetIds||[...new Set(save.mistakes.map(m=>m.unitId))]).filter(id=>UNIT_BY_ID[id]&&UNIT_BY_ID[id].generator!=="future");
 if(!ids.length)return;
