@@ -256,6 +256,17 @@ function commonDivisor(config) {
   };
 }
 
+function sum(config) {
+  const c = config || {};
+  const values = [rand(c.min ?? 10, c.max ?? 100), rand(c.min ?? 10, c.max ?? 100), rand(c.min ?? 10, c.max ?? 100)];
+  const answer = values.reduce((total, value) => total + value, 0);
+  return {
+    a: values[0], b: values[1], operator: "合計", answer,
+    display: values.join("・") + " の合計",
+    explanation: values.join(" + ") + " = " + answer + " です。"
+  };
+}
+
 function percentage(config) {
   const c = config || {};
   const base = rand(Math.ceil((c.minBase ?? 100) / 20), Math.floor((c.maxBase ?? 1000) / 20)) * 20;
@@ -265,6 +276,30 @@ function percentage(config) {
     a: base, b: percent, operator: "%", answer,
     display: base + " の " + percent + "%",
     explanation: base + " × " + percent + " ÷ 100 = " + answer + " です。"
+  };
+}
+
+function percentageRate(config) {
+  const c = config || {};
+  const base = rand(Math.ceil((c.minBase ?? 100) / 20), Math.floor((c.maxBase ?? 1000) / 20)) * 20;
+  const percent = [10, 15, 20, 25, 30, 40, 50, 60, 75, 80][rand(0, 9)];
+  const part = base * percent / 100;
+  return {
+    a: part, b: base, operator: "割合", answer: percent,
+    display: part + " は " + base + " の何%",
+    explanation: part + " ÷ " + base + " × 100 = " + percent + "% です。"
+  };
+}
+
+function percentageBase(config) {
+  const c = config || {};
+  const base = rand(Math.ceil((c.minBase ?? 100) / 20), Math.floor((c.maxBase ?? 1000) / 20)) * 20;
+  const percent = [10, 15, 20, 25, 30, 40, 50, 60, 75, 80][rand(0, 9)];
+  const part = base * percent / 100;
+  return {
+    a: part, b: percent, operator: "もとにする量", answer: base,
+    display: part + " が " + percent + "% にあたる数",
+    explanation: part + " ÷ " + (percent / 100) + " = " + base + " です。"
   };
 }
 
@@ -280,7 +315,7 @@ function speed(config) {
   };
 }
 
-const generators = { addition, subtraction, multiplication, division, decimalAddition, decimalSubtraction, decimalMultiplication, decimalDivision, average, commonMultiple, commonDivisor, percentage, speed };
+const generators = { addition, subtraction, multiplication, division, decimalAddition, decimalSubtraction, decimalMultiplication, decimalDivision, average, commonMultiple, commonDivisor, sum, percentage, percentageRate, percentageBase, speed };
 
 export function generateQuestion(unit) {
   if (!unit || !generators[unit.generator]) {
