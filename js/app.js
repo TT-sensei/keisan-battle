@@ -1,17 +1,20 @@
 import{OPERATIONS,UNIT_BY_ID}from"./data/units.js";import{generateQuestion}from"./engine/question-generator.js";import{Battle}from"./game/battle.js";
-const $=id=>document.getElementById(id),state={op:"addition",unit:"add-within-20",char:"riku",battle:null,answer:"",sound:true,mode:"battle",training:null};
-const chars={riku:["リク","🥷"],sora:["ソラ","🛡️"],kai:["カイ","🪄"],saku:["サク","🌿"],tsuki:["ツキ","🏹"],nami:["ナミ","⚔️"]};
-// 敵ナビアンは単元のレベルで出し分ける（レベルが高い単元ほど強い敵）
-const ENEMY_TIERS=[
-{maxLevel:2,hp:100,list:[["ぷにスライム","🟢"],["まよいキノコ","🍄"],["まるまるモンスター","🟣"]]},
-{maxLevel:4,hp:120,list:[["もくもくゴブリン","👺"],["いわころモンスター","🪨"],["とげまるモンスター","🦔"]]},
-{maxLevel:99,hp:150,list:[["ほのおドラゴン","🐉"],["こおりドラゴン","🐲"],["らいめいゴーレム","🤖"]]}
-];
+import{CHARACTERS,HERO_IMAGE,BACKGROUNDS,MONSTER_LIST}from"./data/monsters.js";
+const $=id=>document.getElementById(id),state={op:"addition",unit:"add-within-20",char:"riku",battle:null,answer:"",sound:true,mode:"battle",training:null,currentEnemy:null};
 const DIFF_LABELS={easy:"やさしい",normal:"ふつう",hard:"つよい"};
 let settings={count:10,difficulty:"normal"};
 try{const s=JSON.parse(localStorage.getItem("keisanBattleSettings")||"{}");if([5,10,15,20].includes(s.count))settings.count=s.count;if(DIFF_LABELS[s.difficulty])settings.difficulty=s.difficulty;}catch(e){}
 function saveSettings(){localStorage.setItem("keisanBattleSettings",JSON.stringify(settings));}
-function pickEnemy(level){const tier=ENEMY_TIERS.find(t=>level<=t.maxLevel)||ENEMY_TIERS[ENEMY_TIERS.length-1];const e=tier.list[Math.floor(Math.random()*tier.list.length)];return{name:e[0],emoji:e[1],hp:tier.hp};}
+// 敵ナビアンは単元レベルでプールを変え、その中からランダムに選ぶ
+function pickEnemy(level){
+let pool,hp;
+if(level<=2){pool=MONSTER_LIST.filter(m=>m.set==="zako");hp=100;}
+else if(level===3){pool=MONSTER_LIST.filter(m=>m.set!=="boss");hp=120;}
+else if(level===4){pool=MONSTER_LIST.filter(m=>m.set==="evo");hp=120;}
+else{pool=MONSTER_LIST.filter(m=>m.set!=="zako");hp=150;}
+const m=pool[Math.floor(Math.random()*pool.length)];
+return Object.assign({},m,{hp});
+}
 function updateSummary(){$("summary").textContent=UNIT_BY_ID[state.unit].title+" ・ "+settings.count+"問 ・ "+DIFF_LABELS[settings.difficulty];}
 let save=JSON.parse(localStorage.getItem("keisanBattleSave")||'{"xp":0,"wins":0,"mistakes":[]}' ),enemy;
 function renderHomeStats(){
@@ -25,6 +28,8 @@ const accuracy=totalAnswered?Math.round(totalCorrect/totalAnswered*100):0;
 $("record-summary").textContent=sessions.length
 ? "記録 "+sessions.length+"回　／　正解 "+totalCorrect+"問　／　正答率 "+accuracy+"%"
 :"まだ記録はありません。まずはバトルに挑戦しよう！";
+const dex=save.dex||{};const registered=Object.keys(dex).length;
+$("dex-count").textContent=registered?("登録 "+registered+" / "+MONSTER_LIST.length+" 体"):"たおしたナビアンが登録されるよ";
 }
 function persist(){localStorage.setItem("keisanBattleSave",JSON.stringify(save));$("xp").textContent=save.xp;$("wins").textContent=save.wins;renderHomeStats();}
 function renderUnits(){const group=OPERATIONS[state.op];$("unit-title").textContent=group.label+"の単元";$("unit-desc").textContent=group.description;$("unit-count").textContent=group.units.length+" UNITS";$("units").innerHTML="";group.units.forEach(u=>{const b=document.createElement("button");const records=save.sessions.filter(x=>x.mode==="battle"&&x.unitId===u.id);const answered=records.reduce((n,x)=>n+(x.answered||0),0);const correct=records.reduce((n,x)=>n+(x.correct||0),0);const rate=answered?Math.round(correct/answered*100):0;const cleared=records.some(x=>x.win);b.className="unit"+(u.id===state.unit?" selected":"");b.disabled=u.generator==="future";b.innerHTML="<b>"+u.title+"</b><small>"+u.detail+" · "+u.grade.map(g=>"小"+g).join("・")+"</small><small class=\"unit-record\">"+(records.length?("挑戦 "+records.length+"回 · 正答率 "+rate+"%"+(cleared?" · ✓ クリア":"")):"まだ挑戦していないよ")+"</small>";b.onclick=()=>{state.unit=u.id;renderUnits();};$("units").append(b);});updateSummary();}
@@ -32,7 +37,7 @@ document.querySelectorAll(".op").forEach(b=>b.onclick=()=>{state.op=b.dataset.op
 document.querySelectorAll(".char").forEach(b=>b.onclick=()=>{state.char=b.dataset.char;document.querySelectorAll(".char").forEach(x=>x.classList.toggle("selected",x===b));});
 document.querySelectorAll(".count-btn").forEach(b=>{b.classList.toggle("selected",Number(b.dataset.count)===settings.count);b.onclick=()=>{settings.count=Number(b.dataset.count);saveSettings();document.querySelectorAll(".count-btn").forEach(x=>x.classList.toggle("selected",x===b));updateSummary();};});
 document.querySelectorAll(".diff-btn").forEach(b=>{b.classList.toggle("selected",b.dataset.diff===settings.difficulty);b.onclick=()=>{settings.difficulty=b.dataset.diff;saveSettings();document.querySelectorAll(".diff-btn").forEach(x=>x.classList.toggle("selected",x===b));updateSummary();};});
-function screen(id){["home","battle","result"].forEach(x=>$(x).classList.toggle("hidden",x!==id));window.scrollTo({top:0,behavior:"smooth"});}
+function screen(id){["home","battle","result","dex"].forEach(x=>$(x).classList.toggle("hidden",x!==id));window.scrollTo({top:0,behavior:"smooth"});}
 function feedback(text){$("feedback").textContent=text;}
 function render(event){
 const b=event.battle;
@@ -126,10 +131,11 @@ if(existing){existing.count=(existing.count||1)+1;existing.at=Date.now();}
 else save.mistakes.push({...m,at:Date.now(),count:1});
 }
 function finish(r){
+if(r.win&&state.currentEnemy){const id=state.currentEnemy.id;save.dex[id]=(save.dex[id]||0)+1;}
 save.xp+=r.xp;if(r.win)save.wins++;
 save.sessions.push({mode:"battle",unitId:r.unitId,win:r.win,correct:r.correct,answered:r.answered,accuracy:r.accuracy,duration:r.duration,at:Date.now()});
-persist();state.mode="battle";document.body.classList.remove("training-mode");$("resulticon").textContent=r.win?"🏆":"💪";$("resulttitle").textContent=r.win?"クエストクリア！":"もう少し！";$("resultmessage").textContent=r.win?"ナビアンに勝利！計算の力がアップしたね。":"最後までよく挑戦したね。特訓して再挑戦しよう！";$("correct").textContent=r.correct+"/"+r.answered;$("accuracy").textContent=r.accuracy+"%";$("earned").textContent="+"+r.xp;$("bestcombo").textContent=r.bestCombo;$("mistakes").classList.toggle("hidden",!r.mistakes.length);$("mistakelist").innerHTML="";r.mistakes.forEach(m=>{const s=document.createElement("span");s.textContent=m.display+" = "+m.answer;$("mistakelist").append(s);});screen("result");}
-function start(){state.mode="battle";state.training=null;$("retry").textContent="もう一度挑戦 ↻";document.body.classList.remove("training-mode");$("arena").classList.remove("hidden");$("enemy-clock").classList.remove("hidden");$("toolbar-note").textContent="CPU BATTLE";$("stage").textContent="STAGE 01";const unit=UNIT_BY_ID[state.unit],c=chars[state.char];enemy=pickEnemy(unit.level);$("player-emoji").textContent=c[1];$("player-name").textContent=c[0];$("enemy-emoji").textContent=enemy.emoji;$("enemy-name").textContent=enemy.name;$("stage").textContent="STAGE "+String(unit.level).padStart(2,"0");feedback("バトルスタート！");state.answer="";state.battle=new Battle({unit,onUpdate:render,onFinish:finish,onFeedback:f=>feedback(f.text),options:{maxRounds:settings.count,difficulty:settings.difficulty,trait:state.char,enemyMaxHp:enemy.hp}});screen("battle");state.battle.start();}
+persist();state.mode="battle";document.body.classList.remove("training-mode");$("resulticon").textContent=r.win?"🏆":"💪";$("resulttitle").textContent=r.win?"クエストクリア！":"もう少し！";$("resultmessage").textContent=r.win?(state.currentEnemy?("「"+state.currentEnemy.name+"」に勝利！ 図鑑に登録したよ（"+(save.dex[state.currentEnemy.id]||1)+"回目）。"):"ナビアンに勝利！計算の力がアップしたね。"):"最後までよく挑戦したね。特訓して再挑戦しよう！";$("correct").textContent=r.correct+"/"+r.answered;$("accuracy").textContent=r.accuracy+"%";$("earned").textContent="+"+r.xp;$("bestcombo").textContent=r.bestCombo;$("mistakes").classList.toggle("hidden",!r.mistakes.length);$("mistakelist").innerHTML="";r.mistakes.forEach(m=>{const s=document.createElement("span");s.textContent=m.display+" = "+m.answer;$("mistakelist").append(s);});screen("result");}
+function start(){state.mode="battle";state.training=null;$("retry").textContent="もう一度挑戦 ↻";document.body.classList.remove("training-mode");$("arena").classList.remove("hidden");$("enemy-clock").classList.remove("hidden");$("toolbar-note").textContent="CPU BATTLE";$("stage").textContent="STAGE 01";const unit=UNIT_BY_ID[state.unit];enemy=pickEnemy(unit.level);state.currentEnemy=enemy;$("player-img").src=CHARACTERS[state.char].img;$("player-name").textContent=CHARACTERS[state.char].name;$("enemy-img").src=enemy.img;$("enemy-name").textContent=enemy.name;$("enemy-kind").textContent=enemy.set==="boss"?"ボスナビアン":enemy.set==="evo"?"進化ナビアン":"ナビアン";const bg=BACKGROUNDS[Math.floor(Math.random()*BACKGROUNDS.length)];$("arena").style.backgroundImage="url("+bg.img+")";$("stage").textContent="STAGE "+String(unit.level).padStart(2,"0");feedback("バトルスタート！");state.answer="";state.battle=new Battle({unit,onUpdate:render,onFinish:finish,onFeedback:f=>feedback(f.text),options:{maxRounds:settings.count,difficulty:settings.difficulty,trait:state.char,enemyMaxHp:enemy.hp}});screen("battle");state.battle.start();}
 function startTraining(targetIds){
 const ids=(targetIds||[...new Set(save.mistakes.map(m=>m.unitId))]).filter(id=>UNIT_BY_ID[id]&&UNIT_BY_ID[id].generator!=="future");
 if(!ids.length)return;
@@ -216,4 +222,19 @@ if(state.answer.length<8 && /^\d$/.test(k)){state.answer+=k;$("answer").textCont
 }
 $("keypad").onclick=e=>{const b=e.target.closest("button[data-key]");if(b)key(b.dataset.key);};window.addEventListener("keydown",e=>{if($("battle").classList.contains("hidden"))return;if(/^\d$/.test(e.key))key(e.key);else if(e.key==="Backspace")key("clear");else if(e.key===".")key(".");else if(e.key==="Enter")key("enter");});
 $("start").onclick=start;$("training-open").onclick=()=>startTraining();$("retry").onclick=()=>state.mode==="training"?startTraining(state.training?.targetUnitIds):start();$("back").onclick=()=>{if(state.battle)state.battle.stop();state.mode="battle";state.training=null;document.body.classList.remove("training-mode");$("arena").classList.remove("hidden");$("enemy-clock").classList.remove("hidden");screen("home");};$("result-home").onclick=()=>{state.mode="battle";state.training=null;document.body.classList.remove("training-mode");$("arena").classList.remove("hidden");$("enemy-clock").classList.remove("hidden");$("retry").textContent="もう一度挑戦 ↻";$("mistakes").querySelector("b").textContent="もう一度練習したい問題";screen("home");};$("special-use").onclick=()=>{if(state.battle)state.battle.activateSpecial();};
-save.sessions=Array.isArray(save.sessions)?save.sessions:[];save.mastery=save.mastery&&typeof save.mastery==="object"?save.mastery:{};save.mistakes=Array.isArray(save.mistakes)?save.mistakes:[];persist();renderUnits();
+let dexFilter="all";
+function renderDex(){
+const dex=save.dex||{};const registered=Object.keys(dex).length;const totalKills=Object.values(dex).reduce((a,b)=>a+b,0);
+$("dex-progress").textContent="登録 "+registered+" / "+MONSTER_LIST.length+" 体 ・ たおした回数 合計 "+totalKills+" 回";
+const grid=$("dex-grid");grid.innerHTML="";
+MONSTER_LIST.filter(m=>dexFilter==="all"||m.set===dexFilter).forEach(m=>{
+const n=dex[m.id]||0;const d=document.createElement("div");d.className="dex-cell"+(n?"":" unknown");
+d.innerHTML="<img loading=\"lazy\" src=\""+m.img+"\" alt=\"\"><b>"+(n?m.name:"？？？")+"</b><small>"+(m.set==="boss"?"ボス":m.set==="evo"?"進化":"通常")+"・グループ"+m.group+(n?(" ・ "+n+"回たおした"):"")+"</small>";
+grid.append(d);});
+}
+$("dex-open").onclick=()=>{renderDex();screen("dex");};
+$("dex-back").onclick=()=>screen("home");
+document.querySelectorAll("#dex-tabs button").forEach(b=>b.onclick=()=>{dexFilter=b.dataset.dex;document.querySelectorAll("#dex-tabs button").forEach(x=>x.classList.toggle("selected",x===b));renderDex();});
+$("hero-img").src=HERO_IMAGE;
+document.querySelectorAll(".char").forEach(b=>{const img=b.querySelector(".char-img");if(img)img.src=CHARACTERS[b.dataset.char].img;});
+save.sessions=Array.isArray(save.sessions)?save.sessions:[];save.mastery=save.mastery&&typeof save.mastery==="object"?save.mastery:{};save.mistakes=Array.isArray(save.mistakes)?save.mistakes:[];save.dex=save.dex&&typeof save.dex==="object"?save.dex:{};persist();renderUnits();
