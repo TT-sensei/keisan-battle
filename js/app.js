@@ -1,9 +1,10 @@
 import{OPERATIONS,UNIT_BY_ID}from"./data/units.js";import{generateQuestion}from"./engine/question-generator.js";import{Battle}from"./game/battle.js";
 import{CHARACTERS,HERO_IMAGE,BACKGROUNDS,MONSTER_LIST,poseImg,GROUP_SCENES}from"./data/monsters.js";
+import{startFurigana,stopFurigana}from"./furigana.js";
 const $=id=>document.getElementById(id),state={op:"addition",unit:"add-within-20",char:"riku",battle:null,answer:"",answer2:"",activeField:1,mode:"battle",training:null,currentEnemy:null};
 const DIFF_LABELS={easy:"やさしい",normal:"ふつう",hard:"つよい"};
-let settings={count:10,difficulty:"normal",sound:true};
-try{const s=JSON.parse(localStorage.getItem("keisanBattleSettings")||"{}");if([5,10,15,20].includes(s.count))settings.count=s.count;if(DIFF_LABELS[s.difficulty])settings.difficulty=s.difficulty;if(typeof s.sound==="boolean")settings.sound=s.sound;}catch(e){}
+let settings={count:10,difficulty:"normal",sound:true,furigana:true};
+try{const s=JSON.parse(localStorage.getItem("keisanBattleSettings")||"{}");if([5,10,15,20].includes(s.count))settings.count=s.count;if(DIFF_LABELS[s.difficulty])settings.difficulty=s.difficulty;if(typeof s.sound==="boolean")settings.sound=s.sound;if(typeof s.furigana==="boolean")settings.furigana=s.furigana;}catch(e){}
 function saveSettings(){localStorage.setItem("keisanBattleSettings",JSON.stringify(settings));}
 // 敵ナビアンは単元レベルでプールを変え、その中からランダムに選ぶ
 function pickEnemy(level){
@@ -48,6 +49,7 @@ else if(kind==="lose"){tone(392,0.12,0);tone(330,0.12,0.11);tone(262,0.2,0.22);}
 }catch(e){}
 }
 function updateSoundToggle(){$("sound-toggle").textContent=settings.sound?"🔊 音 ON":"🔇 音 OFF";}
+function updateFuriToggle(){$("furi-toggle").textContent=settings.furigana?"あ ふりがな ON":"あ ふりがな OFF";}
 function spawnDamage(target,amount){
 const layer=$("fx-layer");if(!layer)return;
 const el=document.createElement("span");
@@ -330,6 +332,7 @@ if(/^\d$/.test(k)){const v=fieldValue();if(v.length<8)setFieldValue(v+k);}
 $("answer").onclick=()=>setActiveField(1);
 $("answer2").onclick=()=>setActiveField(2);
 $("sound-toggle").onclick=()=>{settings.sound=!settings.sound;saveSettings();updateSoundToggle();if(settings.sound)playSound("correct");};
+$("furi-toggle").onclick=()=>{settings.furigana=!settings.furigana;saveSettings();updateFuriToggle();if(settings.furigana)startFurigana();else stopFurigana();};
 $("keypad").onclick=e=>{const b=e.target.closest("button[data-key]");if(b)key(b.dataset.key);};window.addEventListener("keydown",e=>{if($("battle").classList.contains("hidden"))return;if(/^\d$/.test(e.key))key(e.key);else if(e.key==="Backspace")key("clear");else if(e.key===".")key(".");else if(e.key==="Enter")key("enter");});
 $("start").onclick=start;$("training-open").onclick=()=>startTraining();$("retry").onclick=()=>state.mode==="training"?startTraining(state.training?.targetUnitIds):start();$("back").onclick=()=>{if(state.battle)state.battle.stop();state.mode="battle";state.training=null;document.body.classList.remove("training-mode");$("arena").classList.remove("hidden");$("enemy-clock").classList.remove("hidden");screen("home");};$("result-home").onclick=()=>{state.mode="battle";state.training=null;document.body.classList.remove("training-mode");$("arena").classList.remove("hidden");$("enemy-clock").classList.remove("hidden");$("retry").textContent="もう一度挑戦 ↻";$("mistakes").querySelector("b").textContent="もう一度練習したい問題";screen("home");};$("special-use").onclick=()=>{if(state.battle)state.battle.activateSpecial();};
 let dexFilter="all";
@@ -347,6 +350,8 @@ $("dex-back").onclick=()=>screen("home");
 document.querySelectorAll("#dex-tabs button").forEach(b=>b.onclick=()=>{dexFilter=b.dataset.dex;document.querySelectorAll("#dex-tabs button").forEach(x=>x.classList.toggle("selected",x===b));renderDex();});
 $("hero-img").src=HERO_IMAGE;
 updateSoundToggle();
+updateFuriToggle();
+if(settings.furigana)startFurigana();
 // トップ画面の飾り: ヒーローにファンタジー背景、モンスターの帯、図鑑ボタンのサムネイル
 const heroBg=BACKGROUNDS[Math.floor(Math.random()*BACKGROUNDS.length)];
 $("hero").style.backgroundImage="linear-gradient(rgba(255,255,255,.52),rgba(255,255,255,.78)),url("+heroBg.img+")";
