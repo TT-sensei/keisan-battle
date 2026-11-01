@@ -1,13 +1,14 @@
 // ナビアン図鑑データ。画像はナビキャラサイト（TT-sensei/navi-character-）の公開素材を参照する。
 export const NAVI_BASE = "https://tt-sensei.github.io/navi-character-/";
 export const CHARACTERS = {
-  riku: { name: "リク", img: NAVI_BASE + "assets/web/fantasy/riku-ninja.webp" },
-  sora: { name: "ソラ", img: NAVI_BASE + "assets/web/fantasy/sora-swordsman.webp" },
-  kai: { name: "カイ", img: NAVI_BASE + "assets/web/fantasy/kai-mage.webp" },
-  saku: { name: "サク", img: NAVI_BASE + "assets/web/fantasy/saku-cleric-healer.webp" },
-  tsuki: { name: "ツキ", img: NAVI_BASE + "assets/web/fantasy/tsuki-archer.webp" },
-  nami: { name: "ナミ", img: NAVI_BASE + "assets/web/fantasy/nami-guardian-knight.webp" }
+  riku: { name: "リク", img: NAVI_BASE + "assets/web/fantasy/riku-ninja.webp", pose: "riku-ninja" },
+  sora: { name: "ソラ", img: NAVI_BASE + "assets/web/fantasy/sora-swordsman.webp", pose: "sora-swordsman" },
+  kai: { name: "カイ", img: NAVI_BASE + "assets/web/fantasy/kai-mage.webp", pose: "kai-mage" },
+  saku: { name: "サク", img: NAVI_BASE + "assets/web/fantasy/saku-cleric-healer.webp", pose: "saku-cleric" },
+  tsuki: { name: "ツキ", img: NAVI_BASE + "assets/web/fantasy/tsuki-archer.webp", pose: "tsuki-archer" },
+  nami: { name: "ナミ", img: NAVI_BASE + "assets/web/fantasy/nami-guardian-knight.webp", pose: "nami-knight" }
 };
+export function poseImg(charId, kind){ const c = CHARACTERS[charId]; return c ? NAVI_BASE + "assets/web/fantasy/" + kind + "/" + c.pose + "-" + kind + ".webp" : ""; }
 export const HERO_IMAGE = NAVI_BASE + "assets/web/fantasy/groups/group-fantasy-departure.webp";
 export const BACKGROUNDS = [
   { id: "forest", label: "森", img: NAVI_BASE + "assets/web/fantasy/backgrounds/forest.webp" },

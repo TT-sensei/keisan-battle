@@ -1,5 +1,5 @@
 import{OPERATIONS,UNIT_BY_ID}from"./data/units.js";import{generateQuestion}from"./engine/question-generator.js";import{Battle}from"./game/battle.js";
-import{CHARACTERS,HERO_IMAGE,BACKGROUNDS,MONSTER_LIST}from"./data/monsters.js";
+import{CHARACTERS,HERO_IMAGE,BACKGROUNDS,MONSTER_LIST,poseImg}from"./data/monsters.js";
 const $=id=>document.getElementById(id),state={op:"addition",unit:"add-within-20",char:"riku",battle:null,answer:"",answer2:"",activeField:1,mode:"battle",training:null,currentEnemy:null};
 const DIFF_LABELS={easy:"やさしい",normal:"ふつう",hard:"つよい"};
 let settings={count:10,difficulty:"normal",sound:true};
@@ -91,7 +91,25 @@ document.querySelectorAll(".op").forEach(b=>b.onclick=()=>{state.op=b.dataset.op
 document.querySelectorAll(".char").forEach(b=>b.onclick=()=>{state.char=b.dataset.char;document.querySelectorAll(".char").forEach(x=>x.classList.toggle("selected",x===b));});
 document.querySelectorAll(".count-btn").forEach(b=>{b.classList.toggle("selected",Number(b.dataset.count)===settings.count);b.onclick=()=>{settings.count=Number(b.dataset.count);saveSettings();document.querySelectorAll(".count-btn").forEach(x=>x.classList.toggle("selected",x===b));updateSummary();};});
 document.querySelectorAll(".diff-btn").forEach(b=>{b.classList.toggle("selected",b.dataset.diff===settings.difficulty);b.onclick=()=>{settings.difficulty=b.dataset.diff;saveSettings();document.querySelectorAll(".diff-btn").forEach(x=>x.classList.toggle("selected",x===b));updateSummary();};});
-function screen(id){["home","battle","result","dex"].forEach(x=>$(x).classList.toggle("hidden",x!==id));window.scrollTo({top:0,behavior:"smooth"});}
+function screen(id){["home","battle","result","dex"].forEach(x=>$(x).classList.toggle("hidden",x!==id));if(id!=="battle")$("vs-splash").classList.add("hidden");window.scrollTo({top:0,behavior:"smooth"});}
+let poseTimer=null;
+function showPose(kind,ms){
+const c=CHARACTERS[state.char];if(!c)return;
+const img=$("player-img");
+const src=poseImg(state.char,kind);if(!src)return;
+img.src=src;
+if(poseTimer)clearTimeout(poseTimer);
+poseTimer=setTimeout(()=>{img.src=CHARACTERS[state.char].img;},ms||700);
+}
+function showVsSplash(){
+$("vs-player").src=CHARACTERS[state.char].img;
+$("vs-enemy").src=state.currentEnemy?state.currentEnemy.img:"";
+$("vs-enemy-name").textContent=state.currentEnemy?state.currentEnemy.name:"";
+$("vs-splash").classList.remove("hidden");
+playSound("special");
+const b=state.battle;
+setTimeout(()=>{$("vs-splash").classList.add("hidden");if(b)b.start();},1250);
+}
 function feedback(text){$("feedback").textContent=text;}
 function render(event){
 const b=event.battle;
@@ -121,13 +139,23 @@ if(event.type==="question"){
 }
 if(event.type==="correct"||event.type==="special"){
   playSound(event.type==="special"?"special":"correct");
+  showPose(event.type==="special"?"special":"attack",event.type==="special"?900:650);
   if(event.damage)spawnDamage("enemy",event.damage);
+  const pi=$("player-img"),ei=$("enemy-img");
+  pi.classList.remove("attacking-r");void pi.offsetWidth;pi.classList.add("attacking-r");
+  ei.classList.remove("damaged");void ei.offsetWidth;ei.classList.add("damaged");
+  setTimeout(()=>{pi.classList.remove("attacking-r");ei.classList.remove("damaged");},420);
   $("enemy").classList.remove("hit");void $("enemy").offsetWidth;$("enemy").classList.add("hit");
   setTimeout(()=>$("enemy").classList.remove("hit"),350);
 }
 if(event.type==="cpu"){
   playSound("hit");
+  showPose("damage",650);
   if(event.damage)spawnDamage("player",event.damage);
+  const pi2=$("player-img"),ei2=$("enemy-img");
+  ei2.classList.remove("attacking-l");void ei2.offsetWidth;ei2.classList.add("attacking-l");
+  pi2.classList.remove("damaged");void pi2.offsetWidth;pi2.classList.add("damaged");
+  setTimeout(()=>{ei2.classList.remove("attacking-l");pi2.classList.remove("damaged");},420);
   $("player").classList.remove("hit");void $("player").offsetWidth;$("player").classList.add("hit");
   setTimeout(()=>$("player").classList.remove("hit"),350);
 }
@@ -202,10 +230,15 @@ const next=idx>=0?units[idx+1]:null;
 if(next){nextBtn.textContent="つぎの単元「"+next.title+"」へ →";nextBtn.classList.remove("hidden");nextBtn.onclick=()=>{state.op=opKey;state.unit=next.id;document.querySelectorAll(".op").forEach(x=>x.classList.toggle("active",x.dataset.op===opKey));renderUnits();screen("home");};}
 else nextBtn.classList.add("hidden");
 }else nextBtn.classList.add("hidden");
+if(state.currentEnemy){
+$("result-visual").classList.remove("hidden");
+$("result-player").src=r.win?poseImg(state.char,"special"):CHARACTERS[state.char].img;
+const reImg=$("result-enemy");reImg.src=state.currentEnemy.img;reImg.classList.toggle("result-defeated",r.win);
+}else $("result-visual").classList.add("hidden");
 playSound(r.win?"win":"lose");
 if(r.win){$("enemy-img").classList.add("defeated");setTimeout(()=>screen("result"),950);}
 else screen("result");}
-function start(){state.mode="battle";state.training=null;$("retry").textContent="もう一度挑戦 ↻";document.body.classList.remove("training-mode");$("arena").classList.remove("hidden");$("enemy-clock").classList.remove("hidden");$("toolbar-note").textContent="CPU BATTLE";$("stage").textContent="STAGE 01";const unit=UNIT_BY_ID[state.unit];enemy=pickEnemy(unit.level);state.currentEnemy=enemy;$("enemy-img").classList.remove("defeated");$("player-img").src=CHARACTERS[state.char].img;$("player-name").textContent=CHARACTERS[state.char].name;$("enemy-img").src=enemy.img;$("enemy-name").textContent=enemy.name;$("enemy-kind").textContent=enemy.set==="boss"?"ボスナビアン":enemy.set==="evo"?"進化ナビアン":"ナビアン";const bg=BACKGROUNDS[Math.floor(Math.random()*BACKGROUNDS.length)];$("arena").style.backgroundImage="url("+bg.img+")";$("stage").textContent="STAGE "+String(unit.level).padStart(2,"0");feedback("バトルスタート！");state.answer="";state.battle=new Battle({unit,onUpdate:render,onFinish:finish,onFeedback:f=>feedback(f.text),options:{maxRounds:settings.count,difficulty:settings.difficulty,trait:state.char,enemyMaxHp:enemy.hp}});screen("battle");state.battle.start();}
+function start(){state.mode="battle";state.training=null;$("retry").textContent="もう一度挑戦 ↻";document.body.classList.remove("training-mode");$("arena").classList.remove("hidden");$("enemy-clock").classList.remove("hidden");$("toolbar-note").textContent="CPU BATTLE";$("stage").textContent="STAGE 01";const unit=UNIT_BY_ID[state.unit];enemy=pickEnemy(unit.level);state.currentEnemy=enemy;$("enemy-img").classList.remove("defeated");$("player-img").src=CHARACTERS[state.char].img;["attack","damage","special"].forEach(k=>{const pre=new Image();pre.src=poseImg(state.char,k);});$("player-name").textContent=CHARACTERS[state.char].name;$("enemy-img").src=enemy.img;$("enemy-name").textContent=enemy.name;$("enemy-kind").textContent=enemy.set==="boss"?"ボスナビアン":enemy.set==="evo"?"進化ナビアン":"ナビアン";const bg=BACKGROUNDS[Math.floor(Math.random()*BACKGROUNDS.length)];$("arena").style.backgroundImage="url("+bg.img+")";$("stage").textContent="STAGE "+String(unit.level).padStart(2,"0");feedback("バトルスタート！");state.answer="";state.battle=new Battle({unit,onUpdate:render,onFinish:finish,onFeedback:f=>feedback(f.text),options:{maxRounds:settings.count,difficulty:settings.difficulty,trait:state.char,enemyMaxHp:enemy.hp}});screen("battle");showVsSplash();}
 function startTraining(targetIds){
 const ids=(targetIds||[...new Set(save.mistakes.map(m=>m.unitId))]).filter(id=>UNIT_BY_ID[id]&&UNIT_BY_ID[id].generator!=="future");
 if(!ids.length)return;
@@ -259,7 +292,7 @@ const t=state.training;if(!t)return;
 const accuracy=t.answered?Math.round(t.solved/t.answered*100):0;
 const xp=t.solved*2;save.xp+=xp;
 save.sessions.push({mode:"training",unitId:"mixed-training",correct:t.solved,answered:t.answered,accuracy,duration:Math.round((Date.now()-t.startedAt)/1000),at:Date.now()});
-persist();$("resulticon").textContent="✦";$("resulttitle").textContent="特訓終了！";
+persist();$("resulticon").textContent="✦";$("result-visual").classList.add("hidden");$("resulttitle").textContent="特訓終了！";
 $("resultmessage").textContent="最後までよく取り組んだね。正解を重ねて、苦手を少しずつ減らそう。";
 $("correct").textContent=t.solved+"/"+t.maxQuestions;$("accuracy").textContent=accuracy+"%";$("earned").textContent="+"+xp;$("bestcombo").textContent="—";
 $("mistakes").classList.toggle("hidden",!save.mistakes.length);$("mistakelist").innerHTML="";
@@ -311,5 +344,11 @@ $("dex-back").onclick=()=>screen("home");
 document.querySelectorAll("#dex-tabs button").forEach(b=>b.onclick=()=>{dexFilter=b.dataset.dex;document.querySelectorAll("#dex-tabs button").forEach(x=>x.classList.toggle("selected",x===b));renderDex();});
 $("hero-img").src=HERO_IMAGE;
 updateSoundToggle();
+// トップ画面の飾り: ヒーローにファンタジー背景、モンスターの帯、図鑑ボタンのサムネイル
+const heroBg=BACKGROUNDS[Math.floor(Math.random()*BACKGROUNDS.length)];
+$("hero").style.backgroundImage="linear-gradient(rgba(255,255,255,.52),rgba(255,255,255,.78)),url("+heroBg.img+")";
+const strip=$("monster-strip");
+[...MONSTER_LIST].sort(()=>Math.random()-0.5).slice(0,10).forEach(m=>{const i=document.createElement("img");i.src=m.img;i.alt=m.name;i.title=m.name;i.loading="lazy";strip.append(i);});
+$("dex-thumb").src=MONSTER_LIST[Math.floor(Math.random()*MONSTER_LIST.length)].img;
 document.querySelectorAll(".char").forEach(b=>{const img=b.querySelector(".char-img");if(img)img.src=CHARACTERS[b.dataset.char].img;});
 save.sessions=Array.isArray(save.sessions)?save.sessions:[];save.mastery=save.mastery&&typeof save.mastery==="object"?save.mastery:{};save.mistakes=Array.isArray(save.mistakes)?save.mistakes:[];save.dex=save.dex&&typeof save.dex==="object"?save.dex:{};persist();renderUnits();

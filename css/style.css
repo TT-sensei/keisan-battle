@@ -83,3 +83,26 @@
 @keyframes dmgfloat{0%{transform:translateY(6px) scale(.8);opacity:0}15%{opacity:1;transform:translateY(0) scale(1.1)}100%{transform:translateY(-52px) scale(1);opacity:0}}
 .fighter-img.defeated{animation:defeat .95s ease forwards}
 @keyframes defeat{40%{transform:translateY(4px) rotate(-4deg)}100%{transform:translateY(30px) rotate(9deg);opacity:.2;filter:grayscale(.7)}}
+
+.hero{background-size:cover;background-position:center}
+.monster-strip-wrap{margin-top:12px;background:#fffdf8;border:1px solid var(--line);border-radius:15px;padding:10px 14px 6px}
+.monster-strip-wrap>span{font-size:10px;font-weight:900;color:#8793a0;letter-spacing:.08em}
+.monster-strip{display:flex;gap:6px;overflow-x:auto;padding:6px 0 8px}
+.monster-strip img{height:64px;width:64px;object-fit:contain;flex:0 0 auto}
+.dex-thumb{width:44px;height:44px;object-fit:contain;flex:0 0 44px}
+#vs-splash{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:space-around;background:#20303ee6;padding:0 6%}
+#vs-splash img{height:150px;max-width:34%;object-fit:contain;filter:drop-shadow(0 10px 8px #0006)}
+.vs-mid{text-align:center;color:#fff}
+.vs-mid b{display:block;font-size:44px;letter-spacing:.06em;color:#ffb84d;text-shadow:0 3px 0 #a35b12}
+.vs-mid small{font-size:13px;font-weight:900}
+.result-visual{display:flex;align-items:center;justify-content:center;gap:14px;margin:6px 0 2px}
+.result-visual img{height:110px;max-width:38%;object-fit:contain}
+.result-visual span{font-size:22px;color:#a35b12}
+.result-visual img.result-defeated{filter:grayscale(.8);opacity:.55;transform:rotate(7deg) translateY(8px)}
+.fighter-img.attacking-r{animation:lunge-r .4s ease}
+.fighter-img.attacking-l{animation:lunge-l .4s ease}
+@keyframes lunge-r{30%{transform:translateX(34px) scale(1.06)}}
+@keyframes lunge-l{30%{transform:translateX(-34px) scale(1.06)}}
+.fighter-img.damaged{animation:dmgflash .4s ease}
+@keyframes dmgflash{0%{filter:brightness(2.2) saturate(.3)}35%{filter:brightness(1.5) hue-rotate(-28deg)}100%{filter:brightness(1)}}
+@media(max-width:720px){#vs-splash img{height:104px}.result-visual img{height:84px}.monster-strip img{height:52px;width:52px}}
