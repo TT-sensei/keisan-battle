@@ -108,15 +108,22 @@ export class Battle {
     this.nextEnemyAttackAt = Date.now() + this.enemyAttackInterval;
   }
 
-  submit(raw) {
+  submit(raw, remainderRaw) {
     if (this.finished || !this.acceptingAnswer || !this.question || raw === "") {
       return { accepted: false };
     }
     const value = Number(raw);
     if (!Number.isFinite(value)) return { accepted: false };
+    const isRemainder = this.question.answerFormat === "remainder";
+    if (isRemainder && (remainderRaw === "" || remainderRaw === undefined || !Number.isFinite(Number(remainderRaw)))) {
+      return { accepted: false };
+    }
+    const isCorrect = isRemainder
+      ? (value === this.question.answer && Number(remainderRaw) === this.question.remainder)
+      : (value === this.question.answer);
 
     this.answered++;
-    if (value === this.question.answer) {
+    if (isCorrect) {
       this.acceptingAnswer = false;
       this.correct++;
       this.combo++;
@@ -144,7 +151,7 @@ export class Battle {
       if (healed) text += " HPが " + healed + " 回復！";
       if (this.special === 100) text = "正解！ 必殺技ゲージ MAX！";
       this.onFeedback({ kind: "success", text });
-      this.onUpdate({ type: "correct", battle: this.snapshot() });
+      this.onUpdate({ type: "correct", battle: this.snapshot(), damage });
 
       if (this.enemyHp <= 0) {
         this.finish(true);
@@ -168,6 +175,9 @@ export class Battle {
       this.mistakes.push({
         display: this.question.display,
         answer: this.question.answer,
+        answerText: this.question.answerFormat === "remainder"
+          ? this.question.answer + " あまり " + this.question.remainder
+          : null,
         unitId: this.question.unitId,
         unitTitle: this.question.unitTitle
       });
@@ -187,7 +197,7 @@ export class Battle {
     this.playerHp = Math.max(0, this.playerHp - damage);
     this.resetEnemyAttackTimer();
     this.onFeedback({ kind: "enemy", text: "ナビアンの攻撃！ " + damage + " ダメージ" });
-    this.onUpdate({ type: "cpu", battle: this.snapshot() });
+    this.onUpdate({ type: "cpu", battle: this.snapshot(), damage });
     if (this.playerHp <= 0) this.finish(false);
   }
 
@@ -196,7 +206,7 @@ export class Battle {
     this.special = 0;
     this.enemyHp = Math.max(0, this.enemyHp - 30);
     this.onFeedback({ kind: "special", text: "必殺技発動！ 30 ダメージ！" });
-    this.onUpdate({ type: "special", battle: this.snapshot() });
+    this.onUpdate({ type: "special", battle: this.snapshot(), damage: 30 });
     if (this.enemyHp <= 0) this.finish(true);
     return true;
   }

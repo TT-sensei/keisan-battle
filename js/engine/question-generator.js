@@ -183,6 +183,20 @@ function division(config) {
 }
 
 
+function divisionRemainder(config) {
+  const c = config || {};
+  const divisor = rand(c.minDivisor ?? 2, c.maxDivisor ?? 9);
+  const quotient = rand(c.minQuotient ?? 2, c.maxQuotient ?? 9);
+  const remainder = rand(1, divisor - 1);
+  const dividend = divisor * quotient + remainder;
+  return {
+    a: dividend, b: divisor, operator: "÷", answer: quotient, remainder,
+    answerFormat: "remainder",
+    display: formatNumber(dividend) + " ÷ " + divisor,
+    explanation: formatNumber(dividend) + " ÷ " + divisor + " = " + quotient + " あまり " + remainder + " です。"
+  };
+}
+
 function formatDecimal(scaledValue, places) {
   return (scaledValue / (10 ** places)).toFixed(places);
 }
@@ -363,7 +377,7 @@ function speed(config) {
   };
 }
 
-const generators = { addition, subtraction, multiplication, division, missingAddend, missingSubtrahend, missingFactor, missingDivisor, decimalAddition, decimalSubtraction, decimalMultiplication, decimalDivision, average, commonMultiple, commonDivisor, sum, percentage, percentageRate, percentageBase, speed };
+const generators = { addition, subtraction, multiplication, division, divisionRemainder, missingAddend, missingSubtrahend, missingFactor, missingDivisor, decimalAddition, decimalSubtraction, decimalMultiplication, decimalDivision, average, commonMultiple, commonDivisor, sum, percentage, percentageRate, percentageBase, speed };
 
 export function generateQuestion(unit) {
   if (!unit || !generators[unit.generator]) {

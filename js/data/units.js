@@ -68,7 +68,7 @@ export const OPERATIONS = {
       { id: "div-three-one", title: "3けた÷1けた", detail: "3けたの数を1けたでわる", grade: [4], level: 3, generator: "division", config: { minDividend: 100, maxDividend: 999, minDivisor: 2, maxDivisor: 9 } },
       { id: "div-four-one", title: "4けた÷1けた", detail: "大きな数のわり算", grade: [4, 5], level: 5, generator: "division", config: { minDividend: 1000, maxDividend: 9999, minDivisor: 2, maxDivisor: 9 } },
       { id: "div-four-two", title: "4けた÷2けた", detail: "2けたでわる筆算・わり切れる計算", grade: [5, 6], level: 5, generator: "division", config: { minDividend: 1000, maxDividend: 9999, minDivisor: 10, maxDivisor: 99 } },
-      { id: "div-remainder", title: "あまりのあるわり算", detail: "商とあまりの入力に対応後に公開", grade: [3, 4], level: 4, generator: "future", config: {} },
+      { id: "div-remainder", title: "あまりのあるわり算", detail: "商とあまりの両方を答える", grade: [3, 4], level: 4, generator: "divisionRemainder", config: { minDivisor: 2, maxDivisor: 9, minQuotient: 2, maxQuotient: 9 } },
       { id: "div-decimal-integer", title: "小数÷整数", detail: "わり切れる小数のわり算", grade: [5], level: 4, generator: "decimalDivision", config: { mode: "integer", divisorMin: 2, divisorMax: 9, quotientPlaces: 1, minQuotient: 1, maxQuotient: 99 } },
       { id: "div-decimal-decimal", title: "小数÷小数", detail: "小数第1位どうし・わり切れる計算", grade: [6], level: 5, generator: "decimalDivision", config: { mode: "decimal", divisorMin: 1, divisorMax: 99, quotientPlaces: 1, minQuotient: 1, maxQuotient: 99 } }
     ]

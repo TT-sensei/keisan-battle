@@ -70,3 +70,16 @@
 .dex-cell b{display:block;font-size:10px;margin-top:4px;color:#344c62}
 .dex-cell small{display:block;font-size:9px;color:#84919c;margin-top:2px;line-height:1.4}
 @media(max-width:720px){.fighter-img{height:84px;max-width:104px}.char-img{height:56px}.hero-art img{width:min(250px,52vw)}}
+
+.sound-toggle{border:1px solid var(--line);background:#fffdf8;border-radius:16px;padding:4px 10px;font-size:11px;font-weight:800;color:#526174}
+.unit.recommended{border:2px solid #e2a341;background:#fff8e9}
+.answer-box{cursor:pointer}
+.answer-box.active{outline:2px solid #3979b8;outline-offset:1px}
+.amari{font-size:11px;color:#8a6b54;font-weight:900}
+#fx-layer{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+.dmg-pop{position:absolute;font-size:27px;font-weight:900;text-shadow:0 2px 0 #fff,0 0 6px #fff;animation:dmgfloat .95s ease-out forwards}
+.dmg-enemy{color:#d9534a}
+.dmg-player{color:#3979b8}
+@keyframes dmgfloat{0%{transform:translateY(6px) scale(.8);opacity:0}15%{opacity:1;transform:translateY(0) scale(1.1)}100%{transform:translateY(-52px) scale(1);opacity:0}}
+.fighter-img.defeated{animation:defeat .95s ease forwards}
+@keyframes defeat{40%{transform:translateY(4px) rotate(-4deg)}100%{transform:translateY(30px) rotate(9deg);opacity:.2;filter:grayscale(.7)}}
