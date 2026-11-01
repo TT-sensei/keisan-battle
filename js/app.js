@@ -179,7 +179,7 @@ if(state.mode==="training"){
  if(k==="clear"){state.answer="";$("answer").textContent="?";return;}
  if(k==="."){if(state.answer.includes("."))return;if(state.answer==="")state.answer="0";state.answer+=".";$("answer").textContent=state.answer;return;}
  if(k==="enter"){submitTraining();return;}
- if(state.answer.length<8&&/^\\d$/.test(k)){state.answer+=k;$("answer").textContent=state.answer;}
+ if(state.answer.length<8&&/^\d$/.test(k)){state.answer+=k;$("answer").textContent=state.answer;}
  return;
 }
 if(!state.battle||state.battle.finished)return;
