@@ -47,7 +47,52 @@ if(event.type==="wrong"){
   $("question-card").classList.remove("retry-shake");void $("question-card").offsetWidth;$("question-card").classList.add("retry-shake");
   setTimeout(()=>$("question-card").classList.remove("retry-shake"),250);
 }
-}function finish(r){save.xp+=r.xp;if(r.win)save.wins++;r.mistakes.forEach(m=>save.mistakes.push({...m,at:Date.now()}));persist();$("resulticon").textContent=r.win?"🏆":"💪";$("resulttitle").textContent=r.win?"クエストクリア！":"もう少し！";$("resultmessage").textContent=r.win?"ナビアンに勝利！計算の力がアップしたね。":"最後までよく挑戦したね。特訓して再挑戦しよう！";$("correct").textContent=r.correct+"/"+r.answered;$("accuracy").textContent=r.accuracy+"%";$("earned").textContent="+"+r.xp;$("bestcombo").textContent=r.bestCombo;$("mistakes").classList.toggle("hidden",!r.mistakes.length);$("mistakelist").innerHTML="";r.mistakes.forEach(m=>{const s=document.createElement("span");s.textContent=m.display+" = "+m.answer;$("mistakelist").append(s);});screen("result");}
+}
+const canvas=$("work-canvas"),ctx=canvas.getContext("2d");
+let drawing=false,drawEnabled=false,lastPoint=null;
+function resizeCanvas(){
+  const rect=canvas.getBoundingClientRect(),dpr=Math.max(1,window.devicePixelRatio||1);
+  if(!rect.width||!rect.height)return;
+  const old=document.createElement("canvas");
+  old.width=canvas.width;old.height=canvas.height;
+  if(old.width&&old.height)old.getContext("2d").drawImage(canvas,0,0);
+  canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#315f8d";ctx.lineWidth=3.2;
+  if(old.width&&old.height)ctx.drawImage(old,0,0,old.width,old.height,0,0,rect.width,rect.height);
+}
+function clearCanvas(){ctx.clearRect(0,0,canvas.width,canvas.height);}
+function setDrawEnabled(enabled){
+  drawEnabled=enabled;
+  canvas.classList.toggle("drawing",enabled);
+  $("draw-toggle").classList.toggle("active",enabled);
+  $("draw-toggle").setAttribute("aria-pressed",String(enabled));
+  $("draw-toggle").textContent=enabled?"✍ 手書き ON":"✍ 手書き OFF";
+}
+function pointFromEvent(e){
+  const r=canvas.getBoundingClientRect();
+  return {x:e.clientX-r.left,y:e.clientY-r.top};
+}
+canvas.addEventListener("pointerdown",e=>{
+  if(!drawEnabled||!state.battle||state.battle.finished)return;
+  e.preventDefault();canvas.setPointerCapture(e.pointerId);drawing=true;lastPoint=pointFromEvent(e);
+  ctx.beginPath();ctx.arc(lastPoint.x,lastPoint.y,1.5,0,Math.PI*2);ctx.fillStyle="#315f8d";ctx.fill();
+});
+canvas.addEventListener("pointermove",e=>{
+  if(!drawing||!drawEnabled)return;
+  e.preventDefault();const p=pointFromEvent(e);
+  ctx.beginPath();ctx.moveTo(lastPoint.x,lastPoint.y);ctx.lineTo(p.x,p.y);ctx.stroke();lastPoint=p;
+});
+function stopDrawing(){drawing=false;lastPoint=null;}
+canvas.addEventListener("pointerup",stopDrawing);
+canvas.addEventListener("pointercancel",stopDrawing);
+canvas.addEventListener("lostpointercapture",stopDrawing);
+$("draw-toggle").onclick=()=>setDrawEnabled(!drawEnabled);
+$("draw-clear").onclick=clearCanvas;
+window.addEventListener("resize",resizeCanvas);
+if("ResizeObserver"in window)new ResizeObserver(resizeCanvas).observe(canvas);
+requestAnimationFrame(resizeCanvas);
+function finish(r){save.xp+=r.xp;if(r.win)save.wins++;r.mistakes.forEach(m=>save.mistakes.push({...m,at:Date.now()}));persist();$("resulticon").textContent=r.win?"🏆":"💪";$("resulttitle").textContent=r.win?"クエストクリア！":"もう少し！";$("resultmessage").textContent=r.win?"ナビアンに勝利！計算の力がアップしたね。":"最後までよく挑戦したね。特訓して再挑戦しよう！";$("correct").textContent=r.correct+"/"+r.answered;$("accuracy").textContent=r.accuracy+"%";$("earned").textContent="+"+r.xp;$("bestcombo").textContent=r.bestCombo;$("mistakes").classList.toggle("hidden",!r.mistakes.length);$("mistakelist").innerHTML="";r.mistakes.forEach(m=>{const s=document.createElement("span");s.textContent=m.display+" = "+m.answer;$("mistakelist").append(s);});screen("result");}
 function start(){const unit=UNIT_BY_ID[state.unit],c=chars[state.char];enemy=enemies[Math.floor(Math.random()*enemies.length)];$("player-emoji").textContent=c[1];$("player-name").textContent=c[0];$("enemy-emoji").textContent=enemy[1];$("enemy-name").textContent=enemy[0];$("stage").textContent="STAGE "+String(unit.level).padStart(2,"0");feedback("バトルスタート！");state.answer="";state.battle=new Battle({unit,onUpdate:render,onFinish:finish,onFeedback:f=>feedback(f.text)});screen("battle");state.battle.start();}
 function key(k){
 if(!state.battle||state.battle.finished)return;
