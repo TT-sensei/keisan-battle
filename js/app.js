@@ -107,7 +107,7 @@ if(k==="enter"){
   }
   return;
 }
-if(state.answer.length<5){state.answer+=k;$("answer").textContent=state.answer;}
+if(state.answer.length<7){state.answer+=k;$("answer").textContent=state.answer;}
 }
 $("keypad").onclick=e=>{const b=e.target.closest("button[data-key]");if(b)key(b.dataset.key);};window.addEventListener("keydown",e=>{if($("battle").classList.contains("hidden"))return;if(/^\d$/.test(e.key))key(e.key);else if(e.key==="Backspace")key("clear");else if(e.key==="Enter")key("enter");});
 $("start").onclick=start;$("retry").onclick=start;$("back").onclick=()=>{if(state.battle)state.battle.stop();screen("home");};$("result-home").onclick=()=>screen("home");$("special-use").onclick=()=>{if(state.battle)state.battle.activateSpecial();};
