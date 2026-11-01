@@ -76,7 +76,10 @@ export const OPERATIONS = {
       { id: "average-three", title: "3つの数の平均", detail: "3つの数の合計を3でわる", grade: [5], level: 3, generator: "average", config: { minAverage: 10, maxAverage: 100, spread: 12 } },
       { id: "common-multiple", title: "最小公倍数", detail: "2つの数の最小公倍数", grade: [5], level: 4, generator: "commonMultiple", config: { min: 2, max: 30 } },
       { id: "common-divisor", title: "最大公約数", detail: "2つの数の最大公約数", grade: [5], level: 4, generator: "commonDivisor", config: { min: 2, max: 60 } },
-      { id: "percentage", title: "割合をもとめる", detail: "何％かではなく、もとにする量の何％かを計算", grade: [5], level: 4, generator: "percentage", config: { minBase: 100, maxBase: 1000 } },
+            { id: "sum-three", title: "3つの数の合計", detail: "3つの数を合わせた合計", grade: [3], level: 2, generator: "sum", config: { min: 10, max: 100 } },
+      { id: "percentage-part", title: "くらべる数をもとめる", detail: "もとにする量×割合", grade: [5], level: 4, generator: "percentage", config: { minBase: 100, maxBase: 1000 } },
+      { id: "percentage-rate", title: "割合をもとめる", detail: "くらべる数÷もとにする量", grade: [5], level: 4, generator: "percentageRate", config: { minBase: 100, maxBase: 1000 } },
+      { id: "percentage-base", title: "もとにする量をもとめる", detail: "くらべる数÷割合", grade: [5], level: 5, generator: "percentageBase", config: { minBase: 100, maxBase: 1000 } },
       { id: "speed-basic", title: "速さの基本", detail: "道のり÷時間で速さをもとめる", grade: [5], level: 4, generator: "speed", config: { minSpeed: 20, maxSpeed: 120, minTime: 2, maxTime: 10 } }
     ]
   }
