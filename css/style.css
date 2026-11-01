@@ -23,3 +23,19 @@
 .work-tools button.active{background:#315f8d;border-color:#315f8d;color:white}
 .work-tools small{font-size:9px;color:#89949d}
 @media(max-width:720px){.work-area{min-height:205px}.work-tools{gap:6px}.work-tools small{width:100%;text-align:center}}
+
+.home-tools{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.training-open,.record-card{display:flex;align-items:center;gap:12px;text-align:left;border:1px solid var(--line);background:#fffdf8;border-radius:13px;padding:13px 16px;color:#344c62}
+.training-open{width:100%;cursor:pointer}
+.training-open:disabled{opacity:.55;cursor:not-allowed}
+.training-icon{display:grid;place-items:center;width:36px;height:36px;flex:0 0 36px;border-radius:10px;background:#edf4f7;color:#3979a8;font-size:21px}
+.training-open span:nth-child(2){display:flex;flex-direction:column;gap:4px;flex:1}
+.training-open b,.record-card b{font-size:12px}
+.training-open small,.record-card span{font-size:10px;color:#84919c;line-height:1.5}
+.training-open strong{font-size:18px;color:#8ca0af}
+.record-card{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px}
+.training-mode .arena,.training-mode .enemy-clock,.training-mode .battle-grid aside{display:none!important}
+.training-mode .battle-grid{grid-template-columns:1fr}
+.training-mode .progress{grid-column:1}
+.training-mode #stage{background:#edf5fa;color:#356f9f}
+@media(max-width:720px){.home-tools{grid-template-columns:1fr}.record-card{min-height:70px}}
