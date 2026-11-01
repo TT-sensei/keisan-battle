@@ -5,6 +5,7 @@ export const OPERATIONS = {
     description: "数の大きさや、くり上がりの有無を選ぼう。",
     units: [
       { id: "add-within-20", title: "20までのたし算", detail: "1けた＋1けた", grade: [1], level: 1, generator: "addition", config: { minA: 1, maxA: 10, minB: 1, maxB: 10 } },
+      { id: "add-missing-number", title: "□の数をもとめる", detail: "□＋1けた＝20までの数", grade: [1, 2], level: 2, generator: "missingAddend", config: { min: 1, max: 10, maxTotal: 20 } },
       { id: "add-two-one-no-carry", title: "2けた＋1けた（くり上がりなし）", detail: "2けたの数に1けたをたす", grade: [2], level: 2, generator: "addition", config: { minA: 10, maxA: 98, minB: 1, maxB: 9, carry: false } },
       { id: "add-two-one-carry", title: "2けた＋1けた（くり上がりあり）", detail: "一の位からくり上がる", grade: [2], level: 2, generator: "addition", config: { minA: 10, maxA: 99, minB: 1, maxB: 9, carry: true } },
       { id: "add-three-two-no-carry", title: "3けた＋2けた（くり上がりなし）", detail: "3けたの数に2けたをたす", grade: [2, 3], level: 3, generator: "addition", config: { minA: 100, maxA: 999, minB: 10, maxB: 99, carry: false } },
@@ -25,6 +26,7 @@ export const OPERATIONS = {
     description: "数の大きさや、くり下がりの有無を選ぼう。",
     units: [
       { id: "sub-within-20", title: "20までのひき算", detail: "2けた−1けた", grade: [1], level: 1, generator: "subtraction", config: { minA: 10, maxA: 20, minB: 1, maxB: 9 } },
+      { id: "sub-missing-number", title: "□の数をもとめる", detail: "20までの数−□＝1けた", grade: [1, 2], level: 2, generator: "missingSubtrahend", config: { min: 1, max: 20 } },
       { id: "sub-two-one-no-borrow", title: "2けた−1けた（くり下がりなし）", detail: "2けたの数から1けたをひく", grade: [1, 2], level: 2, generator: "subtraction", config: { minA: 10, maxA: 99, minB: 1, maxB: 9, borrow: false } },
       { id: "sub-two-one-borrow", title: "2けた−1けた（くり下がりあり）", detail: "一の位からくり下がる", grade: [1, 2], level: 2, generator: "subtraction", config: { minA: 10, maxA: 99, minB: 1, maxB: 9, borrow: true } },
       { id: "sub-three-two-no-borrow", title: "3けた−2けた（くり下がりなし）", detail: "3けたの数から2けたをひく", grade: [2, 3], level: 3, generator: "subtraction", config: { minA: 100, maxA: 999, minB: 10, maxB: 99, borrow: false } },
@@ -45,6 +47,7 @@ export const OPERATIONS = {
     description: "九九から、位の多いかけ算へ進もう。",
     units: [
       { id: "mul-table", title: "九九", detail: "1けた×1けた", grade: [2], level: 1, generator: "multiplication", config: { minA: 1, maxA: 9, minB: 1, maxB: 9 } },
+      { id: "mul-missing-factor", title: "□の数をもとめる", detail: "□×1けた＝九九の答え", grade: [2, 3], level: 2, generator: "missingFactor", config: { min: 2, max: 9 } },
       { id: "mul-two-one", title: "2けた×1けた", detail: "くり上がりのある計算も", grade: [3], level: 2, generator: "multiplication", config: { minA: 10, maxA: 99, minB: 2, maxB: 9 } },
       { id: "mul-two-two", title: "2けた×2けた", detail: "2けたどうしの筆算", grade: [4], level: 3, generator: "multiplication", config: { minA: 10, maxA: 99, minB: 10, maxB: 99 } },
       { id: "mul-three-one", title: "3けた×1けた", detail: "3けたの数に1けたをかける", grade: [4], level: 4, generator: "multiplication", config: { minA: 100, maxA: 999, minB: 2, maxB: 9 } },
@@ -60,6 +63,7 @@ export const OPERATIONS = {
     description: "わり切れる計算から、大きな数のわり算へ進もう。",
     units: [
       { id: "div-table", title: "九九を使うわり算", detail: "九九の逆算・わり切れる計算", grade: [3], level: 1, generator: "division", config: { minDividend: 2, maxDividend: 81, minDivisor: 2, maxDivisor: 9, minQuotient: 1, maxQuotient: 9 } },
+      { id: "div-missing-divisor", title: "□の数をもとめる", detail: "九九を使ってわる数を考える", grade: [3], level: 2, generator: "missingDivisor", config: { min: 2, max: 9 } },
       { id: "div-two-one", title: "2けた÷1けた", detail: "2けたの数を1けたでわる", grade: [4], level: 2, generator: "division", config: { minDividend: 10, maxDividend: 99, minDivisor: 2, maxDivisor: 9 } },
       { id: "div-three-one", title: "3けた÷1けた", detail: "3けたの数を1けたでわる", grade: [4], level: 3, generator: "division", config: { minDividend: 100, maxDividend: 999, minDivisor: 2, maxDivisor: 9 } },
       { id: "div-four-one", title: "4けた÷1けた", detail: "大きな数のわり算", grade: [4, 5], level: 5, generator: "division", config: { minDividend: 1000, maxDividend: 9999, minDivisor: 2, maxDivisor: 9 } },
