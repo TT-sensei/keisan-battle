@@ -1,5 +1,5 @@
 import{OPERATIONS,UNIT_BY_ID}from"./data/units.js";import{generateQuestion}from"./engine/question-generator.js";import{Battle}from"./game/battle.js";
-import{CHARACTERS,HERO_IMAGE,BACKGROUNDS,MONSTER_LIST,poseImg}from"./data/monsters.js";
+import{CHARACTERS,HERO_IMAGE,BACKGROUNDS,MONSTER_LIST,poseImg,GROUP_SCENES}from"./data/monsters.js";
 const $=id=>document.getElementById(id),state={op:"addition",unit:"add-within-20",char:"riku",battle:null,answer:"",answer2:"",activeField:1,mode:"battle",training:null,currentEnemy:null};
 const DIFF_LABELS={easy:"やさしい",normal:"ふつう",hard:"つよい"};
 let settings={count:10,difficulty:"normal",sound:true};
@@ -105,6 +105,8 @@ function showVsSplash(){
 $("vs-player").src=CHARACTERS[state.char].img;
 $("vs-enemy").src=state.currentEnemy?state.currentEnemy.img:"";
 $("vs-enemy-name").textContent=state.currentEnemy?state.currentEnemy.name:"";
+const vsBg=GROUP_SCENES.action[Math.floor(Math.random()*GROUP_SCENES.action.length)];
+$("vs-splash").style.backgroundImage="linear-gradient(rgba(24,38,54,.42),rgba(24,38,54,.62)),url("+vsBg+")";
 $("vs-splash").classList.remove("hidden");
 playSound("special");
 const b=state.battle;
@@ -230,6 +232,7 @@ const next=idx>=0?units[idx+1]:null;
 if(next){nextBtn.textContent="つぎの単元「"+next.title+"」へ →";nextBtn.classList.remove("hidden");nextBtn.onclick=()=>{state.op=opKey;state.unit=next.id;document.querySelectorAll(".op").forEach(x=>x.classList.toggle("active",x.dataset.op===opKey));renderUnits();screen("home");};}
 else nextBtn.classList.add("hidden");
 }else nextBtn.classList.add("hidden");
+const rb=$("result-banner");rb.src=r.win?GROUP_SCENES.win[Math.floor(Math.random()*GROUP_SCENES.win.length)]:GROUP_SCENES.rest;rb.classList.remove("hidden");
 if(state.currentEnemy){
 $("result-visual").classList.remove("hidden");
 $("result-player").src=r.win?poseImg(state.char,"special"):CHARACTERS[state.char].img;
@@ -292,7 +295,7 @@ const t=state.training;if(!t)return;
 const accuracy=t.answered?Math.round(t.solved/t.answered*100):0;
 const xp=t.solved*2;save.xp+=xp;
 save.sessions.push({mode:"training",unitId:"mixed-training",correct:t.solved,answered:t.answered,accuracy,duration:Math.round((Date.now()-t.startedAt)/1000),at:Date.now()});
-persist();$("resulticon").textContent="✦";$("result-visual").classList.add("hidden");$("resulttitle").textContent="特訓終了！";
+persist();$("resulticon").textContent="✦";$("result-visual").classList.add("hidden");const rb2=$("result-banner");rb2.src=GROUP_SCENES.rest;rb2.classList.remove("hidden");$("resulttitle").textContent="特訓終了！";
 $("resultmessage").textContent="最後までよく取り組んだね。正解を重ねて、苦手を少しずつ減らそう。";
 $("correct").textContent=t.solved+"/"+t.maxQuestions;$("accuracy").textContent=accuracy+"%";$("earned").textContent="+"+xp;$("bestcombo").textContent="—";
 $("mistakes").classList.toggle("hidden",!save.mistakes.length);$("mistakelist").innerHTML="";
@@ -350,5 +353,7 @@ $("hero").style.backgroundImage="linear-gradient(rgba(255,255,255,.52),rgba(255,
 const strip=$("monster-strip");
 [...MONSTER_LIST].sort(()=>Math.random()-0.5).slice(0,10).forEach(m=>{const i=document.createElement("img");i.src=m.img;i.alt=m.name;i.title=m.name;i.loading="lazy";strip.append(i);});
 $("dex-thumb").src=MONSTER_LIST[Math.floor(Math.random()*MONSTER_LIST.length)].img;
+$("dex-banner").src=GROUP_SCENES.standby;
+$("home-banner-img").src=GROUP_SCENES.ending;
 document.querySelectorAll(".char").forEach(b=>{const img=b.querySelector(".char-img");if(img)img.src=CHARACTERS[b.dataset.char].img;});
 save.sessions=Array.isArray(save.sessions)?save.sessions:[];save.mastery=save.mastery&&typeof save.mastery==="object"?save.mastery:{};save.mistakes=Array.isArray(save.mistakes)?save.mistakes:[];save.dex=save.dex&&typeof save.dex==="object"?save.dex:{};persist();renderUnits();

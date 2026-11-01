@@ -10,6 +10,14 @@ export const CHARACTERS = {
 };
 export function poseImg(charId, kind){ const c = CHARACTERS[charId]; return c ? NAVI_BASE + "assets/web/fantasy/" + kind + "/" + c.pose + "-" + kind + ".webp" : ""; }
 export const HERO_IMAGE = NAVI_BASE + "assets/web/fantasy/groups/group-fantasy-departure.webp";
+const groupScene = s => NAVI_BASE + "assets/web/fantasy/groups/" + s + ".webp";
+export const GROUP_SCENES = {
+  action: ["group-fantasy-action", "group-fantasy-actionforest", "group-fantasy-actionsky", "group-fantasy-actioncave", "group-fantasy-actiondash"].map(groupScene),
+  win: ["group-fantasy-clear", "group-fantasy-reward"].map(groupScene),
+  rest: groupScene("group-fantasy-rest"),
+  standby: groupScene("group-fantasy-standby"),
+  ending: groupScene("group-fantasy-ending")
+};
 export const BACKGROUNDS = [
   { id: "forest", label: "森", img: NAVI_BASE + "assets/web/fantasy/backgrounds/forest.webp" },
   { id: "grassland", label: "草原", img: NAVI_BASE + "assets/web/fantasy/backgrounds/grassland.webp" },

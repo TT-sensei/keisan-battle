@@ -106,3 +106,11 @@
 .fighter-img.damaged{animation:dmgflash .4s ease}
 @keyframes dmgflash{0%{filter:brightness(2.2) saturate(.3)}35%{filter:brightness(1.5) hue-rotate(-28deg)}100%{filter:brightness(1)}}
 @media(max-width:720px){#vs-splash img{height:104px}.result-visual img{height:84px}.monster-strip img{height:52px;width:52px}}
+
+#vs-splash{background-size:cover;background-position:center}
+.result-banner{width:100%;height:150px;object-fit:cover;object-position:center 30%;border-radius:12px;margin-bottom:12px}
+.dex-banner{width:100%;height:130px;object-fit:cover;object-position:center 30%;border-radius:15px;margin-bottom:12px;border:1px solid var(--line)}
+.home-banner{position:relative;margin-top:12px;border-radius:18px;overflow:hidden;border:1px solid var(--line)}
+.home-banner img{width:100%;height:170px;object-fit:cover;object-position:center 30%;display:block}
+.home-banner span{position:absolute;left:14px;bottom:10px;background:#ffffffd9;border-radius:999px;padding:4px 12px;font-size:11px;font-weight:900;color:#31506d}
+@media(max-width:720px){.result-banner{height:104px}.dex-banner{height:92px}.home-banner img{height:120px}}
