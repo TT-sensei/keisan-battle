@@ -16,7 +16,8 @@ export const OPERATIONS = {
       { id: "add-three-no-carry", title: "3けたのたし算（くり上がりなし）", detail: "3けた＋3けた", grade: [3], level: 4, generator: "addition", config: { minA: 100, maxA: 499, minB: 100, maxB: 499, carry: false } },
       { id: "add-three-carry", title: "3けたのたし算（くり上がりあり）", detail: "3けた＋3けた", grade: [3], level: 4, generator: "addition", config: { minA: 100, maxA: 999, minB: 100, maxB: 999, carry: true } },
       { id: "add-four", title: "4けたのたし算", detail: "大きな数のたし算", grade: [4], level: 5, generator: "addition", config: { minA: 1000, maxA: 9999, minB: 1000, maxB: 9999 } },
-      { id: "add-decimal", title: "小数のたし算", detail: "今後追加予定", grade: [4, 5], level: 6, generator: "future", config: {} }
+      { id: "add-decimal-tenths", title: "小数のたし算（小数第1位）", detail: "0.1の位までのたし算", grade: [3, 4], level: 3, generator: "decimalAddition", config: { places: 1, minA: 1, maxA: 99, minB: 1, maxB: 99 } },
+      { id: "add-decimal-hundredths", title: "小数のたし算（小数第2位）", detail: "0.01の位までのたし算", grade: [4, 5], level: 4, generator: "decimalAddition", config: { places: 2, minA: 1, maxA: 999, minB: 1, maxB: 999 } }
     ]
   },
   subtraction: {
@@ -35,7 +36,8 @@ export const OPERATIONS = {
       { id: "sub-three-no-borrow", title: "3けたのひき算（くり下がりなし）", detail: "3けた−3けた", grade: [3], level: 4, generator: "subtraction", config: { minA: 100, maxA: 999, minB: 100, maxB: 999, borrow: false } },
       { id: "sub-three-borrow", title: "3けたのひき算（くり下がりあり）", detail: "3けた−3けた", grade: [3], level: 4, generator: "subtraction", config: { minA: 100, maxA: 999, minB: 100, maxB: 999, borrow: true } },
       { id: "sub-four", title: "4けたのひき算", detail: "大きな数のひき算", grade: [4], level: 5, generator: "subtraction", config: { minA: 1000, maxA: 9999, minB: 1000, maxB: 9999 } },
-      { id: "sub-decimal", title: "小数のひき算", detail: "今後追加予定", grade: [4, 5], level: 6, generator: "future", config: {} }
+      { id: "sub-decimal-tenths", title: "小数のひき算（小数第1位）", detail: "0.1の位までのひき算", grade: [3, 4], level: 3, generator: "decimalSubtraction", config: { places: 1, minA: 10, maxA: 999, minB: 1, maxB: 99 } },
+      { id: "sub-decimal-hundredths", title: "小数のひき算（小数第2位）", detail: "0.01の位までのひき算", grade: [4, 5], level: 4, generator: "decimalSubtraction", config: { places: 2, minA: 100, maxA: 9999, minB: 1, maxB: 999 } }
     ]
   },
   multiplication: {
@@ -49,7 +51,8 @@ export const OPERATIONS = {
       { id: "mul-three-two", title: "3けた×2けた", detail: "大きな数の筆算", grade: [4, 5], level: 5, generator: "multiplication", config: { minA: 100, maxA: 999, minB: 10, maxB: 99 } },
       { id: "mul-four-one", title: "4けた×1けた", detail: "さらに大きな数に挑戦", grade: [4, 5], level: 5, generator: "multiplication", config: { minA: 1000, maxA: 9999, minB: 2, maxB: 9 } },
       { id: "mul-four-two", title: "4けた×2けた", detail: "6けたの答えになる筆算", grade: [5, 6], level: 5, generator: "multiplication", config: { minA: 1000, maxA: 9999, minB: 10, maxB: 99 } },
-      { id: "mul-decimal", title: "小数のかけ算", detail: "今後追加予定", grade: [5, 6], level: 6, generator: "future", config: {} }
+      { id: "mul-decimal-integer", title: "小数×整数", detail: "小数第1位×1けた", grade: [4, 5], level: 4, generator: "decimalMultiplication", config: { placesA: 1, placesB: 0, minA: 1, maxA: 999, minB: 2, maxB: 9 } },
+      { id: "mul-decimal-decimal", title: "小数×小数", detail: "小数第1位どうし", grade: [5], level: 5, generator: "decimalMultiplication", config: { placesA: 1, placesB: 1, minA: 1, maxA: 99, minB: 1, maxB: 99 } }
     ]
   },
   division: {
@@ -62,7 +65,8 @@ export const OPERATIONS = {
       { id: "div-four-one", title: "4けた÷1けた", detail: "大きな数のわり算", grade: [4, 5], level: 5, generator: "division", config: { minDividend: 1000, maxDividend: 9999, minDivisor: 2, maxDivisor: 9 } },
       { id: "div-four-two", title: "4けた÷2けた", detail: "2けたでわる筆算・わり切れる計算", grade: [5, 6], level: 5, generator: "division", config: { minDividend: 1000, maxDividend: 9999, minDivisor: 10, maxDivisor: 99 } },
       { id: "div-remainder", title: "あまりのあるわり算", detail: "商とあまりの入力に対応後に公開", grade: [3, 4], level: 4, generator: "future", config: {} },
-      { id: "div-decimal", title: "小数のわり算", detail: "今後追加予定", grade: [5, 6], level: 6, generator: "future", config: {} }
+      { id: "div-decimal-integer", title: "小数÷整数", detail: "わり切れる小数のわり算", grade: [5], level: 4, generator: "decimalDivision", config: { mode: "integer", divisorMin: 2, divisorMax: 9, quotientPlaces: 1, minQuotient: 1, maxQuotient: 99 } },
+      { id: "div-decimal-decimal", title: "小数÷小数", detail: "小数第1位どうし・わり切れる計算", grade: [6], level: 5, generator: "decimalDivision", config: { mode: "decimal", divisorMin: 1, divisorMax: 99, quotientPlaces: 1, minQuotient: 1, maxQuotient: 99 } }
     ]
   }
 };
