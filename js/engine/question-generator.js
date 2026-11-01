@@ -134,7 +134,77 @@ function division(config) {
   throw new Error("この条件に合うわり算を作れませんでした。単元の数の範囲を確認してください。");
 }
 
-const generators = { addition, subtraction, multiplication, division };
+
+function formatDecimal(scaledValue, places) {
+  return (scaledValue / (10 ** places)).toFixed(places);
+}
+
+function decimalAddition(config) {
+  const c = config || {}, places = c.places ?? 1;
+  const a = rand(c.minA ?? 1, c.maxA ?? 99);
+  const b = rand(c.minB ?? 1, c.maxB ?? 99);
+  const total = a + b, answer = total / (10 ** places);
+  return {
+    a, b, operator: "+", answer,
+    display: formatDecimal(a, places) + " + " + formatDecimal(b, places),
+    explanation: formatDecimal(a, places) + " と " + formatDecimal(b, places) + " を合わせると " + formatDecimal(total, places) + " です。"
+  };
+}
+
+function decimalSubtraction(config) {
+  const c = config || {}, places = c.places ?? 1;
+  for (let attempt = 0; attempt < 5000; attempt++) {
+    const a = rand(c.minA ?? 10, c.maxA ?? 999);
+    const b = rand(c.minB ?? 1, Math.min(c.maxB ?? 99, a));
+    if (a < b) continue;
+    const difference = a - b, answer = difference / (10 ** places);
+    return {
+      a, b, operator: "−", answer,
+      display: formatDecimal(a, places) + " − " + formatDecimal(b, places),
+      explanation: formatDecimal(a, places) + " から " + formatDecimal(b, places) + " をひくと " + formatDecimal(difference, places) + " です。"
+    };
+  }
+  throw new Error("この条件に合う小数のひき算を作れませんでした。");
+}
+
+function decimalMultiplication(config) {
+  const c = config || {}, placesA = c.placesA ?? 1, placesB = c.placesB ?? 0;
+  const a = rand(c.minA ?? 1, c.maxA ?? 999);
+  const b = rand(c.minB ?? 1, c.maxB ?? 9);
+  const product = a * b, places = placesA + placesB;
+  const answer = product / (10 ** places);
+  return {
+    a, b, operator: "×", answer,
+    display: formatDecimal(a, placesA) + " × " + formatDecimal(b, placesB),
+    explanation: formatDecimal(a, placesA) + " に " + formatDecimal(b, placesB) + " をかけると " + formatDecimal(product, places) + " です。"
+  };
+}
+
+function decimalDivision(config) {
+  const c = config || {}, quotientPlaces = c.quotientPlaces ?? 1;
+  const divisor = rand(c.divisorMin ?? 2, c.divisorMax ?? 9);
+  const quotient = rand(c.minQuotient ?? 1, c.maxQuotient ?? 99);
+  if (c.mode === "decimal") {
+    const dividendScaled = divisor * quotient;
+    const dividend = dividendScaled / 100;
+    const divisorValue = divisor / 10;
+    const answer = quotient / (10 ** quotientPlaces);
+    return {
+      a: dividendScaled, b: divisor, operator: "÷", answer,
+      display: formatDecimal(dividendScaled, 2) + " ÷ " + formatDecimal(divisor, 1),
+      explanation: formatDecimal(dividendScaled, 2) + " ÷ " + formatDecimal(divisor, 1) + " = " + answer + " です。"
+    };
+  }
+  const dividendScaled = divisor * quotient;
+  const answer = quotient / (10 ** quotientPlaces);
+  return {
+    a: dividendScaled, b: divisor, operator: "÷", answer,
+    display: formatDecimal(dividendScaled, quotientPlaces) + " ÷ " + divisor,
+    explanation: formatDecimal(dividendScaled, quotientPlaces) + " ÷ " + divisor + " = " + answer + " です。"
+  };
+}
+
+const generators = { addition, subtraction, multiplication, division, decimalAddition, decimalSubtraction, decimalMultiplication, decimalDivision };
 
 export function generateQuestion(unit) {
   if (!unit || !generators[unit.generator]) {
