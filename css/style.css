@@ -12,3 +12,14 @@
 .question-card.retry-shake{animation:retry-shake .22s ease}
 @keyframes retry-shake{0%,100%{transform:translateX(0)}30%{transform:translateX(-4px)}70%{transform:translateX(4px)}}
 @media(max-width:720px){.enemy-clock{margin-top:9px;padding:10px 12px}}
+
+/* Transparent handwriting layer over the problem and working space */
+.work-area{position:relative;min-height:190px;margin:2px 0 8px;border-radius:10px;background:repeating-linear-gradient(to bottom,transparent 0,transparent 45px,#dce5e9 46px,#dce5e9 47px);overflow:hidden}
+.work-area .question{position:relative;z-index:1;pointer-events:none;padding:12px 0 8px}
+.work-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;touch-action:pan-y;pointer-events:none;cursor:crosshair}
+.work-canvas.drawing{pointer-events:auto;touch-action:none}
+.work-tools{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:0 auto 12px}
+.work-tools button{border:1px solid #dce2e5;background:#f4f6f6;border-radius:8px;padding:7px 12px;color:#526879;font-size:10px;font-weight:800}
+.work-tools button.active{background:#315f8d;border-color:#315f8d;color:white}
+.work-tools small{font-size:9px;color:#89949d}
+@media(max-width:720px){.work-area{min-height:205px}.work-tools{gap:6px}.work-tools small{width:100%;text-align:center}}
