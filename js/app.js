@@ -97,6 +97,13 @@ function start(){const unit=UNIT_BY_ID[state.unit],c=chars[state.char];enemy=ene
 function key(k){
 if(!state.battle||state.battle.finished)return;
 if(k==="clear"){state.answer="";$("answer").textContent="?";return;}
+if(k==="."){
+  if(state.answer.includes("."))return;
+  if(state.answer==="")state.answer="0";
+  state.answer+=".";
+  $("answer").textContent=state.answer;
+  return;
+}
 if(k==="enter"){
   if(state.answer==="")return;
   const submitted=state.answer;
@@ -107,8 +114,8 @@ if(k==="enter"){
   }
   return;
 }
-if(state.answer.length<7){state.answer+=k;$("answer").textContent=state.answer;}
+if(state.answer.length<8 && /^\\d$/.test(k)){state.answer+=k;$("answer").textContent=state.answer;}
 }
-$("keypad").onclick=e=>{const b=e.target.closest("button[data-key]");if(b)key(b.dataset.key);};window.addEventListener("keydown",e=>{if($("battle").classList.contains("hidden"))return;if(/^\d$/.test(e.key))key(e.key);else if(e.key==="Backspace")key("clear");else if(e.key==="Enter")key("enter");});
+$("keypad").onclick=e=>{const b=e.target.closest("button[data-key]");if(b)key(b.dataset.key);};window.addEventListener("keydown",e=>{if($("battle").classList.contains("hidden"))return;if(/^\d$/.test(e.key))key(e.key);else if(e.key==="Backspace")key("clear");else if(e.key===".")key(".");else if(e.key==="Enter")key("enter");});
 $("start").onclick=start;$("retry").onclick=start;$("back").onclick=()=>{if(state.battle)state.battle.stop();screen("home");};$("result-home").onclick=()=>screen("home");$("special-use").onclick=()=>{if(state.battle)state.battle.activateSpecial();};
 persist();renderUnits();
