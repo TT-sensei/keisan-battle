@@ -218,7 +218,8 @@ function average(config) {
     const a = averageValue + rand(-spread, spread);
     const b = averageValue + rand(-spread, spread);
     const remaining = averageValue * 3 - a - b;
-    if (remaining < (c.minAverage ?? 10) || remaining > (c.maxAverage ?? 100)) continue;
+    const minValue = c.minAverage ?? 10, maxValue = c.maxAverage ?? 100;
+    if ([a, b, remaining].some(value => value < minValue || value > maxValue)) continue;
     const values = [a, b, remaining];
     return {
       a, b, operator: "平均", answer: averageValue,
