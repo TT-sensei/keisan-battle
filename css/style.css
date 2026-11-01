@@ -39,3 +39,5 @@
 .training-mode .progress{grid-column:1}
 .training-mode #stage{background:#edf5fa;color:#356f9f}
 @media(max-width:720px){.home-tools{grid-template-columns:1fr}.record-card{min-height:70px}}
+
+.unit-record{color:#6d8798!important;font-size:9px!important;margin-top:6px!important;padding-top:5px;border-top:1px solid #e8edf0}
