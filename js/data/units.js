@@ -68,6 +68,17 @@ export const OPERATIONS = {
       { id: "div-decimal-integer", title: "小数÷整数", detail: "わり切れる小数のわり算", grade: [5], level: 4, generator: "decimalDivision", config: { mode: "integer", divisorMin: 2, divisorMax: 9, quotientPlaces: 1, minQuotient: 1, maxQuotient: 99 } },
       { id: "div-decimal-decimal", title: "小数÷小数", detail: "小数第1位どうし・わり切れる計算", grade: [6], level: 5, generator: "decimalDivision", config: { mode: "decimal", divisorMin: 1, divisorMax: 99, quotientPlaces: 1, minQuotient: 1, maxQuotient: 99 } }
     ]
+  },
+  application: {
+    label: "そのほか",
+    description: "平均・倍数と約数・割合・速さに挑戦しよう。",
+    units: [
+      { id: "average-three", title: "3つの数の平均", detail: "3つの数の合計を3でわる", grade: [5], level: 3, generator: "average", config: { minAverage: 10, maxAverage: 100, spread: 12 } },
+      { id: "common-multiple", title: "最小公倍数", detail: "2つの数の最小公倍数", grade: [5], level: 4, generator: "commonMultiple", config: { min: 2, max: 30 } },
+      { id: "common-divisor", title: "最大公約数", detail: "2つの数の最大公約数", grade: [5], level: 4, generator: "commonDivisor", config: { min: 2, max: 60 } },
+      { id: "percentage", title: "割合をもとめる", detail: "何％かではなく、もとにする量の何％かを計算", grade: [5], level: 4, generator: "percentage", config: { minBase: 100, maxBase: 1000 } },
+      { id: "speed-basic", title: "速さの基本", detail: "道のり÷時間で速さをもとめる", grade: [5], level: 4, generator: "speed", config: { minSpeed: 20, maxSpeed: 120, minTime: 2, maxTime: 10 } }
+    ]
   }
 };
 
