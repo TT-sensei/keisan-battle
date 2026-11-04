@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f4f0e6"><title>ナビアン計算バトル（試作）｜TT-sensei</title>
+<link rel="stylesheet" href="https://tt-sensei.github.io/edu-effects/css/edu-effects.css">
+<link rel="stylesheet" href="https://tt-sensei.github.io/edu-effects/css/edu-effects-library.css">
+<link rel="stylesheet" href="./proto.css"></head>
+<body><main class="app">
+<header class="top" id="app-header"><span class="brand"><b>⚔ ナビアン計算バトル</b><span class="proto-badge">試作</span></span><div class="top-stats">💪 レベル <b id="level">1</b>　⭐ <b id="xp">0</b> XP　🏅 <b id="wins">0</b> 勝　<button id="sound-toggle" class="toggle-btn" type="button">🔊 音 ON</button> <button id="furi-toggle" class="toggle-btn" type="button">あ ふりがな ON</button> <a class="to-main" href="../">本編へ</a></div></header>
+
+<section id="home" class="screen home-screen">
+  <div class="start-panel">
+    <div class="start-info"><small>今回のクエスト</small><b id="summary">20までのたし算 ・ 10問 ・ ふつう ・ リク</b><span id="last-note">前回の設定でそのまま始められるよ</span></div>
+    <button id="start" class="start-btn" type="button">バトル開始 →</button>
+  </div>
+  <div class="home-row">
+    <div class="home-block grow">
+      <p class="block-label">いっしょに戦うナビキャラ</p>
+      <div class="characters" id="characters"></div>
+    </div>
+    <div class="home-block side">
+      <p class="block-label">バトルの設定</p>
+      <div class="setting-line"><span>もんだいの数</span><div class="seg" id="counts"><button class="count-btn" data-count="5" type="button">5問</button><button class="count-btn" data-count="10" type="button">10問</button><button class="count-btn" data-count="15" type="button">15問</button><button class="count-btn" data-count="20" type="button">20問</button></div></div>
+      <div class="setting-line"><span>ナビアンの強さ</span><div class="seg" id="diffs"><button class="diff-btn" data-diff="easy" type="button">やさしい</button><button class="diff-btn" data-diff="normal" type="button">ふつう</button><button class="diff-btn" data-diff="hard" type="button">つよい</button></div></div>
+      <div class="sub-links"><a class="sub-link" href="../">✦ 苦手を特訓する<small>本編で開く</small></a><a class="sub-link" href="../">📖 ナビアン図鑑<small>本編で開く</small></a></div>
+    </div>
+  </div>
+  <div class="unit-block">
+    <div class="ops" id="ops"></div>
+    <div class="unit-head"><b id="unit-title">たし算の単元</b><span id="unit-desc"></span><small id="unit-count"></small></div>
+    <div id="units" class="units"></div>
+  </div>
+</section>
+
+<section id="battle" class="screen battle-screen hidden">
+  <div class="b-topbar"><button id="back" class="plain" type="button">← クエスト選択</button><b id="stage">STAGE 01</b><span id="battle-unit" class="b-unit"></span></div>
+  <div class="b-main" id="b-main">
+    <aside class="col col-player" id="player-col">
+      <div class="fighter-img-wrap"><img id="player-img" class="fighter-img" alt=""><span id="player-fallback" class="fighter-fallback hidden">⚔️</span></div>
+      <div class="fighter-info">
+        <div class="fighter-name"><b id="player-name">リク</b><small id="player-level">レベル 1</small></div>
+        <div class="hp"><i id="php"></i></div><small id="phptext" class="hptext">HP 100 / 100</small>
+        <div class="special-box"><b>✨ 必殺技</b><div class="gauge"><i id="specialbar"></i></div><small id="specialtext">あと4回正解で必殺技！</small><button id="special-use" class="special-use" type="button" disabled>必殺技を発動！</button></div>
+      </div>
+    </aside>
+    <div class="col col-center">
+      <div class="attack-clock" id="attack-clock"><span class="clock-label">⚠ ナビアンの次の攻撃</span><div class="clock-bar"><i id="attack-bar"></i></div><strong id="attack-time">あと 20 秒</strong></div>
+      <div class="progress-row"><b id="combo">🔥 COMBO 0</b><b id="round">正解 0 / 10</b><div class="bar"><i id="progressbar"></i></div></div>
+      <div class="feedback" id="feedback" role="status">バトルスタート！</div>
+      <div class="work-area" id="work-area"><div id="question" class="question">24 + 15 = ?</div><canvas id="work-canvas" class="work-canvas" aria-label="計算を書き込む透明な手書きエリア"></canvas></div>
+      <div class="work-tools"><button id="draw-toggle" type="button" aria-pressed="false">✍ 手書き OFF</button><button id="draw-clear" type="button">消す ↻</button><small>指やタッチペンで筆算や途中の計算を書けるよ</small></div>
+      <div class="answer-row"><small id="quotient-label" class="amari hidden">しょう</small><b id="answer" class="answer-box active">?</b><span id="remainder-part" class="hidden"><small class="amari" id="remainder-label">あまり</small><b id="answer2" class="answer-box">?</b></span></div>
+      <div id="keypad" class="keypad"><button data-key="1" type="button">1</button><button data-key="2" type="button">2</button><button data-key="3" type="button">3</button><button data-key="4" type="button">4</button><button data-key="5" type="button">5</button><button data-key="6" type="button">6</button><button data-key="7" type="button">7</button><button data-key="8" type="button">8</button><button data-key="9" type="button">9</button><button data-key="clear" type="button">けす</button><button data-key="0" type="button">0</button><button data-key="." type="button">.</button><button data-key="enter" class="enter" type="button">決定 ✓</button></div>
+    </div>
+    <aside class="col col-enemy" id="enemy-col">
+      <div class="fighter-img-wrap"><img id="enemy-img" class="fighter-img" alt=""><span id="enemy-fallback" class="fighter-fallback hidden">👾</span></div>
+      <div class="fighter-info">
+        <div class="fighter-name"><b id="enemy-name">ナビアン</b><small id="enemy-kind">ナビアン</small></div>
+        <div class="hp enemy-hp"><i id="ehp"></i></div><small id="ehptext" class="hptext">HP 100 / 100</small>
+      </div>
+    </aside>
+  </div>
+  <div id="fx-layer"></div>
+</section>
+
+<section id="result" class="screen result-screen hidden">
+  <div class="result-card" id="result-card">
+    <div id="resulticon" class="resulticon">🏆</div>
+    <h2 id="resulttitle">クエストクリア！</h2>
+    <p id="resultmessage"></p>
+    <p id="levelinfo" class="levelinfo hidden"></p>
+    <div class="result-stats"><div><b id="correct">0</b><small>正解</small></div><div><b id="accuracy">0%</b><small>正答率</small></div><div><b id="earned">+0</b><small>獲得XP</small></div><div><b id="bestcombo">0</b><small>最大コンボ</small></div></div>
+    <div id="mistakes" class="mistakes hidden"><b>もう一度練習したい問題</b><div id="mistakelist"></div></div>
+    <div class="result-actions"><button id="retry" class="primary" type="button">もう一度挑戦 ↻</button><button id="next-unit" class="primary hidden" type="button">つぎの単元へ →</button><button id="result-home" class="secondary" type="button">クエスト選択へ</button></div>
+  </div>
+</section>
+</main>
+<script src="https://tt-sensei.github.io/edu-effects/js/edu-effects.js"></script>
+<script type="module" src="./proto.js"></script></body></html>
