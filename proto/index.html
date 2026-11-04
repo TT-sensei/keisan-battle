@@ -7,26 +7,34 @@
 <header class="top" id="app-header"><span class="brand"><b>⚔ ナビアン計算バトル</b><span class="proto-badge">試作</span></span><div class="top-stats">💪 レベル <b id="level">1</b>　⭐ <b id="xp">0</b> XP　🏅 <b id="wins">0</b> 勝　<button id="sound-toggle" class="toggle-btn" type="button">🔊 音 ON</button> <button id="furi-toggle" class="toggle-btn" type="button">あ ふりがな ON</button> <a class="to-main" href="../">本編へ</a></div></header>
 
 <section id="home" class="screen home-screen">
-  <div class="start-panel">
-    <div class="start-info"><small>今回のクエスト</small><b id="summary">20までのたし算 ・ 10問 ・ ふつう ・ リク</b><span id="last-note">前回の設定でそのまま始められるよ</span></div>
-    <button id="start" class="start-btn" type="button">バトル開始 →</button>
-  </div>
-  <div class="home-row">
-    <div class="home-block grow">
-      <p class="block-label">いっしょに戦うナビキャラ</p>
-      <div class="characters" id="characters"></div>
+  <div class="hero-strip">
+    <img id="hero-img" class="hero-img" alt="冒険に出発するナビキャラたち">
+    <div class="hero-shade"></div>
+    <div class="hero-text">
+      <p class="hero-eyebrow">YOUR MATH ADVENTURE</p>
+      <b class="hero-title">計算の力で、ナビアンに立ち向かえ！</b>
+      <div class="monster-strip" id="monster-strip" aria-hidden="true"></div>
     </div>
-    <div class="home-block side">
-      <p class="block-label">バトルの設定</p>
-      <div class="setting-line"><span>もんだいの数</span><div class="seg" id="counts"><button class="count-btn" data-count="5" type="button">5問</button><button class="count-btn" data-count="10" type="button">10問</button><button class="count-btn" data-count="15" type="button">15問</button><button class="count-btn" data-count="20" type="button">20問</button></div></div>
-      <div class="setting-line"><span>ナビアンの強さ</span><div class="seg" id="diffs"><button class="diff-btn" data-diff="easy" type="button">やさしい</button><button class="diff-btn" data-diff="normal" type="button">ふつう</button><button class="diff-btn" data-diff="hard" type="button">つよい</button></div></div>
-      <div class="sub-links"><a class="sub-link" href="../">✦ 苦手を特訓する<small>本編で開く</small></a><a class="sub-link" href="../">📖 ナビアン図鑑<small>本編で開く</small></a></div>
-    </div>
+    <div class="sub-links"><a class="sub-link" href="../">✦ 苦手を特訓する<small>本編で開く</small></a><a class="sub-link" href="../">📖 ナビアン図鑑<small>本編で開く</small></a></div>
   </div>
   <div class="unit-block">
     <div class="ops" id="ops"></div>
     <div class="unit-head"><b id="unit-title">たし算の単元</b><span id="unit-desc"></span><small id="unit-count"></small></div>
     <div id="units" class="units"></div>
+  </div>
+  <div class="bottom-bar">
+    <div class="bar-group bar-chars">
+      <p class="bar-label">いっしょに戦うナビキャラ</p>
+      <div class="characters" id="characters"></div>
+    </div>
+    <div class="bar-group bar-settings">
+      <div class="setting-line"><span>もんだいの数</span><div class="seg" id="counts"><button class="count-btn" data-count="5" type="button">5問</button><button class="count-btn" data-count="10" type="button">10問</button><button class="count-btn" data-count="15" type="button">15問</button><button class="count-btn" data-count="20" type="button">20問</button></div></div>
+      <div class="setting-line"><span>ナビアンの強さ</span><div class="seg" id="diffs"><button class="diff-btn" data-diff="easy" type="button">やさしい</button><button class="diff-btn" data-diff="normal" type="button">ふつう</button><button class="diff-btn" data-diff="hard" type="button">つよい</button></div></div>
+    </div>
+    <div class="bar-start">
+      <div class="start-info"><small>今回のクエスト</small><b id="summary">20までのたし算 ・ 10問 ・ ふつう ・ リク</b><span id="last-note">前回の設定でそのまま始められるよ</span></div>
+      <button id="start" class="start-btn" type="button">バトル開始 →</button>
+    </div>
   </div>
 </section>
 

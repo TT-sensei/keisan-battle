@@ -3,7 +3,7 @@
 import { OPERATIONS, UNIT_BY_ID } from "../js/data/units.js";
 import { generateQuestion } from "../js/engine/question-generator.js";
 import { Battle } from "../js/game/battle.js";
-import { CHARACTERS, BACKGROUNDS, MONSTER_LIST, poseImg, GROUP_SCENES } from "../js/data/monsters.js";
+import { CHARACTERS, BACKGROUNDS, MONSTER_LIST, poseImg, GROUP_SCENES, HERO_IMAGE } from "../js/data/monsters.js";
 import { startFurigana, stopFurigana } from "../js/furigana.js";
 import { MISTAKE_TYPE_LABELS } from "../js/engine/mistake-types.js";
 
@@ -484,6 +484,24 @@ function guardImg(img, fallback) {
 }
 guardImg($("player-img"), $("player-fallback"));
 guardImg($("enemy-img"), $("enemy-fallback"));
+guardImg($("hero-img"), null);
+
+// ===== 入口のヒーロー（本編ホームと同じ集合イラスト＋モンスター帯） =====
+$("hero-img").src = HERO_IMAGE;
+(function renderMonsterStrip() {
+  const wrap = $("monster-strip");
+  if (!wrap) return;
+  const picks = MONSTER_LIST.filter(m => m.set === "zako").slice(0, 8);
+  picks.forEach((m, i) => {
+    const img = document.createElement("img");
+    img.src = m.img;
+    img.alt = "";
+    img.title = m.name;
+    img.style.setProperty("--bob-delay", (i * 0.22) + "s");
+    img.addEventListener("error", () => img.remove());
+    wrap.append(img);
+  });
+})();
 
 // ===== 初期化 =====
 updateSoundToggle();
