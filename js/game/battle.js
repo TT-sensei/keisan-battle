@@ -3,22 +3,19 @@ import { classifyMistake } from "../engine/mistake-types.js";
 // 敵の攻撃間隔は単元レベルで大きく開く（大きい数の計算ほど考える・書く時間がかかるため）
 const ATTACK_INTERVALS = { 1: 20000, 2: 26000, 3: 32000, 4: 39000, 5: 46000 };
 // 難易度は敵の攻撃間隔とダメージだけを変える。問題の数や内容は変えない。
-// 2026-11-04 バランス見直し: 「考えている間に一方的に殴られ続ける」理不尽さを減らすため、
-// 3段階の差は保ったまま、ダメージを全体に下げ（8/10/14 → 6/8/11）、間隔係数を長くした（1.3/1.0/0.75 → 1.5/1.15/0.85）。
-// やさしいは単元レベル1で30秒間隔・6ダメージとなり、初めての子でも考える時間を確保できる。
-// プレイヤー側（HP・攻撃力・必殺技）と敵HP、単元レベル別の基準間隔は据え置き。
+// 敵側の数値（ダメージ・間隔係数）は従来どおり。
 const DIFFICULTY = {
-  easy: { intervalFactor: 1.5, enemyDamage: 6 },
-  normal: { intervalFactor: 1.15, enemyDamage: 8 },
-  hard: { intervalFactor: 0.85, enemyDamage: 11 }
+  easy: { intervalFactor: 1.3, enemyDamage: 8 },
+  normal: { intervalFactor: 1.0, enemyDamage: 10 },
+  hard: { intervalFactor: 0.75, enemyDamage: 14 }
 };
 // 速く解くほどスピードボーナスが大きくなる（遅くてもペナルティはない）。
 // 最速の目安は単元レベルで変わる（大きい数の計算ほど時間がかかるため）。
 function speedBonusDamage(elapsedMs, level) {
   const fast = (3 + level) * 1000;
-  if (elapsedMs <= fast) return 10;
-  if (elapsedMs <= fast * 2) return 6;
-  if (elapsedMs <= fast * 3.5) return 3;
+  if (elapsedMs <= fast) return 3;
+  if (elapsedMs <= fast * 2) return 2;
+  if (elapsedMs <= fast * 3.5) return 1;
   return 0;
 }
 
@@ -148,7 +145,10 @@ export class Battle {
       // スピードボーナス: 速く正確に解くほど強く打てる（遅くてもペナルティはない）
       const elapsed = this.questionStartedAt === null ? Infinity : Date.now() - this.questionStartedAt;
       const speedBonus = speedBonusDamage(elapsed, this.level);
-      let damage = 12 + Math.min(12, this.combo * 2);
+      // 2026-11-04 プレイヤー攻撃力の見直し: 従来（12＋コンボ×2・最大12）では数問の正解で敵HPを
+      // 削り切り、既定の10問正解に届く前に終わっていた。敵HP（レベル帯で100/120/150）に対し、
+      // 倒し切るのに9〜10問の正解が要る配分にし、単元レベルで敵HPの増加にも追随させた。
+      let damage = 7 + Math.min(5, this.combo) + (this.level - 1);
       if (this.trait === "nami") damage = Math.round(damage * 1.25); // ナミ特性: パワー
       damage += speedBonus;
       this.enemyHp = Math.max(0, this.enemyHp - damage);
@@ -164,9 +164,9 @@ export class Battle {
       this.questionStartedAt = null;
       this.resetEnemyAttackTimer();
       let text = "正解！ " + damage + " ダメージ！";
-      if (speedBonus >= 10) text = "⚡⚡ とてもすばやい正解！ " + damage + " ダメージ！";
-      else if (speedBonus >= 6) text = "⚡ すばやい正解！ " + damage + " ダメージ！";
-      else if (speedBonus >= 3) text = "はやい正解！ " + damage + " ダメージ！";
+      if (speedBonus >= 3) text = "⚡⚡ とてもすばやい正解！ " + damage + " ダメージ！";
+      else if (speedBonus >= 2) text = "⚡ すばやい正解！ " + damage + " ダメージ！";
+      else if (speedBonus >= 1) text = "はやい正解！ " + damage + " ダメージ！";
       if (healed) text += " HPが " + healed + " 回復！";
       if (this.special === 100) text = "正解！ 必殺技ゲージ MAX！";
       this.onFeedback({ kind: "success", text });
@@ -236,9 +236,10 @@ export class Battle {
   activateSpecial() {
     if (this.finished || this.special < 100) return false;
     this.special = 0;
-    this.enemyHp = Math.max(0, this.enemyHp - 30);
-    this.onFeedback({ kind: "special", text: "必殺技発動！ 30 ダメージ！" });
-    this.onUpdate({ type: "special", battle: this.snapshot(), damage: 30 });
+    // 必殺技の威力も攻撃力見直しに合わせて 30 → 20（約2問分の正解に相当）
+    this.enemyHp = Math.max(0, this.enemyHp - 20);
+    this.onFeedback({ kind: "special", text: "必殺技発動！ 20 ダメージ！" });
+    this.onUpdate({ type: "special", battle: this.snapshot(), damage: 20 });
     if (this.enemyHp <= 0) this.finish(true);
     return true;
   }
