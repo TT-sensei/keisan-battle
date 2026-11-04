@@ -272,10 +272,16 @@ body.on-home .dex-screen{flex:none}
 #b-main .progress-row .bar i{display:block;height:100%;width:0;background:#e2a341;transition:width .25s}
 .arena-stage{flex:1;min-height:0;display:flex;justify-content:space-between;align-items:stretch}
 .arena-side{position:relative;width:38%;min-width:0}
-#b-main .fighter-img-wrap{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center}
+#b-main .fighter-img-wrap{position:absolute;bottom:0;height:66%;display:flex;align-items:flex-end;justify-content:center}
+#player-col .fighter-img-wrap{left:0;width:57%}
+#enemy-col .fighter-img-wrap{right:0;width:57%}
 #b-main .fighter-img{max-width:100%;max-height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 10px 8px rgba(52,73,91,.30))}
 #b-main .fighter-fallback{font-size:84px;align-self:center}
-#b-main .fighter-info{position:absolute;left:50%;transform:translateX(-50%);bottom:6px;width:min(95%,242px);background:rgba(255,253,248,.94);border:1px solid var(--line);border-radius:12px;padding:7px 10px;box-shadow:0 4px 14px rgba(46,80,110,.16)}
+/* 情報はキャラ本体に重ねず、中央寄りの空きスペースに置く */
+#b-main .side-stack{position:absolute;bottom:8px;width:41%;display:flex;flex-direction:column;gap:8px;z-index:2}
+#player-col .side-stack{right:0}
+#enemy-col .side-stack{left:0}
+#b-main .hp-chip{width:100%;background:rgba(255,253,248,.94);border:1px solid var(--line);border-radius:12px;padding:7px 10px;box-shadow:0 4px 14px rgba(46,80,110,.16)}
 #b-main .fighter-name{display:flex;align-items:baseline;justify-content:space-between;gap:6px}
 #b-main .fighter-name b{font-size:15px}
 #b-main .fighter-name small{font-size:10px;color:#71808e;font-weight:700}
@@ -283,13 +289,22 @@ body.on-home .dex-screen{flex:none}
 #b-main .hp i{display:block;height:100%;width:100%;background:#72b67e;transition:width .3s}
 #b-main .enemy-hp i{background:#dc796b}
 #b-main .hptext{display:block;font-size:10px;color:#637b8b;margin-top:2px;font-weight:700}
-#b-main .special-box{margin-top:7px;border-top:1px dashed var(--line);padding-top:6px}
-#b-main .special-box>b{font-size:11px}
-#b-main .gauge{height:10px;background:#ece7dc;border-radius:20px;margin:5px 0 3px;overflow:hidden}
-#b-main .gauge i{display:block;width:0;height:100%;background:linear-gradient(90deg,#e5ad45,#e77961);transition:width .25s}
-#b-main .special-box small{font-size:9px;color:#8a7b65}
-#b-main .special-use{width:100%;margin-top:5px;border:0;border-radius:9px;padding:8px;background:#e7a53d;color:#fff;font-weight:900;font-size:12px;min-height:40px}
-#b-main .special-use:disabled{background:#d9d6ce;color:#999;cursor:not-allowed}
+/* 必殺技：リング式にたまる丸ボタン（チップの下、本体には重ならない） */
+#b-main .special-wrap{display:flex;flex-direction:column;align-items:center;gap:3px}
+#b-main .special-btn{position:relative;width:72px;height:72px;flex:none;border:0;border-radius:50%;padding:0;background:transparent}
+#b-main .special-btn:disabled{cursor:not-allowed}
+#b-main .special-ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+#b-main .special-ring circle{fill:none;stroke-width:6}
+#b-main .ring-track{stroke:#e7e1cf}
+#b-main .ring-fill{stroke:#f0a62b;stroke-linecap:round;stroke-dasharray:207.3;stroke-dashoffset:207.3;transition:stroke-dashoffset .3s ease}
+#b-main .special-core{position:absolute;inset:7px;border-radius:50%;background:#efece3;color:#a39a86;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;box-shadow:inset 0 2px 5px rgba(90,80,50,.15)}
+#b-main .special-bolt{font-size:21px}
+#b-main .special-core small{font-size:10px;font-weight:900;letter-spacing:.14em}
+#b-main .special-btn.ready{animation:special-pulse 1.2s ease-in-out infinite}
+#b-main .special-btn.ready .special-core{background:linear-gradient(180deg,#f6bd45,#e8930c);color:#fff;text-shadow:0 1px 2px rgba(146,90,0,.4);box-shadow:0 0 0 3px rgba(246,189,69,.35),0 6px 16px rgba(232,147,12,.45)}
+#b-main .special-btn.ready:active{transform:translateY(2px)}
+@keyframes special-pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.14)}}
+#b-main .special-text{font-size:10px;font-weight:800;color:#5d5342;background:rgba(255,253,248,.88);border-radius:8px;padding:2px 7px;text-align:center;line-height:1.35}
 
 /* ===== 操作パネル ===== */
 #b-main .panel{flex:0 0 43%;min-height:0;display:flex;flex-direction:column;gap:8px;background:rgba(255,253,248,.95);border-top:1px solid var(--line);padding:10px 14px 12px;position:relative;z-index:2}
@@ -329,8 +344,8 @@ body.on-home .dex-screen{flex:none}
 #b-main .work-tools button{border:1px solid var(--line);background:#fffdf8;border-radius:9px;padding:6px 13px;font-size:12px;font-weight:800;color:#526174;min-height:38px}
 #b-main .work-tools button.active{background:#315f8d;color:#fff;border-color:#315f8d}
 #b-main .work-tools small{flex:1;min-width:0;font-size:10px;color:#9aa3ab}
-#b-main .note-sheet{position:absolute;left:12px;right:12px;bottom:calc(43% + 8px);height:min(31%,280px);z-index:6;display:flex;flex-direction:column;background:#fff;border:1px solid #d5e0e7;border-radius:14px;box-shadow:0 16px 36px rgba(38,72,101,.30);overflow:hidden;opacity:0;transform:translateY(14px);pointer-events:none;transition:opacity .18s ease,transform .18s ease}
-#b-main .note-sheet.open{opacity:1;transform:none;pointer-events:auto}
+#b-main .note-sheet{position:absolute;left:12px;right:12px;bottom:calc(43% + 8px);height:min(31%,280px);z-index:6;display:flex;flex-direction:column;background:#fff;border:1px solid #d5e0e7;border-radius:14px;box-shadow:0 16px 36px rgba(38,72,101,.30);overflow:hidden;opacity:0;visibility:hidden;transform:translateY(14px);pointer-events:none;transition:opacity .18s ease,transform .18s ease,visibility 0s linear .18s}
+#b-main .note-sheet.open{opacity:1;visibility:visible;transform:none;pointer-events:auto;transition:opacity .18s ease,transform .18s ease,visibility 0s}
 .note-head{flex:none;display:flex;align-items:center;gap:8px;padding:6px 10px;background:#fdf9ef;border-bottom:1px solid var(--line)}
 .note-title{font-size:13px;font-weight:900;color:#41617a;white-space:nowrap}
 .note-tools-slot{flex:1;display:flex;min-width:0}
@@ -381,11 +396,12 @@ body.on-home .dex-screen{flex:none}
 @media (orientation:portrait){
   #b-main .panel{flex-basis:60%}
   .arena-side{width:44%}
-  #b-main .fighter-info{width:min(96%,204px);padding:6px 8px}
+  #b-main .hp-chip{padding:6px 8px}
   #b-main .fighter-name b{font-size:13px}
-  #b-main .special-box{margin-top:5px;padding-top:4px}
-  #b-main .special-box .gauge{margin:4px 0 2px}
-  #b-main .special-use{min-height:34px;padding:5px}
+  #b-main .special-btn{width:64px;height:64px}
+  #b-main .special-text{font-size:9px;padding:1px 5px}
+  #player-col .fighter-img-wrap,#enemy-col .fighter-img-wrap{width:55%}
+  #b-main .side-stack{width:43%}
   #b-main .attack-clock .clock-label{display:none}
   .panel-grid{grid-template-columns:minmax(0,1fr) minmax(204px,.92fr);grid-template-rows:auto minmax(0,1fr);grid-template-areas:"question question" "answer keypad"}
   #b-main .question{font-size:clamp(28px,4.4vw,40px)}
@@ -403,8 +419,9 @@ body.on-home .dex-screen{flex:none}
   #b-main .keypad button{font-size:20px}
   .arena-top{gap:7px}
   #b-main .attack-clock,#b-main .progress-row{padding:4px 9px}
-  #b-main .fighter-info{padding:6px 9px}
-  #b-main .special-use{min-height:34px;padding:5px}
+  #b-main .hp-chip{padding:6px 9px}
+  #b-main .special-btn{width:62px;height:62px}
+  #b-main .side-stack{gap:6px;bottom:6px}
   #b-main .note-sheet{bottom:calc(46% + 6px);height:min(30%,240px)}
 }
 @media (max-height:760px) and (orientation:portrait){

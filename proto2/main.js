@@ -350,7 +350,9 @@ function render(event) {
   $("attack-bar").style.width = b.attackProgress + "%";
   $("attack-time").textContent = "あと " + b.attackRemaining + " 秒";
   $("attack-clock").classList.toggle("urgent", b.attackRemaining <= 4);
-  $("specialbar").style.width = b.special + "%";
+  const ringEl = $("special-ring");
+  if (ringEl) ringEl.style.strokeDashoffset = (2 * Math.PI * 33 * (1 - b.special / 100)).toFixed(1);
+  $("special-use").classList.toggle("ready", b.special >= 100 && !state.battle.finished);
   const specialGain = state.char === "kai" ? 34 : 25;
   $("specialtext").textContent = b.special >= 100 ? "必殺技ゲージ MAX！" : "あと" + Math.ceil((100 - b.special) / specialGain) + "回正解で必殺技！";
   $("special-use").disabled = b.special < 100 || state.battle.finished;

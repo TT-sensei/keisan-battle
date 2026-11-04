@@ -62,20 +62,28 @@
       <div class="arena-stage">
         <aside class="arena-side" id="player-col">
       <div class="fighter-img-wrap"><img id="player-img" class="fighter-img" alt=""><span id="player-fallback" class="fighter-fallback hidden">⚔️</span></div>
-      <div class="fighter-info">
-        <div class="fighter-name"><b id="player-name">リク</b><small id="player-level">レベル 1</small></div>
-        <div class="hp"><i id="php"></i></div><small id="phptext" class="hptext">HP 100 / 100</small>
-        <div class="special-box"><b>✨ 必殺技</b><div class="gauge"><i id="specialbar"></i></div><small id="specialtext">あと4回正解で必殺技！</small><button id="special-use" class="special-use" type="button" disabled>必殺技を発動！</button></div>
+      <div class="side-stack">
+        <div class="hp-chip">
+          <div class="fighter-name"><b id="player-name">リク</b><small id="player-level">レベル 1</small></div>
+          <div class="hp"><i id="php"></i></div><small id="phptext" class="hptext">HP 100 / 100</small>
+        </div>
+        <div class="special-wrap">
+          <button id="special-use" class="special-btn" type="button" disabled aria-label="必殺技を発動">
+            <svg class="special-ring" viewBox="0 0 76 76" aria-hidden="true"><circle class="ring-track" cx="38" cy="38" r="33"></circle><circle class="ring-fill" id="special-ring" cx="38" cy="38" r="33"></circle></svg>
+            <span class="special-core"><span class="special-bolt">⚡</span><small>必殺</small></span>
+          </button>
+          <small id="specialtext" class="special-text">あと4回正解で必殺技！</small>
+        </div>
       </div>
-    
         </aside>
         <aside class="arena-side" id="enemy-col">
       <div class="fighter-img-wrap"><img id="enemy-img" class="fighter-img" alt=""><span id="enemy-fallback" class="fighter-fallback hidden">👾</span></div>
-      <div class="fighter-info">
-        <div class="fighter-name"><b id="enemy-name">ナビアン</b><small id="enemy-kind">ナビアン</small></div>
-        <div class="hp enemy-hp"><i id="ehp"></i></div><small id="ehptext" class="hptext">HP 100 / 100</small>
+      <div class="side-stack">
+        <div class="hp-chip">
+          <div class="fighter-name"><b id="enemy-name">ナビアン</b><small id="enemy-kind">ナビアン</small></div>
+          <div class="hp enemy-hp"><i id="ehp"></i></div><small id="ehptext" class="hptext">HP 100 / 100</small>
+        </div>
       </div>
-    
         </aside>
       </div>
     </div>
