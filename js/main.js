@@ -245,6 +245,7 @@ function goHome() {
 
 // ===== 答え入力（2欄仕様：あまり・分数・比） =====
 function isPair(q) { return !!(q && (q.answerFormat === "remainder" || q.answerFormat === "pair")); }
+function isFraction(q) { return !!(q && q.answerFormat === "pair" && q.pairLabels && q.pairLabels[0] === "ぶんし"); }
 function pairLabels(q) { if (q && q.answerFormat === "pair" && q.pairLabels) return q.pairLabels; return ["しょう", "あまり"]; }
 function pairPrompt(q) { return q && q.answerFormat === "pair" ? (q.pairLabels ? q.pairLabels[1] : "ふたつめ") + "も入力してね" : "あまりも入力してね"; }
 function setActiveField(n) {
@@ -259,6 +260,10 @@ function setupAnswerFields(q) {
   $("remainder-part").classList.toggle("hidden", !rem);
   $("quotient-label").classList.toggle("hidden", !rem);
   if (rem) { const labels = pairLabels(q); $("quotient-label").textContent = labels[0]; $("remainder-label").textContent = labels[1]; }
+  // 分数は「分子（上）・分数線・分母（下）」の縦積み表示にする。初期選択は分子（欄1）
+  const frac = isFraction(q);
+  $("answer-row").classList.toggle("fraction", frac);
+  $("frac-bar").classList.toggle("hidden", !frac);
   setActiveField(1);
 }
 function fieldValue() { return state.activeField === 2 ? state.answer2 : state.answer; }

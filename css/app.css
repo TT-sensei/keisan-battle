@@ -178,9 +178,14 @@ body.on-home .dex-screen{flex:none}
 .work-tools button.active{background:#315f8d;color:#fff;border-color:#315f8d}
 .work-tools small{font-size:9px;color:#9aa3ab}
 .answer-row{flex:none;display:flex;justify-content:center;align-items:center;gap:9px;margin-top:7px;min-height:52px}
+.field-group{display:inline-flex;align-items:center;gap:9px}
 .answer-box{min-width:104px;text-align:center;background:#f1f4f5;border:2px solid #e1e6e7;border-radius:9px;padding:6px 14px;font-size:24px;color:#315f8d}
 .answer-box.active{border-color:#4d89b8;background:#eef6fb}
 .amari{font-size:11px;color:#8a6b54;font-weight:900}
+/* 分数の答え入力: 分子（上）・分数線・分母（下）の縦積み表示 */
+.answer-row.fraction{flex-direction:column;gap:3px;min-height:0}
+.answer-row.fraction .answer-box{min-width:124px}
+.frac-bar{width:136px;height:5px;border-radius:3px;background:#2c4861}
 .keypad{flex:none;width:min(100%,400px);margin:8px auto 0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(5,47px);gap:6px}
 .keypad button{border:1px solid #e5e1d7;background:#f9f7f1;border-radius:10px;min-height:0;font-size:24px;font-weight:900;color:#344c62;box-shadow:0 2px 0 #e3ded3}
 .keypad button:active{transform:translateY(2px);box-shadow:none}
@@ -245,6 +250,8 @@ body.on-home .dex-screen{flex:none}
   .attack-clock{padding:4px 10px}
   .answer-row{min-height:46px;margin-top:5px}
   .answer-box{font-size:22px;padding:4px 12px}
+  .answer-row.fraction{gap:2px}
+  .frac-bar{width:120px;height:4px}
   .work-tools{margin-top:4px}
 }
 /* ===== 特訓モード（バトル画面の流用：敵・HP・タイマーなし、自分のペースで解く） ===== */
