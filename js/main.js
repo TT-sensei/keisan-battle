@@ -296,6 +296,34 @@ function spawnDamage(target, amount) {
   layer.append(el);
   setTimeout(() => el.remove(), 950);
 }
+// ===== 分数の縦積み表示（問題文・解説などの "n/d" 表記を本物の分数の形にする） =====
+// 分数を表す "n/d" は question-generator の fracText だけが作る表記で、
+// わり算（÷）・比（:）・小数（.）とは重ならないため、この変換で誤変換は起きない。
+// 数字だけの要素になるので、ふりがな処理（漢字のあるテキストだけが対象）とも競合しない。
+function fillRichText(el, text) {
+  const re = /(\d+)\/(\d+)/g;
+  let last = 0, m;
+  while ((m = re.exec(text))) {
+    if (m.index > last) el.append(document.createTextNode(text.slice(last, m.index)));
+    const f = document.createElement("span");
+    f.className = "frac";
+    const num = document.createElement("span"); num.className = "frac-num"; num.textContent = m[1];
+    const sep = document.createElement("span"); sep.className = "frac-sep"; sep.textContent = "/";
+    const den = document.createElement("span"); den.className = "frac-den"; den.textContent = m[2];
+    f.append(num, sep, den);
+    el.append(f);
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) el.append(document.createTextNode(text.slice(last)));
+}
+function setRichText(el, text) {
+  // #question は flex なので、内側を1要素にまとめて折り返しの挙動を従来のテキスト表示とそろえる
+  el.textContent = "";
+  const wrap = document.createElement("span");
+  fillRichText(wrap, text);
+  el.append(wrap);
+}
+
 function feedback(text) { $("feedback").textContent = text; }
 function bump(el) { el.classList.remove("hit"); void el.offsetWidth; el.classList.add("hit"); setTimeout(() => el.classList.remove("hit"), 350); }
 function animImg(img, cls, ms) { img.classList.remove(cls); void img.offsetWidth; img.classList.add(cls); setTimeout(() => img.classList.remove(cls), ms || 420); }
@@ -327,7 +355,7 @@ function render(event) {
     return;
   }
   if (event.type === "question") {
-    $("question").textContent = b.question.display + " = ?";
+    setRichText($("question"), b.question.display + " = ?");
     setupAnswerFields(b.question);
     clearCanvas();
     return;
@@ -382,9 +410,9 @@ function finish(r) {
     const d = document.createElement("div");
     d.className = "mistake-item";
     const s = document.createElement("span");
-    s.textContent = m.display + " = " + (m.answerText || m.answer);
+    fillRichText(s, m.display + " = " + (m.answerText || m.answer));
     d.append(s);
-    if (m.explanation) { const ex = document.createElement("small"); ex.textContent = m.explanation; d.append(ex); }
+    if (m.explanation) { const ex = document.createElement("small"); fillRichText(ex, m.explanation); d.append(ex); }
     if (m.type && MISTAKE_TYPE_LABELS[m.type]) { const tp = document.createElement("small"); tp.className = "mistake-type"; tp.textContent = "ミスの型：" + MISTAKE_TYPE_LABELS[m.type]; d.append(tp); }
     $("mistakelist").append(d);
   });
@@ -504,7 +532,7 @@ function nextTrainingQuestion() {
   t.currentUnitId = unitId;
   setupAnswerFields(q);
   if (q.fromRecord && q.type && MISTAKE_TYPE_LABELS[q.type]) feedback("まえのミスは「" + MISTAKE_TYPE_LABELS[q.type] + "」。気をつけて解こう！");
-  $("question").textContent = q.display + " = ?";
+  setRichText($("question"), q.display + " = ?");
   $("round").textContent = "正解 " + t.solved + " / " + t.maxQuestions;
   $("progressbar").style.width = (t.solved / t.maxQuestions * 100) + "%";
   clearCanvas();
@@ -569,7 +597,7 @@ function finishTraining() {
     const d = document.createElement("div");
     d.className = "mistake-item";
     const s = document.createElement("span");
-    s.textContent = m.unitTitle + " · " + m.display + " = " + (m.answerText || m.answer);
+    fillRichText(s, m.unitTitle + " · " + m.display + " = " + (m.answerText || m.answer));
     d.append(s);
     $("mistakelist").append(d);
   });
