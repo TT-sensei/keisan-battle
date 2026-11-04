@@ -87,28 +87,20 @@
         </aside>
       </div>
     </div>
-    <div class="note-sheet" id="note-sheet">
-      <div class="note-head"><span class="note-title">✍ 手書きノート</span><div class="note-tools-slot" id="note-tools-slot"></div><button id="note-close" class="note-close" type="button">とじる ✕</button></div>
-      <div class="note-slot" id="note-slot">
-        <div class="work-area" id="work-area">
-            <canvas id="work-canvas" class="work-canvas" aria-label="計算を書き込む手書きエリア"></canvas>
-            <span class="paper-guide" aria-hidden="true">ここに筆算や途中の計算を書こう</span>
-          </div>
-      </div>
-    </div>
     <div class="panel" id="panel">
       <div class="feedback" id="feedback" role="status">バトルスタート！</div>
       <div class="panel-grid">
         <div class="q-block">
-          <div id="question" class="question">24 + 15 = ?</div>
-          <button id="note-open" class="note-open" type="button">✍ 手書きノート</button>
+          <div id="question" class="question"><span id="question-text" class="q-text">24 + 15</span><span class="q-eq" aria-hidden="true">=</span><div class="answer-row" id="answer-row"><span class="field-group" id="field-group-1"><small id="quotient-label" class="amari hidden">しょう</small><b id="answer" class="answer-box active">?</b></span><div id="frac-bar" class="frac-bar hidden" aria-hidden="true"></div><span id="remainder-part" class="field-group hidden"><small class="amari" id="remainder-label">あまり</small><b id="answer2" class="answer-box">?</b></span></div></div>
         </div>
-        <div class="answer-row" id="answer-row"><span class="field-group" id="field-group-1"><small id="quotient-label" class="amari hidden">しょう</small><b id="answer" class="answer-box active">?</b></span><div id="frac-bar" class="frac-bar hidden" aria-hidden="true"></div><span id="remainder-part" class="field-group hidden"><small class="amari" id="remainder-label">あまり</small><b id="answer2" class="answer-box">?</b></span></div>
+        <div class="writing-block">
+          <div class="work-area" id="work-area">
+            <canvas id="work-canvas" class="work-canvas" aria-label="計算を書き込む手書きエリア"></canvas>
+            <span class="paper-guide" aria-hidden="true">ここに筆算や途中の計算を書こう</span>
+          </div>
+          <div class="work-tools" id="work-tools"><button id="draw-toggle" type="button" aria-pressed="true">✍ 手書き ON</button><button id="draw-clear" type="button">消す ↻</button><small>指やタッチペンで自由に書けるよ</small></div>
+        </div>
         <div id="keypad" class="keypad"><button data-key="1" type="button">1</button><button data-key="2" type="button">2</button><button data-key="3" type="button">3</button><button data-key="4" type="button">4</button><button data-key="5" type="button">5</button><button data-key="6" type="button">6</button><button data-key="7" type="button">7</button><button data-key="8" type="button">8</button><button data-key="9" type="button">9</button><button data-key="clear" type="button">けす</button><button data-key="0" type="button">0</button><button data-key="." type="button">.</button><button data-key="enter" class="enter" type="button">決定 ✓</button></div>
-        <div class="training-work" id="training-work">
-          <div id="training-work-slot"></div>
-          <div class="work-tools" id="work-tools"><button id="draw-toggle" type="button" aria-pressed="false">✍ 手書き ON</button><button id="draw-clear" type="button">消す ↻</button><small>指やタッチペンで自由に書けるよ</small></div>
-        </div>
       </div>
       <div id="training-empty" class="training-empty hidden"><p class="t-empty-title">✦ 特訓する問題はありません</p><p class="t-empty-note">バトルでまちがえた問題が、ここにたまります。<br>まずはバトルに挑戦しよう！</p><button id="training-empty-home" class="primary" type="button">クエスト選択へもどる</button></div>
     </div>

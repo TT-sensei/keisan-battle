@@ -309,12 +309,13 @@ body.on-home .dex-screen{flex:none}
 /* ===== 操作パネル ===== */
 #b-main .panel{flex:0 0 43%;min-height:0;display:flex;flex-direction:column;gap:8px;background:rgba(255,253,248,.95);border-top:1px solid var(--line);padding:10px 14px 12px;position:relative;z-index:2}
 #b-main .feedback{flex:none;height:30px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;font-weight:900;color:#41617a;background:#eef4f8;border-radius:10px;margin:0;padding:2px 10px;overflow:hidden}
-.panel-grid{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(168px,.62fr) minmax(236px,.95fr);grid-template-areas:"question answer keypad";gap:12px}
+.panel-grid{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(180px,.8fr) minmax(236px,.95fr);grid-template-areas:"question writing keypad";gap:12px}
 .q-block{grid-area:question;display:flex;flex-direction:column;gap:8px;min-width:0;min-height:0}
-#b-main .question{position:relative;flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(32px,3.6vw,48px);font-weight:900;color:#284b68;background:rgba(255,255,255,.97);border:1px solid #dfe7ec;border-radius:11px;padding:6px 12px;line-height:1.15;overflow:auto}
-.note-open{flex:none;align-self:flex-start;border:1px solid var(--line);background:#fffdf8;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:800;color:#526174;min-height:38px}
-.note-open:active{transform:translateY(1px)}
-#b-main .answer-row{grid-area:answer;align-self:center;justify-self:center;display:flex;justify-content:center;align-items:center;gap:7px;flex-wrap:wrap;margin:0;min-height:54px}
+#b-main .question{position:relative;flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;align-content:center;text-align:center;font-size:clamp(32px,3.6vw,48px);font-weight:900;color:#284b68;background:rgba(255,255,255,.97);border:1px solid #dfe7ec;border-radius:11px;padding:6px 12px;line-height:1.15;overflow:auto}
+.q-text{flex:0 1 auto;min-width:0}
+.q-eq{flex:none}
+.writing-block{grid-area:writing;display:flex;flex-direction:column;gap:6px;min-width:0;min-height:0}
+#b-main .answer-row{flex:none;display:flex;justify-content:center;align-items:center;gap:7px;flex-wrap:nowrap;margin:0;min-height:0}
 #b-main .field-group{display:inline-flex;align-items:center;gap:6px}
 #b-main .answer-box{min-width:82px;max-width:100%;text-align:center;background:#f1f4f5;border:2px solid #e1e6e7;border-radius:9px;padding:7px 10px;font-size:23px;color:#315f8d}
 #b-main .answer-box.active{border-color:#4d89b8;background:#eef6fb}
@@ -327,7 +328,6 @@ body.on-home .dex-screen{flex:none}
 #b-main .keypad button:active{transform:translateY(2px);box-shadow:none}
 #b-main .keypad button[data-key="clear"]{font-size:12px;color:#8a6b54}
 #b-main .keypad .enter{grid-column:1/-1;background:#3979b8;color:#fff;border-color:#3979b8;font-size:16px}
-#training-work{display:none}
 
 /* 分数の縦積み表示（問題文・解説など） */
 .frac{position:relative;display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.02;margin:0 .09em;font-size:.56em}
@@ -340,26 +340,26 @@ body.on-home .dex-screen{flex:none}
 #b-main .work-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;touch-action:pan-y;pointer-events:none;cursor:crosshair}
 #b-main .work-canvas.drawing{pointer-events:auto;touch-action:none}
 #b-main .paper-guide{position:absolute;right:12px;bottom:8px;z-index:1;color:#b0bdc7;font-size:11px;pointer-events:none;user-select:none}
-#b-main .work-tools{flex:none;display:flex;align-items:center;gap:8px;margin:0;min-height:36px}
-#b-main .work-tools button{border:1px solid var(--line);background:#fffdf8;border-radius:9px;padding:6px 13px;font-size:12px;font-weight:800;color:#526174;min-height:38px}
+#b-main .work-tools{flex:none;display:flex;align-items:center;gap:6px;margin:0;min-height:30px}
+#b-main .work-tools button{border:1px solid var(--line);background:#fffdf8;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:800;color:#526174;min-height:32px}
 #b-main .work-tools button.active{background:#315f8d;color:#fff;border-color:#315f8d}
 #b-main .work-tools small{flex:1;min-width:0;font-size:10px;color:#9aa3ab}
-#b-main .note-sheet{position:absolute;left:12px;right:12px;bottom:calc(43% + 8px);height:min(31%,280px);z-index:6;display:flex;flex-direction:column;background:#fff;border:1px solid #d5e0e7;border-radius:14px;box-shadow:0 16px 36px rgba(38,72,101,.30);overflow:hidden;opacity:0;visibility:hidden;transform:translateY(14px);pointer-events:none;transition:opacity .18s ease,transform .18s ease,visibility 0s linear .18s}
-#b-main .note-sheet.open{opacity:1;visibility:visible;transform:none;pointer-events:auto;transition:opacity .18s ease,transform .18s ease,visibility 0s}
-.note-head{flex:none;display:flex;align-items:center;gap:8px;padding:6px 10px;background:#fdf9ef;border-bottom:1px solid var(--line)}
-.note-title{font-size:13px;font-weight:900;color:#41617a;white-space:nowrap}
-.note-tools-slot{flex:1;display:flex;min-width:0}
-.note-tools-slot .work-tools{flex:1}
-.note-tools-slot .work-tools small{display:none}
-.note-close{flex:none;border:1px solid var(--line);background:#fffdf8;border-radius:9px;padding:6px 12px;font-size:12px;font-weight:800;color:#526174;min-height:36px}
-.note-slot{flex:1;min-height:0;display:flex;padding:8px}
-.note-slot .work-area{flex:1}
 
 /* ===== 演出 ===== */
 #fx-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:5}
 .dmg-pop{position:absolute;font-size:28px;font-weight:900;text-shadow:0 2px 0 #fff,0 0 6px #fff;animation:dmgfloat .95s ease-out forwards;transform:translate(-50%,0)}
 .dmg-enemy{color:#d8543f}
 .dmg-player{color:#356f9f}
+/* 攻撃・必殺・被弾ポーズのイラストは、表示中だけ包みごと拡大して大きく見せる（立ち絵自体の大きさは変えない） */
+#b-main .fighter-img-wrap{transition:transform .16s ease}
+#player-col .fighter-img-wrap.pose-attack{transform:scale(1.5);transform-origin:5% 100%;z-index:3}
+#player-col .fighter-img-wrap.pose-damage{transform:scale(1.35);transform-origin:5% 100%;z-index:3}
+#player-col .fighter-img-wrap.pose-special{transform:scale(1.6);transform-origin:5% 100%;z-index:3}
+@media (orientation:portrait){
+  #player-col .fighter-img-wrap.pose-attack{transform:scale(1.08)}
+  #player-col .fighter-img-wrap.pose-damage{transform:scale(1.06)}
+  #player-col .fighter-img-wrap.pose-special{transform:scale(1.1)}
+}
 .fighter-img.defeated{animation:defeat .95s ease forwards}
 .fighter-img.attacking-r{animation:lunge-r .4s ease}
 .fighter-img.attacking-l{animation:lunge-l .4s ease}
@@ -378,16 +378,10 @@ body.on-home .dex-screen{flex:none}
 #b-main.training .arena{flex:none;padding-bottom:6px}
 #b-main.training .arena-stage{display:none}
 #b-main.training .attack-clock{display:none}
-#b-main.training .note-sheet{display:none}
 #b-main.training .panel{flex:1 1 0;width:min(100%,1000px);align-self:center;border:1px solid var(--line);border-radius:14px;margin-bottom:10px}
-#b-main.training .panel-grid{grid-template-columns:minmax(0,1.8fr) minmax(190px,.8fr);grid-template-rows:auto minmax(0,1fr);grid-template-areas:"question answer" "work keypad"}
-#b-main.training .question{flex:none;min-height:56px}
-#b-main.training .note-open{display:none}
-#b-main.training #training-work{display:flex;flex-direction:column;gap:6px;grid-area:work;min-height:0;min-width:0}
-#training-work-slot{flex:1;min-height:0;display:flex}
-#training-work-slot .work-area{flex:1}
-#b-main.training .answer-row{align-self:start;margin-top:4px}
-#b-main.training .keypad{align-self:stretch;height:100%;grid-template-rows:repeat(3,minmax(42px,1fr)) 48px}
+#b-main.training .panel-grid{grid-template-columns:minmax(0,1.45fr) minmax(180px,.8fr) minmax(236px,.95fr);grid-template-areas:"question writing keypad"}
+#b-main.training .question{min-height:56px}
+#b-main.training .keypad{align-self:center;grid-template-rows:repeat(4,44px)}
 .battle-screen.is-empty .arena{display:none}
 .battle-screen.is-empty .panel-grid,.battle-screen.is-empty #feedback{display:none}
 .battle-screen.is-empty .panel{justify-content:center}
@@ -403,11 +397,10 @@ body.on-home .dex-screen{flex:none}
   #player-col .fighter-img-wrap,#enemy-col .fighter-img-wrap{width:55%}
   #b-main .side-stack{width:43%}
   #b-main .attack-clock .clock-label{display:none}
-  .panel-grid{grid-template-columns:minmax(0,1fr) minmax(204px,.92fr);grid-template-rows:auto minmax(0,1fr);grid-template-areas:"question question" "answer keypad"}
+  .panel-grid{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"question" "writing" "keypad"}
   #b-main .question{font-size:clamp(28px,4.4vw,40px)}
   #b-main .keypad{grid-template-rows:repeat(4,42px)}
-  #b-main .note-sheet{bottom:calc(60% + 8px);height:min(24%,250px)}
-  #b-main.training .panel-grid{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr) auto;grid-template-areas:"question" "answer" "work" "keypad"}
+  #b-main.training .panel-grid{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"question" "writing" "keypad"}
   #b-main.training .keypad{height:auto;grid-template-rows:repeat(4,42px)}
 }
 /* ===== 背の低い横向き ===== */
@@ -422,11 +415,9 @@ body.on-home .dex-screen{flex:none}
   #b-main .hp-chip{padding:6px 9px}
   #b-main .special-btn{width:62px;height:62px}
   #b-main .side-stack{gap:6px;bottom:6px}
-  #b-main .note-sheet{bottom:calc(46% + 6px);height:min(30%,240px)}
 }
 @media (max-height:760px) and (orientation:portrait){
   #b-main .panel{flex-basis:63%}
-  #b-main .note-sheet{bottom:calc(63% + 6px);height:min(22%,210px)}
   #b-main .keypad{grid-template-rows:repeat(4,38px)}
   #b-main .question{font-size:clamp(24px,4vw,34px)}
 }

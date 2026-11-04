@@ -235,7 +235,6 @@ function screen(id) {
   if (id === "home") { renderUnits(); renderChars(); updateQuestButtons(); }
 }
 function goHome() {
-  closeNote();
   if (state.battle) state.battle.stop();
   state.battle = null;
   state.training = null;
@@ -278,13 +277,18 @@ function setFieldValue(v) {
 
 // ===== 演出 =====
 let poseTimer = null;
+const POSE_CLASSES = ["pose-attack", "pose-damage", "pose-special"];
 function showPose(kind, ms) {
   const img = $("player-img");
   const src = poseImg(state.char, kind);
   if (!src) return;
   img.src = src;
+  // 攻撃・必殺ポーズのイラストは、表示中だけ包みごと拡大して大きく見せる
+  const wrap = img.parentElement;
+  wrap.classList.remove(...POSE_CLASSES);
+  if (POSE_CLASSES.includes("pose-" + kind)) wrap.classList.add("pose-" + kind);
   if (poseTimer) clearTimeout(poseTimer);
-  poseTimer = setTimeout(() => { img.src = CHARACTERS[state.char].img; }, ms || 700);
+  poseTimer = setTimeout(() => { img.src = CHARACTERS[state.char].img; wrap.classList.remove(...POSE_CLASSES); }, ms || 700);
 }
 function spawnDamage(target, amount) {
   const layer = $("fx-layer");
@@ -361,7 +365,7 @@ function render(event) {
     return;
   }
   if (event.type === "question") {
-    setRichText($("question"), b.question.display + " = ?");
+    setRichText($("question-text"), b.question.display);
     setupAnswerFields(b.question);
     clearCanvas();
     return;
@@ -454,13 +458,14 @@ function start() {
   $("battle").classList.remove("is-empty");
   $("training-empty").classList.add("hidden");
   $("retry").textContent = "もう一度挑戦 ↻";
-  placeWork(false); closeNote();
+  resizeCanvas();
   const unit = UNIT_BY_ID[state.unit];
   state.xpRate = xpRateFor(unit.level);
   const enemy = pickEnemy(unit.level);
   state.currentEnemy = enemy;
   $("enemy-img").classList.remove("defeated");
   $("player-img").src = CHARACTERS[state.char].img;
+  $("player-img").parentElement.classList.remove("pose-attack", "pose-damage", "pose-special");
   ["attack", "damage", "special"].forEach(k => { const pre = new Image(); pre.src = poseImg(state.char, k); });
   $("player-name").textContent = CHARACTERS[state.char].name;
   $("player-level").textContent = "レベル " + levelOf(save.xp);
@@ -502,7 +507,7 @@ function startTraining(targetIds) {
   state.battle = null;
   state.mode = "training";
   $("b-main").classList.add("training");
-  placeWork(true); closeNote();
+  resizeCanvas();
   $("stage").textContent = "TRAINING";
   $("battle-unit").textContent = "苦手特訓";
   $("retry").textContent = "もう一度特訓 ↻";
@@ -540,7 +545,7 @@ function nextTrainingQuestion() {
   t.currentUnitId = unitId;
   setupAnswerFields(q);
   if (q.fromRecord && q.type && MISTAKE_TYPE_LABELS[q.type]) feedback("まえのミスは「" + MISTAKE_TYPE_LABELS[q.type] + "」。気をつけて解こう！");
-  setRichText($("question"), q.display + " = ?");
+  setRichText($("question-text"), q.display);
   $("round").textContent = "正解 " + t.solved + " / " + t.maxQuestions;
   $("progressbar").style.width = (t.solved / t.maxQuestions * 100) + "%";
   clearCanvas();
@@ -666,7 +671,8 @@ function pointFromEvent(e) { const r = canvas.getBoundingClientRect(); return { 
 canvas.addEventListener("pointerdown", e => {
   const active = state.mode === "training" ? !!state.training : !!(state.battle && !state.battle.finished);
   if (!drawEnabled || !active) return;
-  e.preventDefault(); canvas.setPointerCapture(e.pointerId); drawing = true; lastPoint = pointFromEvent(e);
+  e.preventDefault(); drawing = true; lastPoint = pointFromEvent(e);
+  try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* キャプチャできない環境でも描画は続ける */ }
   ctx.beginPath(); ctx.arc(lastPoint.x, lastPoint.y, 1.5, 0, Math.PI * 2); ctx.fillStyle = "#315f8d"; ctx.fill();
 });
 canvas.addEventListener("pointermove", e => {
@@ -678,33 +684,20 @@ function stopDrawing() { drawing = false; lastPoint = null; }
 canvas.addEventListener("pointerup", stopDrawing);
 canvas.addEventListener("pointercancel", stopDrawing);
 canvas.addEventListener("lostpointercapture", stopDrawing);
+// 実機ブラウザ対策：touch-action に対応しない環境（iOS Safari 等）では、指の移動が
+// スクロール操作とみなされ pointercancel で線が途切れる／引けないことがある。
+// タッチ自体を非パッシブで抑止し、ポインタイベントだけで描画する。
+const guardTouch = e => { if (drawEnabled) e.preventDefault(); };
+canvas.addEventListener("touchstart", guardTouch, { passive: false });
+canvas.addEventListener("touchmove", guardTouch, { passive: false });
 $("draw-toggle").onclick = () => setDrawEnabled(!drawEnabled);
 $("draw-clear").onclick = clearCanvas;
 window.addEventListener("resize", resizeCanvas);
 if ("ResizeObserver" in window) new ResizeObserver(resizeCanvas).observe(canvas);
 requestAnimationFrame(resizeCanvas);
 
-// ===== アリーナ型試作: 手書きノートシートと work-area の配置切替 =====
-const noteSheet = $("note-sheet");
-function openNote() { noteSheet.classList.add("open"); setDrawEnabled(true); resizeCanvas(); }
-function closeNote() { noteSheet.classList.remove("open"); }
-function placeWork(training) {
-  const area = $("work-area"), tools = $("work-tools");
-  if (training) {
-    closeNote();
-    $("training-work-slot").append(area);
-    $("training-work").append(tools);
-  } else {
-    $("note-slot").append(area);
-    $("note-tools-slot").append(tools);
-  }
-  resizeCanvas();
-}
-$("note-open").onclick = () => {
-  playSound("click");
-  if (noteSheet.classList.contains("open")) closeNote(); else openNote();
-};
-$("note-close").onclick = () => { playSound("click"); closeNote(); };
+// ===== アリーナ型試作: 手書きエリアはパネル中央に常設（シートは廃止） =====
+// work-area はHTML側でパネル内に固定配置。バトル・特訓で同じキャンバスを使う。
 
 // ===== 入力 =====
 function typeDigit(k) {
