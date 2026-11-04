@@ -518,7 +518,7 @@ guardImg($("enemy-img"), $("enemy-fallback"));
 guardImg($("hero-img"), null);
 
 // ===== 入口のヒーロー（ファンタジーのアクション集合絵をランダム表示） =====
-// 絵は切り取らず、1枚のイラストとして全体を見せる（枠は絵の比率 3:2 に合わせる）。
+// 絵は切り取らず、1枚のイラストとして全体を見せる（パネル右下に contain で全体表示）。
 const HERO_ARTS = (GROUP_SCENES.action && GROUP_SCENES.action.length) ? GROUP_SCENES.action : [HERO_IMAGE];
 $("hero-img").src = HERO_ARTS[Math.floor(Math.random() * HERO_ARTS.length)];
 $("hero-img").addEventListener("error", () => {
