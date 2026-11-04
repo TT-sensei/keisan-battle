@@ -19,7 +19,7 @@ button{font:inherit;cursor:pointer}
 
 /* ===== 入口 ===== */
 .home-screen{gap:8px;padding:8px 0 10px}
-.hero-strip{flex:none;display:flex;height:clamp(176px,27dvh,252px);border:2px solid #fff;border-radius:18px;overflow:hidden;background:#dceef7;box-shadow:0 6px 18px rgba(46,109,168,.18)}
+.hero-strip{flex:none;display:flex;height:clamp(190px,29dvh,268px);border:2px solid #fff;border-radius:18px;overflow:hidden;background:#dceef7;box-shadow:0 6px 18px rgba(46,109,168,.18)}
 .hero-panel{flex:none;width:clamp(280px,33%,380px);position:relative;display:flex;flex-direction:column;justify-content:center;gap:7px;padding:12px 16px 12px 18px;background:radial-gradient(rgba(255,255,255,.65) 1.6px,transparent 2.1px) 0 0/18px 18px,linear-gradient(155deg,#fff7dd 0%,#ffedb8 46%,#d9f0fd 130%);border-right:3px dashed rgba(255,255,255,.9);z-index:2}
 .hero-eyebrow{margin:0;font-size:10px;font-weight:900;letter-spacing:.22em;color:#c07f16}
 .game-logo{margin:0;font-size:clamp(24px,3vw,38px);line-height:1.12;font-weight:900;letter-spacing:.01em;color:#2e6da8;-webkit-text-stroke:5px #fff;paint-order:stroke fill;text-shadow:0 4px 0 rgba(255,255,255,.9),0 7px 0 rgba(46,109,168,.28),0 12px 20px rgba(46,109,168,.22);transform:rotate(-1.3deg);transform-origin:left center;white-space:nowrap}
@@ -30,14 +30,9 @@ button{font:inherit;cursor:pointer}
 .chip b{font-size:13px;color:#2c4861}
 .chip-xp .xpbar{display:inline-block;width:56px;height:8px;background:#eee3c2;border-radius:99px;overflow:hidden;vertical-align:middle}
 .chip-xp .xpbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f5b73f,#e8930c);border-radius:99px;transition:width .4s}
-.hero-art{flex:1;position:relative;min-width:0}
-.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 38%}
-.hero-monsters img{position:absolute;object-fit:contain;filter:drop-shadow(0 4px 4px rgba(52,73,91,.35));animation:floaty 3.2s ease-in-out infinite;animation-delay:var(--bob-delay,0s);z-index:2}
-.hero-monsters .hm1{right:12px;bottom:8px;width:62px}
-.hero-monsters .hm2{right:92px;bottom:30px;width:46px}
-.hero-monsters .hm3{left:10px;bottom:6px;width:50px}
-.hero-monsters .hm4{right:196px;top:8px;width:42px}
-@keyframes floaty{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-8px) rotate(2.5deg)}}
+.hero-art{flex:1;position:relative;min-width:0;display:flex;align-items:center;justify-content:center;padding:10px 14px;background:radial-gradient(rgba(255,255,255,.55) 1.6px,transparent 2.1px) 0 0/20px 20px,linear-gradient(170deg,#cdeafd 0%,#eaf7ff 55%,#fdf3d3 130%)}
+.hero-frame{flex:none;margin:0;height:100%;aspect-ratio:3/2;max-width:100%;border:3px solid #fff;border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 8px 22px rgba(46,109,168,.3)}
+.hero-img{display:block;width:100%;height:100%;object-fit:contain}
 .sparkle{position:absolute;color:#ffd94d;font-size:20px;text-shadow:0 0 6px #fff,0 0 12px rgba(255,217,77,.8);animation:twinkle 2.2s ease-in-out infinite;z-index:2;pointer-events:none}
 .sparkle.sp1{left:16px;top:10px}
 .sparkle.sp2{right:120px;top:44px;font-size:15px;animation-delay:.6s}
@@ -77,9 +72,8 @@ button{font:inherit;cursor:pointer}
   .bar-chars{flex:1 1 100%}
   .bar-settings{flex:1 1 auto;width:auto}
   .bar-start{flex:1 1 auto;justify-content:flex-end}
-  .hero-strip{height:clamp(200px,25dvh,252px)}
+  .hero-strip{height:clamp(204px,26dvh,264px)}
   .hero-panel{width:clamp(238px,36%,300px);padding:10px 12px}
-  .hero-monsters .hm2,.hero-monsters .hm4{display:none}
 }
 .unit-block{flex:1;min-height:0;display:flex;flex-direction:column;background:rgba(255,253,248,.96);border:1px solid var(--line);border-radius:16px;padding:9px 11px;box-shadow:0 4px 14px rgba(46,109,168,.08)}
 .ops{flex:none;display:flex;gap:6px;flex-wrap:wrap}
@@ -221,14 +215,12 @@ button{font:inherit;cursor:pointer}
 .secondary{background:#edf0f2;color:#526174}
 
 @media (max-height:720px) and (orientation:landscape){
-  .hero-strip{height:clamp(152px,25dvh,196px)}
+  .hero-strip{height:clamp(158px,26dvh,204px)}
   .hero-panel{gap:4px;padding:8px 14px}
   .hero-eyebrow{display:none}
   .game-logo{font-size:clamp(23px,2.9vw,32px)}
   .chip{font-size:11px;padding:3px 9px}
   .chip-xp .xpbar{width:38px}
-  .hero-monsters .hm1{width:48px}
-  .hero-monsters .hm3{width:40px}
   .keypad{grid-template-rows:repeat(5,44px)}
   .feedback{height:28px;font-size:12px}
   .work-area{min-height:58px}

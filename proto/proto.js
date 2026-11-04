@@ -517,27 +517,13 @@ guardImg($("player-img"), $("player-fallback"));
 guardImg($("enemy-img"), $("enemy-fallback"));
 guardImg($("hero-img"), null);
 
-// ===== 入口のヒーロー（顔が見える集合イラスト＋漂うモンスター） =====
-// standby は6人全員が正面を向いて横一列に並ぶ絵。帯状に切り取っても顔が見える。
-$("hero-img").src = GROUP_SCENES.standby || HERO_IMAGE;
+// ===== 入口のヒーロー（ファンタジーのアクション集合絵をランダム表示） =====
+// 絵は切り取らず、1枚のイラストとして全体を見せる（枠は絵の比率 3:2 に合わせる）。
+const HERO_ARTS = (GROUP_SCENES.action && GROUP_SCENES.action.length) ? GROUP_SCENES.action : [HERO_IMAGE];
+$("hero-img").src = HERO_ARTS[Math.floor(Math.random() * HERO_ARTS.length)];
 $("hero-img").addEventListener("error", () => {
   if (!$("hero-img").src.includes("group-fantasy-departure")) $("hero-img").src = HERO_IMAGE;
 });
-(function renderHeroMonsters() {
-  const wrap = $("hero-monsters");
-  if (!wrap) return;
-  const picks = MONSTER_LIST.filter(m => m.set === "zako").slice(0, 4);
-  picks.forEach((m, i) => {
-    const img = document.createElement("img");
-    img.src = m.img;
-    img.alt = "";
-    img.title = m.name;
-    img.className = "hm" + (i + 1);
-    img.style.setProperty("--bob-delay", (i * 0.45) + "s");
-    img.addEventListener("error", () => img.remove());
-    wrap.append(img);
-  });
-})();
 
 // ===== 初期化 =====
 updateSoundToggle();
