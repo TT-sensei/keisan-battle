@@ -332,6 +332,31 @@ function setRichText(el, text) {
   el.append(wrap);
 }
 
+// □を含む式では、既存の答え欄を式の中へ移動する。
+// 入力状態・テンキー処理は既存の answer 要素を使うため、判定ロジックは変えない。
+function setQuestionDisplay(q) {
+  const el = $("question-text");
+  const answerRow = $("answer-row");
+  const firstField = $("field-group-1");
+  const text = String(q.display || "");
+  const blankIndex = text.indexOf("□");
+  el.textContent = "";
+
+  if (blankIndex < 0) {
+    answerRow.insertBefore(firstField, answerRow.firstChild);
+    fillRichText(el, text);
+    $("question").classList.remove("inline-answer");
+    return;
+  }
+
+  const before = text.slice(0, blankIndex);
+  const after = text.slice(blankIndex + 1);
+  if (before) fillRichText(el, before);
+  el.append(firstField);
+  if (after) fillRichText(el, after);
+  $("question").classList.add("inline-answer");
+}
+
 function feedback(text) { $("feedback").textContent = text; }
 function bump(el) { el.classList.remove("hit"); void el.offsetWidth; el.classList.add("hit"); setTimeout(() => el.classList.remove("hit"), 350); }
 function animImg(img, cls, ms) { img.classList.remove(cls); void img.offsetWidth; img.classList.add(cls); setTimeout(() => img.classList.remove(cls), ms || 420); }
@@ -365,8 +390,8 @@ function render(event) {
     return;
   }
   if (event.type === "question") {
-    setRichText($("question-text"), b.question.display);
     setupAnswerFields(b.question);
+    setQuestionDisplay(b.question);
     clearCanvas();
     return;
   }
@@ -545,7 +570,7 @@ function nextTrainingQuestion() {
   t.currentUnitId = unitId;
   setupAnswerFields(q);
   if (q.fromRecord && q.type && MISTAKE_TYPE_LABELS[q.type]) feedback("まえのミスは「" + MISTAKE_TYPE_LABELS[q.type] + "」。気をつけて解こう！");
-  setRichText($("question-text"), q.display);
+  setQuestionDisplay(q);
   $("round").textContent = "正解 " + t.solved + " / " + t.maxQuestions;
   $("progressbar").style.width = (t.solved / t.maxQuestions * 100) + "%";
   clearCanvas();
