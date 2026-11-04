@@ -8,14 +8,22 @@
 
 <section id="home" class="screen home-screen">
   <div class="hero-strip">
-    <img id="hero-img" class="hero-img" alt="冒険に出発するナビキャラたち">
-    <div class="hero-shade"></div>
-    <div class="hero-text">
-      <p class="hero-eyebrow">YOUR MATH ADVENTURE</p>
-      <b class="hero-title">計算の力で、ナビアンに立ち向かえ！</b>
-      <div class="monster-strip" id="monster-strip" aria-hidden="true"></div>
+    <div class="hero-panel">
+      <p class="hero-eyebrow">✦ MATH ADVENTURE ✦</p>
+      <h1 class="game-logo">ナビアン計算バトル</h1>
+      <p class="hero-ribbon"><span>計算の力で、ナビアンに立ち向かえ！</span></p>
+      <div class="status-chips">
+        <span class="chip">💪 レベル <b id="hero-level">1</b></span>
+        <span class="chip chip-xp">⭐ <b id="hero-xp">0</b> XP<span class="xpbar"><i id="hero-xpbar"></i></span></span>
+        <span class="chip">🏅 <b id="hero-wins">0</b> 勝</span>
+      </div>
     </div>
-    <div class="sub-links"><a class="sub-link" href="../">✦ 苦手を特訓する<small>本編で開く</small></a><a class="sub-link" href="../">📖 ナビアン図鑑<small>本編で開く</small></a></div>
+    <div class="hero-art">
+      <img id="hero-img" class="hero-img" alt="冒険のなかま、ナビキャラ6人">
+      <span class="sparkle sp1" aria-hidden="true">✦</span><span class="sparkle sp2" aria-hidden="true">✦</span><span class="sparkle sp3" aria-hidden="true">✧</span><span class="sparkle sp4" aria-hidden="true">✧</span>
+      <div class="hero-monsters" id="hero-monsters" aria-hidden="true"></div>
+      <div class="sub-links"><a class="sub-link" href="../">✦ 苦手を特訓する<small>本編で開く</small></a><a class="sub-link" href="../">📖 ナビアン図鑑<small>本編で開く</small></a></div>
+    </div>
   </div>
   <div class="unit-block">
     <div class="ops" id="ops"></div>
@@ -33,7 +41,7 @@
     </div>
     <div class="bar-start">
       <div class="start-info"><small>今回のクエスト</small><b id="summary">20までのたし算 ・ 10問 ・ ふつう ・ リク</b><span id="last-note">前回の設定でそのまま始められるよ</span></div>
-      <button id="start" class="start-btn" type="button">バトル開始 →</button>
+      <button id="start" class="start-btn" type="button"><small id="start-unit">20までのたし算</small><span class="start-main">バトルスタート！</span></button>
     </div>
   </div>
 </section>

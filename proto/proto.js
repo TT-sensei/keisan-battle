@@ -9,6 +9,16 @@ import { MISTAKE_TYPE_LABELS } from "../js/engine/mistake-types.js";
 
 const $ = id => document.getElementById(id);
 const DIFF_LABELS = { easy: "やさしい", normal: "ふつう", hard: "つよい" };
+// カテゴリごとの記号と色（ステージ選択の色分け用）
+const OPS_META = {
+  addition: { symbol: "＋", color: "#e2604d" },
+  subtraction: { symbol: "−", color: "#3f7fbf" },
+  multiplication: { symbol: "×", color: "#e8930c" },
+  division: { symbol: "÷", color: "#4da34a" },
+  decimals: { symbol: "0.5", color: "#8e6fc8" },
+  fractions: { symbol: "½", color: "#d6699e" },
+  application: { symbol: "✎", color: "#2ea39b" }
+};
 const TRAITS = {
   riku: "バランス型・とくせいなし", sora: "まもり型・受けるダメージがへる",
   kai: "ひらめき型・必殺技がたまりやすい", saku: "回復型・正解するとHP回復",
@@ -54,12 +64,17 @@ const xpStart = L => 25 * L * (L - 1);
 function levelOf(xp) { let L = 1; while (L < LEVEL_CAP && xp >= xpStart(L + 1)) L++; return L; }
 function levelInfo(xp) { const level = levelOf(xp); return { level, start: xpStart(level), next: level >= LEVEL_CAP ? null : xpStart(level + 1), maxHp: 100 + (level - 1) * 10 }; }
 function xpRateFor(unitLevel) { const tier = Math.ceil(levelOf(save.xp) / 4); const d = tier - unitLevel; return d <= 0 ? 1 : d === 1 ? 0.5 : 0; }
-function xpRateNote(unitLevel) { const r = xpRateFor(unitLevel); return r === 1 ? "" : "<small class=\"unit-record unit-xp\">" + (r === 0 ? "経験値は入らないよ（もう身についている単元）" : "経験値は半分になるよ") + "</small>"; }
+function xpRateNote(unitLevel) { const r = xpRateFor(unitLevel); return r === 1 ? "" : "<small class=\"unit-record unit-xp\">" + (r === 0 ? "経験値は入らないよ" : "経験値は半分だよ") + "</small>"; }
 function persist() {
   localStorage.setItem("keisanBattleSave", JSON.stringify(save));
   $("level").textContent = levelOf(save.xp);
   $("xp").textContent = save.xp;
   $("wins").textContent = save.wins;
+  const info = levelInfo(save.xp);
+  $("hero-level").textContent = info.level;
+  $("hero-xp").textContent = save.xp;
+  $("hero-wins").textContent = save.wins;
+  $("hero-xpbar").style.width = (info.next ? Math.min(100, Math.round((save.xp - info.start) / (info.next - info.start) * 100)) : 100) + "%";
 }
 function pickEnemy(level) {
   let pool, hp;
@@ -107,6 +122,7 @@ function updateFuriToggle() { $("furi-toggle").textContent = settings.furigana ?
 // ===== 入口 =====
 function updateSummary() {
   $("summary").textContent = UNIT_BY_ID[state.unit].title + " ・ " + settings.count + "問 ・ " + DIFF_LABELS[settings.difficulty] + " ・ " + CHARACTERS[state.char].name;
+  $("start-unit").textContent = UNIT_BY_ID[state.unit].title;
 }
 function renderOps() {
   const wrap = $("ops");
@@ -114,9 +130,14 @@ function renderOps() {
   Object.entries(OPERATIONS).forEach(([key, group]) => {
     const b = document.createElement("button");
     b.type = "button";
+    const meta = OPS_META[key] || { symbol: "?", color: "#8a97a5" };
     b.className = "op" + (key === state.op ? " active" : "");
-    b.textContent = group.label;
+    b.style.setProperty("--opc", meta.color);
+    b.innerHTML = "<span class=\"op-sym\"></span><span></span>";
+    b.querySelector(".op-sym").textContent = meta.symbol;
+    b.querySelector("span:last-child").textContent = group.label;
     b.onclick = () => {
+      playSound("click");
       state.op = key;
       state.unit = OPERATIONS[key].units.find(u => u.generator !== "future").id;
       saveProtoLast(); renderOps(); renderUnits();
@@ -131,6 +152,9 @@ function renderUnits() {
   $("unit-count").textContent = group.units.length + " UNITS";
   const wrap = $("units");
   wrap.innerHTML = "";
+  const meta = OPS_META[state.op] || { symbol: "?", color: "#8a97a5" };
+  wrap.style.setProperty("--opc", meta.color);
+  document.querySelector(".unit-block").style.setProperty("--opc", meta.color);
   const recId = recommendedUnitId(state.op);
   group.units.forEach(u => {
     const b = document.createElement("button");
@@ -142,8 +166,15 @@ function renderUnits() {
     const cleared = records.some(x => x.win);
     b.className = "unit" + (u.id === state.unit ? " selected" : "");
     b.disabled = u.generator === "future";
-    b.innerHTML = "<b>" + (u.id === recId ? "⭐ つぎはこれ！ " : "") + u.title + "</b><small>" + u.detail + " · " + u.grade.map(g => "小" + g).join("・") + "</small><small>" + (records.length ? ("挑戦 " + records.length + "回 · 正答率 " + rate + "%" + (cleared ? " · ✓ クリア" : "")) : "まだ挑戦していないよ") + "</small>" + xpRateNote(u.level);
-    b.onclick = () => { state.unit = u.id; saveProtoLast(); renderUnits(); };
+    b.innerHTML = "<span class=\"unit-sym\"></span><span class=\"unit-texts\"><b>" + (u.id === recId ? "⭐ つぎはこれ！ " : "") + u.title + "</b><small>" + u.detail + " · " + u.grade.map(g => "小" + g).join("・") + "</small><small>" + (records.length ? ("挑戦 " + records.length + "回 · 正答率 " + rate + "%" + (cleared ? " · ✓ クリア" : "")) : "まだ挑戦していないよ") + "</small>" + xpRateNote(u.level) + "</span>" + (cleared ? "<span class=\"unit-stamp\">★ クリア！</span>" : "");
+    const symEl = b.querySelector(".unit-sym");
+    symEl.textContent = meta.symbol;
+    if (meta.symbol.length > 1) symEl.style.fontSize = "30px";
+    b.onclick = () => {
+      state.unit = u.id; saveProtoLast(); playSound("click"); renderUnits();
+      const sel = wrap.querySelector(".unit.selected");
+      if (sel) { sel.classList.remove("pick"); void sel.offsetWidth; sel.classList.add("pick"); }
+    };
     wrap.append(b);
   });
   updateSummary();
@@ -159,7 +190,7 @@ function renderChars() {
     b.querySelector("img").src = c.img;
     b.querySelector("b").textContent = c.name;
     b.querySelector("small").textContent = TRAITS[id] || "";
-    b.onclick = () => { state.char = id; saveProtoLast(); renderChars(); updateSummary(); };
+    b.onclick = () => { state.char = id; saveProtoLast(); playSound("click"); renderChars(); updateSummary(); };
     wrap.append(b);
   });
 }
@@ -486,18 +517,23 @@ guardImg($("player-img"), $("player-fallback"));
 guardImg($("enemy-img"), $("enemy-fallback"));
 guardImg($("hero-img"), null);
 
-// ===== 入口のヒーロー（本編ホームと同じ集合イラスト＋モンスター帯） =====
-$("hero-img").src = HERO_IMAGE;
-(function renderMonsterStrip() {
-  const wrap = $("monster-strip");
+// ===== 入口のヒーロー（顔が見える集合イラスト＋漂うモンスター） =====
+// standby は6人全員が正面を向いて横一列に並ぶ絵。帯状に切り取っても顔が見える。
+$("hero-img").src = GROUP_SCENES.standby || HERO_IMAGE;
+$("hero-img").addEventListener("error", () => {
+  if (!$("hero-img").src.includes("group-fantasy-departure")) $("hero-img").src = HERO_IMAGE;
+});
+(function renderHeroMonsters() {
+  const wrap = $("hero-monsters");
   if (!wrap) return;
-  const picks = MONSTER_LIST.filter(m => m.set === "zako").slice(0, 8);
+  const picks = MONSTER_LIST.filter(m => m.set === "zako").slice(0, 4);
   picks.forEach((m, i) => {
     const img = document.createElement("img");
     img.src = m.img;
     img.alt = "";
     img.title = m.name;
-    img.style.setProperty("--bob-delay", (i * 0.22) + "s");
+    img.className = "hm" + (i + 1);
+    img.style.setProperty("--bob-delay", (i * 0.45) + "s");
     img.addEventListener("error", () => img.remove());
     wrap.append(img);
   });
