@@ -23,15 +23,15 @@ body.on-home .home-screen{flex:none}
 
 /* ===== 入口 ===== */
 .home-screen{gap:10px;padding:6px 0 16px}
-.hero-strip{flex:none;position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,46%);grid-template-rows:minmax(0,1fr);height:clamp(190px,25dvh,216px);border:2px solid #fff;border-radius:28px;overflow:hidden;background:radial-gradient(rgba(255,255,255,.55) 1.6px,transparent 2.1px) 0 0/20px 20px,linear-gradient(100deg,#fff6da 0%,#ffedb4 30%,#cdeafd 68%,#eaf7ff 100%);box-shadow:0 6px 18px rgba(46,109,168,.18)}
+.hero-strip{flex:none;position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,46%);grid-template-rows:minmax(0,1fr);height:clamp(282px,35dvh,298px);border:2px solid #fff;border-radius:28px;overflow:hidden;background:radial-gradient(rgba(255,255,255,.55) 1.6px,transparent 2.1px) 0 0/20px 20px,linear-gradient(100deg,#fff6da 0%,#ffedb4 30%,#cdeafd 68%,#eaf7ff 100%);box-shadow:0 6px 18px rgba(46,109,168,.18)}
 .hero-copy{position:relative;z-index:2;display:flex;flex-direction:row;align-items:center;gap:14px;padding:8px 4px 8px 20px;min-width:0;min-height:0}
-.copy-main{display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:0}
+.copy-main{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;gap:3px;min-width:0}
 .hero-eyebrow{margin:0;font-size:10px;font-weight:900;letter-spacing:.22em;color:#c07f16}
 .game-logo{margin:0;font-size:clamp(22px,2.55vw,32px);line-height:1.12;font-weight:900;letter-spacing:.01em;color:#2e6da8;-webkit-text-stroke:5px #fff;paint-order:stroke fill;text-shadow:0 4px 0 rgba(255,255,255,.9),0 7px 0 rgba(46,109,168,.28),0 12px 20px rgba(46,109,168,.22);transform:rotate(-1.3deg);transform-origin:left center;white-space:nowrap}
 .hero-ribbon{margin:2px 0 0}
-.hero-ribbon span{display:inline-block;background:linear-gradient(180deg,#f5b73f,#e8930c);color:#fff;font-size:clamp(11px,1.25vw,14px);font-weight:900;padding:5px 14px;border-radius:999px;box-shadow:0 3px 0 #b97a10,0 5px 10px rgba(185,122,16,.3);transform:rotate(-1deg);text-shadow:0 1px 1px rgba(140,90,0,.35)}
+.hero-ribbon span{display:inline-block;background:linear-gradient(180deg,#f5b73f,#e8930c);color:#fff;font-size:clamp(11px,1.25vw,14px);font-weight:900;padding:4px 13px;border-radius:999px;box-shadow:0 3px 0 #b97a10,0 5px 10px rgba(185,122,16,.3);transform:rotate(-1deg);text-shadow:0 1px 1px rgba(140,90,0,.35)}
 .status-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
-.chip{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.92);border:1.5px solid #f0dfae;border-radius:999px;padding:4px 11px;font-size:12px;font-weight:800;color:#5b4a1e;box-shadow:0 2px 5px rgba(120,90,20,.12)}
+.chip{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.92);border:1.5px solid #f0dfae;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:800;color:#5b4a1e;box-shadow:0 2px 5px rgba(120,90,20,.12)}
 .chip b{font-size:13px;color:#2c4861}
 .chip-xp .xpbar{display:inline-block;width:56px;height:8px;background:#eee3c2;border-radius:99px;overflow:hidden;vertical-align:middle}
 .chip-xp .xpbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f5b73f,#e8930c);border-radius:99px;transition:width .4s}
@@ -46,17 +46,17 @@ body.on-home .home-screen{flex:none}
 .sub-links{flex:none;display:flex;flex-direction:column;align-items:flex-start;gap:6px}
 .sub-link{display:flex;align-items:center;gap:5px;border:1px solid var(--line);background:rgba(255,253,248,.94);border-radius:999px;padding:6px 11px;color:#41617a;text-decoration:none;font-size:11px;font-weight:900;min-height:36px;box-shadow:0 2px 6px rgba(52,73,91,.12);white-space:nowrap}
 .sub-link small{font-size:9px;color:#98a1aa;font-weight:700}
-/* ===== スタートゾーン（ヒーローのすぐ下） ===== */
-.start-zone{flex:none;background:#fffdf8;border:1px solid var(--line);border-radius:16px;padding:12px 14px 11px;box-shadow:0 4px 14px rgba(46,109,168,.10)}
-.start-btn{display:flex;width:100%;border:0;border-radius:18px;background:linear-gradient(180deg,#f2b33d,#e08e0a);color:#fff;padding:12px 26px;min-height:80px;white-space:nowrap;flex-direction:column;align-items:center;justify-content:center;gap:2px;animation:start-glow 1.7s ease-in-out infinite}
-.start-btn small{font-size:13px;font-weight:900;opacity:.92;letter-spacing:.04em}
-.start-btn .start-main{font-size:27px;font-weight:900;text-shadow:0 2px 2px rgba(146,90,0,.35)}
+/* ===== スタートゾーン（ヒーローパネル左カラム内・絵のとなり） ===== */
+.start-zone{margin-top:2px;min-width:0}
+.start-btn{display:flex;width:100%;border:0;border-radius:18px;background:linear-gradient(180deg,#f2b33d,#e08e0a);color:#fff;padding:8px 16px;min-height:60px;white-space:nowrap;flex-direction:column;align-items:center;justify-content:center;gap:1px;animation:start-glow 1.7s ease-in-out infinite}
+.start-btn small{font-size:12px;font-weight:900;opacity:.92;letter-spacing:.04em}
+.start-btn .start-main{font-size:23px;font-weight:900;text-shadow:0 2px 2px rgba(146,90,0,.35)}
 .start-btn:active{transform:translateY(4px);animation:none;box-shadow:0 2px 0 #b77a25,inset 0 2px 0 rgba(255,255,255,.35)}
 @keyframes start-glow{0%,100%{box-shadow:0 6px 0 #b77a25,0 10px 18px rgba(146,90,0,.28),inset 0 2px 0 rgba(255,255,255,.35),0 0 0 0 rgba(232,147,12,.45)}50%{box-shadow:0 6px 0 #b77a25,0 10px 18px rgba(146,90,0,.28),inset 0 2px 0 rgba(255,255,255,.35),0 0 26px 8px rgba(232,147,12,.5)}}
-.start-info{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-top:10px}
+.start-info{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-top:5px}
 .start-info small{flex:none;font-size:10px;font-weight:900;color:#8793a0;letter-spacing:.08em}
-.start-info b{font-size:14px;color:#2c4861;line-height:1.35}
-.start-info span{font-size:11px;color:#71808e;margin-left:auto}
+.start-info b{font-size:12px;color:#2c4861;line-height:1.25}
+.start-info span{font-size:10px;color:#71808e}
 
 /* ===== 設定パネル（ページ最下部・固定ではない） ===== */
 .settings-panel{flex:none;background:rgba(255,253,248,.96);border:1px solid var(--line);border-radius:16px;padding:14px 16px 16px;box-shadow:0 4px 14px rgba(46,109,168,.08)}
@@ -79,6 +79,8 @@ body.on-home .home-screen{flex:none}
   .characters{grid-template-columns:repeat(3,1fr)}
   .hero-strip{grid-template-columns:minmax(0,1fr) minmax(240px,44%)}
   .hero-copy{flex-direction:column;align-items:flex-start;justify-content:center;padding:8px 2px 8px 14px;gap:6px}
+  .hero-eyebrow{display:none}
+  .copy-main{width:100%}
   .sub-links{flex-direction:row;flex-wrap:wrap}
   .sparkle.sp1{right:236px}
   .sparkle.sp3{right:248px}
@@ -223,12 +225,16 @@ body.on-home .home-screen{flex:none}
 .secondary{background:#edf0f2;color:#526174}
 
 @media (max-height:720px) and (orientation:landscape){
-  .hero-strip{height:clamp(160px,24dvh,190px)}
+  .hero-strip{height:clamp(212px,31dvh,228px)}
   .hero-copy{gap:10px;padding:6px 2px 6px 16px}
   .copy-main{gap:4px}
   .hero-eyebrow{display:none}
   .sub-link{min-height:32px;padding:4px 10px}
   .game-logo{font-size:clamp(21px,2.4vw,28px)}
+  .start-zone{margin-top:3px}
+  .start-btn{min-height:54px;padding:7px 14px}
+  .start-btn .start-main{font-size:21px}
+  .start-info{margin-top:5px}
   .chip{font-size:11px;padding:3px 9px}
   .chip-xp .xpbar{width:38px}
   .keypad{grid-template-rows:repeat(5,44px)}
