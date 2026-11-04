@@ -19,7 +19,6 @@
           <span class="chip">🏅 <b id="hero-wins">0</b> 勝</span>
         </div>
         <div class="start-zone">
-          <button id="start" class="start-btn" type="button"><small id="start-unit">20までのたし算</small><span class="start-main">バトルスタート！</span></button>
           <div class="start-info"><small>今回のクエスト</small><b id="summary">20までのたし算 ・ 10問 ・ ふつう ・ リク</b><span id="last-note">前回の設定でそのまま始められるよ</span></div>
         </div>
       </div>
@@ -46,6 +45,10 @@
       <div class="setting-line"><span>ナビアンの強さ</span><div class="seg" id="diffs"><button class="diff-btn" data-diff="easy" type="button">やさしい</button><button class="diff-btn" data-diff="normal" type="button">ふつう</button><button class="diff-btn" data-diff="hard" type="button">つよい</button></div></div>
     </div>
   </div>
+  <div class="home-start-dock">
+    <div class="dock-info"><small>選択中のクエスト</small><b id="dock-summary">20までのたし算 ・ 10問 ・ ふつう ・ リク</b></div>
+    <button id="start" class="dock-start-btn" type="button"><span>バトルスタート！</span><small>この単元で挑戦</small></button>
+  </div>
 </section>
 
 <section id="battle" class="screen battle-screen hidden">
@@ -63,10 +66,20 @@
       <div class="attack-clock" id="attack-clock"><span class="clock-label">⚠ ナビアンの次の攻撃</span><div class="clock-bar"><i id="attack-bar"></i></div><strong id="attack-time">あと 20 秒</strong></div>
       <div class="progress-row"><b id="combo">🔥 COMBO 0</b><b id="round">正解 0 / 10</b><div class="bar"><i id="progressbar"></i></div></div>
       <div class="feedback" id="feedback" role="status">バトルスタート！</div>
-      <div class="work-area" id="work-area"><div id="question" class="question">24 + 15 = ?</div><canvas id="work-canvas" class="work-canvas" aria-label="計算を書き込む透明な手書きエリア"></canvas></div>
-      <div class="work-tools"><button id="draw-toggle" type="button" aria-pressed="false">✍ 手書き OFF</button><button id="draw-clear" type="button">消す ↻</button><small>指やタッチペンで筆算や途中の計算を書けるよ</small></div>
-      <div class="answer-row" id="answer-row"><span class="field-group" id="field-group-1"><small id="quotient-label" class="amari hidden">しょう</small><b id="answer" class="answer-box active">?</b></span><div id="frac-bar" class="frac-bar hidden" aria-hidden="true"></div><span id="remainder-part" class="field-group hidden"><small class="amari" id="remainder-label">あまり</small><b id="answer2" class="answer-box">?</b></span></div>
-      <div id="keypad" class="keypad"><button data-key="1" type="button">1</button><button data-key="2" type="button">2</button><button data-key="3" type="button">3</button><button data-key="4" type="button">4</button><button data-key="5" type="button">5</button><button data-key="6" type="button">6</button><button data-key="7" type="button">7</button><button data-key="8" type="button">8</button><button data-key="9" type="button">9</button><button data-key="clear" type="button">けす</button><button data-key="0" type="button">0</button><button data-key="." type="button">.</button><button data-key="enter" class="enter" type="button">決定 ✓</button></div>
+      <div class="solve-layout">
+        <div class="work-column">
+          <div id="question" class="question">24 + 15 = ?</div>
+          <div class="work-area" id="work-area">
+            <canvas id="work-canvas" class="work-canvas" aria-label="計算を書き込む手書きエリア"></canvas>
+            <span class="paper-guide" aria-hidden="true">ここに筆算や途中の計算を書こう</span>
+          </div>
+          <div class="work-tools"><button id="draw-toggle" type="button" aria-pressed="false">✍ 手書き ON</button><button id="draw-clear" type="button">消す ↻</button><small>指やタッチペンで自由に書けるよ</small></div>
+        </div>
+        <div class="input-column">
+          <div class="answer-row" id="answer-row"><span class="field-group" id="field-group-1"><small id="quotient-label" class="amari hidden">しょう</small><b id="answer" class="answer-box active">?</b></span><div id="frac-bar" class="frac-bar hidden" aria-hidden="true"></div><span id="remainder-part" class="field-group hidden"><small class="amari" id="remainder-label">あまり</small><b id="answer2" class="answer-box">?</b></span></div>
+          <div id="keypad" class="keypad"><button data-key="1" type="button">1</button><button data-key="2" type="button">2</button><button data-key="3" type="button">3</button><button data-key="4" type="button">4</button><button data-key="5" type="button">5</button><button data-key="6" type="button">6</button><button data-key="7" type="button">7</button><button data-key="8" type="button">8</button><button data-key="9" type="button">9</button><button data-key="clear" type="button">けす</button><button data-key="0" type="button">0</button><button data-key="." type="button">.</button><button data-key="enter" class="enter" type="button">決定 ✓</button></div>
+        </div>
+      </div>
       <div id="training-empty" class="training-empty hidden"><p class="t-empty-title">✦ 特訓する問題はありません</p><p class="t-empty-note">バトルでまちがえた問題が、ここにたまります。<br>まずはバトルに挑戦しよう！</p><button id="training-empty-home" class="primary" type="button">クエスト選択へもどる</button></div>
     </div>
     <aside class="col col-enemy" id="enemy-col">
