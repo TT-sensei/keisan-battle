@@ -313,6 +313,11 @@ body.on-home .dex-screen{flex:none}
 .q-block{grid-area:question;display:flex;flex-direction:column;gap:8px;min-width:0;min-height:0}
 #b-main .question{position:relative;flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;align-content:center;text-align:center;font-size:clamp(32px,3.6vw,48px);font-weight:900;color:#284b68;background:rgba(255,255,255,.97);border:1px solid #dfe7ec;border-radius:11px;padding:6px 12px;line-height:1.15;overflow:auto}
 .q-text{flex:0 1 auto;min-width:0}
+#b-main .question.inline-answer .q-text{display:inline;flex:0 1 auto}
+#b-main .q-text .field-group{display:inline-flex;vertical-align:middle;align-items:center;gap:3px;margin:0 .08em}
+#b-main .q-text .answer-box{display:inline-flex;align-items:center;justify-content:center;min-width:1.8em;max-width:3.2em;padding:2px 7px;font-size:.62em;line-height:1.15;border-width:2px;border-radius:8px}
+#b-main .q-text .amari{font-size:.28em}
+#b-main .question.inline-answer{gap:10px}
 .q-eq{flex:none}
 .writing-block{grid-area:writing;display:flex;flex-direction:column;gap:6px;min-width:0;min-height:0}
 #b-main .answer-row{flex:none;display:flex;justify-content:center;align-items:center;gap:7px;flex-wrap:nowrap;margin:0;min-height:0}
