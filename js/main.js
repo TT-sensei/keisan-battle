@@ -138,8 +138,10 @@ function updateFuriToggle() { $("furi-toggle").textContent = settings.furigana ?
 
 // ===== 入口 =====
 function updateSummary() {
-  $("summary").textContent = UNIT_BY_ID[state.unit].title + " ・ " + settings.count + "問 ・ " + DIFF_LABELS[settings.difficulty] + " ・ " + CHARACTERS[state.char].name;
-  $("start-unit").textContent = UNIT_BY_ID[state.unit].title;
+  const text = UNIT_BY_ID[state.unit].title + " ・ " + settings.count + "問 ・ " + DIFF_LABELS[settings.difficulty] + " ・ " + CHARACTERS[state.char].name;
+  $("summary").textContent = text;
+  const dockSummary = $("dock-summary");
+  if (dockSummary) dockSummary.textContent = text;
 }
 function renderOps() {
   const wrap = $("ops");
@@ -182,6 +184,7 @@ function renderUnits() {
     const rate = answered ? Math.round(correct / answered * 100) : 0;
     const cleared = records.some(x => x.win);
     b.className = "unit" + (u.id === state.unit ? " selected" : "");
+    b.setAttribute("aria-pressed", String(u.id === state.unit));
     b.disabled = u.generator === "future";
     b.innerHTML = "<span class=\"unit-sym\"></span><span class=\"unit-texts\"><b>" + (u.id === recId ? "⭐ つぎはこれ！ " : "") + u.title + "</b><small>" + u.detail + " · " + u.grade.map(g => "小" + g).join("・") + "</small><small>" + (records.length ? ("挑戦 " + records.length + "回 · 正答率 " + rate + "%" + (cleared ? " · ✓ クリア" : "")) : "まだ挑戦していないよ") + "</small>" + xpRateNote(u.level) + "</span>" + (cleared ? "<span class=\"unit-stamp\">★ クリア！</span>" : "");
     const symEl = b.querySelector(".unit-sym");
@@ -466,7 +469,7 @@ function start() {
   $("battle-unit").textContent = unit.title;
   feedback("バトルスタート！");
   state.answer = ""; state.answer2 = "";
-  setDrawEnabled(false);
+  setDrawEnabled(true);
   state.battle = new Battle({
     unit,
     onUpdate: render,
@@ -516,7 +519,7 @@ function startTraining(targetIds) {
   $("round").textContent = "正解 0 / 10";
   $("combo").textContent = "✦ 特訓中";
   $("progressbar").style.width = "0%";
-  setDrawEnabled(false);
+  setDrawEnabled(true);
   clearCanvas();
   feedback("特訓スタート！ あせらず考えよう。");
   screen("battle");
