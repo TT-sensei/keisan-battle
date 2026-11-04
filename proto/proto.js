@@ -209,6 +209,9 @@ function renderSegs() {
 function screen(id) {
   ["home", "battle", "result"].forEach(x => $(x).classList.toggle("hidden", x !== id));
   $("app-header").classList.toggle("hidden", id === "battle");
+  // 入口だけページ全体がスクロールする（バトル・結果は固定レイアウト）
+  document.body.classList.toggle("on-home", id === "home");
+  window.scrollTo(0, 0);
   if (id === "home") { renderUnits(); renderChars(); }
 }
 
