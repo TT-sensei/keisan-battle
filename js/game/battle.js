@@ -3,10 +3,14 @@ import { classifyMistake } from "../engine/mistake-types.js";
 // 敵の攻撃間隔は単元レベルで大きく開く（大きい数の計算ほど考える・書く時間がかかるため）
 const ATTACK_INTERVALS = { 1: 20000, 2: 26000, 3: 32000, 4: 39000, 5: 46000 };
 // 難易度は敵の攻撃間隔とダメージだけを変える。問題の数や内容は変えない。
+// 2026-11-04 バランス見直し: 「考えている間に一方的に殴られ続ける」理不尽さを減らすため、
+// 3段階の差は保ったまま、ダメージを全体に下げ（8/10/14 → 6/8/11）、間隔係数を長くした（1.3/1.0/0.75 → 1.5/1.15/0.85）。
+// やさしいは単元レベル1で30秒間隔・6ダメージとなり、初めての子でも考える時間を確保できる。
+// プレイヤー側（HP・攻撃力・必殺技）と敵HP、単元レベル別の基準間隔は据え置き。
 const DIFFICULTY = {
-  easy: { intervalFactor: 1.3, enemyDamage: 8 },
-  normal: { intervalFactor: 1.0, enemyDamage: 10 },
-  hard: { intervalFactor: 0.75, enemyDamage: 14 }
+  easy: { intervalFactor: 1.5, enemyDamage: 6 },
+  normal: { intervalFactor: 1.15, enemyDamage: 8 },
+  hard: { intervalFactor: 0.85, enemyDamage: 11 }
 };
 // 速く解くほどスピードボーナスが大きくなる（遅くてもペナルティはない）。
 // 最速の目安は単元レベルで変わる（大きい数の計算ほど時間がかかるため）。
