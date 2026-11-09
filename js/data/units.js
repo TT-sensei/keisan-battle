@@ -13,12 +13,12 @@ export const OPERATIONS = {
       { id: "add-two-carry", title: "2けたのたし算（くり上がりあり）", detail: "一の位・十の位のくり上がり", grade: [2], level: 3, generator: "addition", config: { minA: 10, maxA: 99, minB: 10, maxB: 99, carry: true } },
       { id: "add-three-two-no-carry", title: "3けた＋2けた（くり上がりなし）", detail: "3けたの数に2けたをたす", grade: [2, 3], level: 3, generator: "addition", config: { minA: 100, maxA: 999, minB: 10, maxB: 99, carry: false } },
       { id: "add-three-two-carry", title: "3けた＋2けた（くり上がりあり）", detail: "くり上がりのある筆算", grade: [2, 3], level: 3, generator: "addition", config: { minA: 100, maxA: 999, minB: 10, maxB: 99, carry: true } },
+      { id: "sum-three", title: "3つの数の合計", detail: "3つの数を合わせた合計", grade: [3], level: 4, generator: "sum", config: { min: 10, max: 100 } },
       { id: "add-three-no-carry", title: "3けたのたし算（くり上がりなし）", detail: "3けた＋3けた", grade: [3], level: 4, generator: "addition", config: { minA: 100, maxA: 499, minB: 100, maxB: 499, carry: false } },
       { id: "add-three-carry", title: "3けたのたし算（くり上がりあり）", detail: "3けた＋3けた", grade: [3], level: 4, generator: "addition", config: { minA: 100, maxA: 999, minB: 100, maxB: 999, carry: true } },
       { id: "add-four-three-no-carry", title: "4けた＋3けた（くり上がりなし）", detail: "大きな数の筆算", grade: [3, 4], level: 4, generator: "addition", config: { minA: 1000, maxA: 9999, minB: 100, maxB: 999, carry: false } },
       { id: "add-four-three-carry", title: "4けた＋3けた（くり上がりあり）", detail: "何度もくり上がる計算", grade: [3, 4], level: 4, generator: "addition", config: { minA: 1000, maxA: 9999, minB: 100, maxB: 999, carry: true } },
       { id: "add-four", title: "4けたのたし算", detail: "大きな数のたし算", grade: [3], level: 5, generator: "addition", config: { minA: 1000, maxA: 9999, minB: 1000, maxB: 9999 } },
-      { id: "sum-three", title: "3つの数の合計", detail: "3つの数を合わせた合計", grade: [3], level: 2, generator: "sum", config: { min: 10, max: 100 } }
     ]
   },
   subtraction: {
