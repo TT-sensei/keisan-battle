@@ -145,9 +145,7 @@ export class Battle {
       // スピードボーナス: 速く正確に解くほど強く打てる（遅くてもペナルティはない）
       const elapsed = this.questionStartedAt === null ? Infinity : Date.now() - this.questionStartedAt;
       const speedBonus = this.enemyHp > 0 ? speedBonusDamage(elapsed, this.level) : 0;
-      // 2026-11-04 プレイヤー攻撃力の見直し: 従来（12＋コンボ×2・最大12）では数問の正解で敵HPを
-      // 削り切り、既定の10問正解に届く前に終わっていた。敵HP（レベル帯で100/120/150）に対し、
-      // 倒し切るのに9〜10問の正解が要る配分にし、単元レベルで敵HPの増加にも追随させた。
+      // 攻撃力は敵HPと最終的な勝敗に反映する。敵HPが0になっても、設定問題数までは続ける。
       let damage = 7 + Math.min(5, this.combo) + (this.level - 1);
       if (this.trait === "nami") damage = Math.round(damage * 1.25); // ナミ特性: パワー
       damage += speedBonus;
