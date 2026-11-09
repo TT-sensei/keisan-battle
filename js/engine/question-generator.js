@@ -103,8 +103,8 @@ function missingAddend(config) {
 
 function missingSubtrahend(config) {
   const c = config || {};
-  const result = rand(1, 9);
-  const missing = rand(1, 9);
+  const result = rand(c.minResult ?? 1, c.maxResult ?? 9);
+  const missing = rand(c.minMissing ?? 1, c.maxMissing ?? 9);
   const total = result + missing;
   return {
     a: total, b: missing, operator: "−", answer: missing,
