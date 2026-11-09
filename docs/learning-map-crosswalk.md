@@ -65,8 +65,6 @@
 | `mul-three-two` | 3けた×2けた | 小4・5 | 2・3位数×2位数（jp.elem.math.multidigit-multiply-two-digit） | 対応 |
 | `mul-four-one` | 4けた×1けた | 小4・5 | 2・3位数×1位数（jp.elem.math.multidigit-multiply-one-digit） | 技能対応・活用は一部。4けた×1けたは、マップの2・3位数×1位数を超える拡張演習。 |
 | `mul-four-two` | 4けた×2けた | 小5・6 | 2・3位数×2位数（jp.elem.math.multidigit-multiply-two-digit） | 技能対応・活用は一部。4けた×2けたは、マップの2・3位数×2位数を超える拡張演習。 |
-| `mul-decimal-integer` | 小数×整数 | 小4・5 | 小数の位取りと大小（jp.elem.math.decimal-place-value） | 部分対応。小数×整数は小4段階。マップの小5『小数の乗法・除法』（乗数が小数）とは別段階の内容で、直接対応する項目はマップに独立していない。 |
-| `mul-decimal-decimal` | 小数×小数 | 小5 | 小数の乗法・除法（jp.elem.math.decimal-multiply-divide） | 対応 |
 
 ### わり算
 
@@ -79,8 +77,6 @@
 | `div-remainder` | あまりのあるわり算 | 小3・4 | あまりのある除法（jp.elem.math.division-remainders） | 技能対応・活用は一部。商・あまりを数値で答える練習には対応。場面に応じてあまりをどう扱うか判断する学習までは含まない。 |
 | `div-four-one` | 4けた÷1けた | 小4・5 | わり算の筆算（jp.elem.math.division-algorithm） | 技能対応・活用は一部。4けた÷1けたは、マップのわり算筆算の代表範囲（2・3位数）を超える拡張演習。 |
 | `div-four-two` | 4けた÷2けた | 小5・6 | わり算の筆算（jp.elem.math.division-algorithm） | 技能対応・活用は一部。4けた÷2けたは、マップのわり算筆算の代表範囲を超える拡張演習。 |
-| `div-decimal-integer` | 小数÷整数 | 小5 | 小数の位取りと大小（jp.elem.math.decimal-place-value） | 部分対応。小数÷整数は小4段階。マップの小5『小数の乗法・除法』（除数が小数）とは別段階の内容で、直接対応する項目はマップに独立していない。 |
-| `div-decimal-decimal` | 小数÷小数 | 小5 | 小数の乗法・除法（jp.elem.math.decimal-multiply-divide） | 対応 |
 
 ### 小数
 
