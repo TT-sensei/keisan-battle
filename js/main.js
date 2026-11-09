@@ -44,6 +44,11 @@ try {
   if (UNIT_BY_ID[p.unit] && UNIT_BY_ID[p.unit].generator !== "future" && OPERATIONS[state.op].units.some(u => u.id === p.unit)) state.unit = p.unit;
   if (CHARACTERS[p.char]) state.char = p.char;
 } catch (e) {}
+// 単元の再編で「カテゴリと単元が食い違った」記録が残っていたら、今のカテゴリに合う単元に直す。
+if (!UNIT_BY_ID[state.unit] || !OPERATIONS[state.op].units.some(u => u.id === state.unit)) {
+  const first = OPERATIONS[state.op].units.find(u => u.generator !== "future") || OPERATIONS[state.op].units[0];
+  if (first) state.unit = first.id;
+}
 function saveLast() {
   localStorage.setItem("keisanBattleLast", JSON.stringify({ op: state.op, unit: state.unit, char: state.char }));
 }
@@ -55,6 +60,8 @@ if (!save || typeof save !== "object" || Array.isArray(save)) save = { xp: 0, wi
 if (typeof save.xp !== "number" || !(save.xp >= 0)) save.xp = 0;
 if (typeof save.wins !== "number" || !(save.wins >= 0)) save.wins = 0;
 if (!Array.isArray(save.mistakes)) save.mistakes = [];
+// 削除された単元の間違い記録は特訓に出せず、克服して消すこともできないので、読み込み時に掃除する。
+save.mistakes = save.mistakes.filter(m => m && UNIT_BY_ID[m.unitId]);
 save.sessions = Array.isArray(save.sessions) ? save.sessions : [];
 save.mastery = save.mastery && typeof save.mastery === "object" ? save.mastery : {};
 save.dex = save.dex && typeof save.dex === "object" ? save.dex : {};
