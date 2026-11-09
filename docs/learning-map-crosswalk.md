@@ -19,7 +19,7 @@
 
 ### たし算
 
-| 単元ID | 計算バトルの単元 | 現在の学年 | 学びのマップ対応先 | 判定・補足 |
+| 単元ID | 計算バトルの単元 | 変更前の学年（main） | 学びのマップ対応先 | 判定・補足 |
 |---|---|---:|---|---|
 | `add-within-20` | 20までのたし算 | 小1 | 1位数どうしを中心とした加法（jp.elem.math.addition-within-20） | 対応 |
 | `add-missing-number` | □の数をもとめる | 小1・2 | 加法の意味（jp.elem.math.addition-meaning）<br>式の表現と等号（jp.elem.math.number-sentences）<br>□を使った式で数量の関係を表す（jp.elem.math.unknown-number-box-expression） | 関連対応。20までの加法場面での未知数。マップの□式・等号の項目と関連するが、マップの□式項目の初出学年（小2）と本単元の数の範囲（20まで）は完全一致ではない。 |
@@ -37,7 +37,7 @@
 
 ### ひき算
 
-| 単元ID | 計算バトルの単元 | 現在の学年 | 学びのマップ対応先 | 判定・補足 |
+| 単元ID | 計算バトルの単元 | 変更前の学年（main） | 学びのマップ対応先 | 判定・補足 |
 |---|---|---:|---|---|
 | `sub-within-20` | 20までのひき算 | 小1 | 1位数どうしを中心とした減法（jp.elem.math.subtraction-within-20） | 対応 |
 | `sub-missing-number` | □の数をもとめる | 小1・2 | 減法の意味（jp.elem.math.subtraction-meaning）<br>式の表現と等号（jp.elem.math.number-sentences）<br>□を使った式で数量の関係を表す（jp.elem.math.unknown-number-box-expression） | 関連対応。20までの減法場面での未知数。加法・減法の意味や式の表現と関連する。 |
@@ -55,7 +55,7 @@
 
 ### かけ算
 
-| 単元ID | 計算バトルの単元 | 現在の学年 | 学びのマップ対応先 | 判定・補足 |
+| 単元ID | 計算バトルの単元 | 変更前の学年（main） | 学びのマップ対応先 | 判定・補足 |
 |---|---|---:|---|---|
 | `mul-table` | 九九 | 小2 | 乗法九九（jp.elem.math.multiplication-tables）<br>乗法の意味（jp.elem.math.multiplication-meaning） | 対応 |
 | `mul-missing-factor` | □の数をもとめる | 小2・3 | 乗法九九（jp.elem.math.multiplication-tables）<br>□を使った式から未知数を求める（jp.elem.math.unknown-number-solve） | 関連対応。九九の逆算として対応。未知数を求める練習であり、単純な九九の再生とは区別。 |
@@ -68,7 +68,7 @@
 
 ### わり算
 
-| 単元ID | 計算バトルの単元 | 現在の学年 | 学びのマップ対応先 | 判定・補足 |
+| 単元ID | 計算バトルの単元 | 変更前の学年（main） | 学びのマップ対応先 | 判定・補足 |
 |---|---|---:|---|---|
 | `div-table` | 九九を使うわり算 | 小3 | 除法の意味（jp.elem.math.division-meaning）<br>乗法九九（jp.elem.math.multiplication-tables） | 対応 |
 | `div-missing-divisor` | □の数をもとめる | 小3 | 除法の意味（jp.elem.math.division-meaning）<br>□を使った式から未知数を求める（jp.elem.math.unknown-number-solve） | 関連対応。九九を用いた逆算として対応。除法の意味・乗法との関係を使う。 |
@@ -80,7 +80,7 @@
 
 ### 小数
 
-| 単元ID | 計算バトルの単元 | 現在の学年 | 学びのマップ対応先 | 判定・補足 |
+| 単元ID | 計算バトルの単元 | 変更前の学年（main） | 学びのマップ対応先 | 判定・補足 |
 |---|---|---:|---|---|
 | `add-decimal-tenths` | 小数のたし算（小数第1位） | 小3・4 | 小数の意味（十分の一の位）（jp.elem.math.decimals-tenths）<br>小数の加法・減法（jp.elem.math.decimal-add-subtract） | 対応 |
 | `sub-decimal-tenths` | 小数のひき算（小数第1位） | 小3・4 | 小数の意味（十分の一の位）（jp.elem.math.decimals-tenths）<br>小数の加法・減法（jp.elem.math.decimal-add-subtract） | 対応 |
@@ -93,7 +93,7 @@
 
 ### 分数
 
-| 単元ID | 計算バトルの単元 | 現在の学年 | 学びのマップ対応先 | 判定・補足 |
+| 単元ID | 計算バトルの単元 | 変更前の学年（main） | 学びのマップ対応先 | 判定・補足 |
 |---|---|---:|---|---|
 | `frac-same-add` | 分数のたし算（同じ分母） | 小4・5 | 同分母分数の加法・減法（jp.elem.math.fractions-same-denominator） | 対応 |
 | `frac-same-sub` | 分数のひき算（同じ分母） | 小5 | 同分母分数の加法・減法（jp.elem.math.fractions-same-denominator） | 対応 |
@@ -106,7 +106,7 @@
 
 ### 応用
 
-| 単元ID | 計算バトルの単元 | 現在の学年 | 学びのマップ対応先 | 判定・補足 |
+| 単元ID | 計算バトルの単元 | 変更前の学年（main） | 学びのマップ対応先 | 判定・補足 |
 |---|---|---:|---|---|
 | `sum-three` | 3つの数の合計 | 小3 | 2～4桁の加法・減法（jp.elem.math.multidigit-add-subtract） | 部分対応。3数の合計を計算する演習。文脈に応じて複数の計算を選ぶ問題解決までは扱わない。 |
 | `average-three` | 3つの数の平均 | 小5 | 平均（jp.elem.math.average） | 技能対応・活用は一部。3数の平均を計算する技能に対応。データを集めて代表値を比較・解釈する活動までは扱わない。 |
