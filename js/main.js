@@ -352,7 +352,8 @@ function render(event) {
   $("specialbar").style.width = b.special + "%";
   const specialGain = state.char === "kai" ? 34 : 25;
   $("specialtext").textContent = b.special >= 100 ? "必殺技ゲージ MAX！" : "あと" + Math.ceil((100 - b.special) / specialGain) + "回正解で必殺技！";
-  $("special-use").disabled = b.special < 100 || state.battle.finished;
+  $("special-use").disabled = b.special < 100 || state.battle.finished || b.enemyHp <= 0;
+  $("attack-clock").classList.toggle("hidden", b.playerHp <= 0 || b.enemyHp <= 0);
   if (event.type === "question-needed") {
     state.battle.setQuestion(generateQuestion(UNIT_BY_ID[state.unit]));
     return;
