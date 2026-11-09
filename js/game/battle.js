@@ -144,7 +144,7 @@ export class Battle {
       this.bestCombo = Math.max(this.bestCombo, this.combo);
       // スピードボーナス: 速く正確に解くほど強く打てる（遅くてもペナルティはない）
       const elapsed = this.questionStartedAt === null ? Infinity : Date.now() - this.questionStartedAt;
-      const speedBonus = speedBonusDamage(elapsed, this.level);
+      const speedBonus = this.enemyHp > 0 ? speedBonusDamage(elapsed, this.level) : 0;
       // 2026-11-04 プレイヤー攻撃力の見直し: 従来（12＋コンボ×2・最大12）では数問の正解で敵HPを
       // 削り切り、既定の10問正解に届く前に終わっていた。敵HP（レベル帯で100/120/150）に対し、
       // 倒し切るのに9〜10問の正解が要る配分にし、単元レベルで敵HPの増加にも追随させた。
@@ -152,6 +152,7 @@ export class Battle {
       if (this.trait === "nami") damage = Math.round(damage * 1.25); // ナミ特性: パワー
       damage += speedBonus;
       if (this.enemyHp > 0) this.enemyHp = Math.max(0, this.enemyHp - damage);
+      else damage = 0;
       this.xp += 8 + Math.min(4, this.combo);
       const specialGain = this.trait === "kai" ? 34 : 25; // カイ特性: 必殺技がたまりやすい
       this.special = Math.min(100, this.special + specialGain);
@@ -164,7 +165,7 @@ export class Battle {
       this.questionStartedAt = null;
       if (this.enemyHp <= 0 || this.playerHp <= 0) this.nextEnemyAttackAt = null;
       else this.resetEnemyAttackTimer();
-      let text = "正解！ " + damage + " ダメージ！";
+      let text = this.enemyHp <= 0 ? "正解！ 問題を続けよう！" : "正解！ " + damage + " ダメージ！";
       if (speedBonus >= 3) text = "⚡⚡ とてもすばやい正解！ " + damage + " ダメージ！";
       else if (speedBonus >= 2) text = "⚡ すばやい正解！ " + damage + " ダメージ！";
       else if (speedBonus >= 1) text = "はやい正解！ " + damage + " ダメージ！";
