@@ -34,8 +34,6 @@
 | `add-four-three-no-carry` | 4けた＋3けた（くり上がりなし） | 小3・4 | 2～4桁の加法・減法（jp.elem.math.multidigit-add-subtract） | 対応 |
 | `add-four-three-carry` | 4けた＋3けた（くり上がりあり） | 小3・4 | 2～4桁の加法・減法（jp.elem.math.multidigit-add-subtract） | 対応 |
 | `add-four` | 4けたのたし算 | 小4 | 2～4桁の加法・減法（jp.elem.math.multidigit-add-subtract） | 対応 |
-| `add-decimal-tenths` | 小数のたし算（小数第1位） | 小3・4 | 小数の意味（十分の一の位）（jp.elem.math.decimals-tenths）<br>小数の加法・減法（jp.elem.math.decimal-add-subtract） | 対応 |
-| `add-decimal-hundredths` | 小数のたし算（小数第2位） | 小4・5 | 小数の位取りと大小（jp.elem.math.decimal-place-value）<br>小数の加法・減法（jp.elem.math.decimal-add-subtract） | 対応 |
 
 ### ひき算
 
@@ -54,8 +52,6 @@
 | `sub-four-three-no-borrow` | 4けた−3けた（くり下がりなし） | 小3・4 | 2～4桁の加法・減法（jp.elem.math.multidigit-add-subtract） | 対応 |
 | `sub-four-three-borrow` | 4けた−3けた（くり下がりあり） | 小3・4 | 2～4桁の加法・減法（jp.elem.math.multidigit-add-subtract） | 対応 |
 | `sub-four` | 4けたのひき算 | 小4 | 2～4桁の加法・減法（jp.elem.math.multidigit-add-subtract） | 対応 |
-| `sub-decimal-tenths` | 小数のひき算（小数第1位） | 小3・4 | 小数の意味（十分の一の位）（jp.elem.math.decimals-tenths）<br>小数の加法・減法（jp.elem.math.decimal-add-subtract） | 対応 |
-| `sub-decimal-hundredths` | 小数のひき算（小数第2位） | 小4・5 | 小数の位取りと大小（jp.elem.math.decimal-place-value）<br>小数の加法・減法（jp.elem.math.decimal-add-subtract） | 対応 |
 
 ### かけ算
 
