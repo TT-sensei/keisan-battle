@@ -16,8 +16,7 @@ const OPS_META = {
   multiplication: { symbol: "×", color: "#e8930c" },
   division: { symbol: "÷", color: "#4da34a" },
   decimals: { symbol: "0.5", color: "#8e6fc8" },
-  fractions: { symbol: "½", color: "#d6699e" },
-  application: { symbol: "✎", color: "#2ea39b" }
+  fractions: { symbol: "½", color: "#d6699e" }
 };
 const TRAITS = {
   riku: "バランス型・とくせいなし", sora: "まもり型・受けるダメージがへる",
@@ -41,7 +40,8 @@ const state = { op: "addition", unit: "add-within-20", char: "riku", battle: nul
 try {
   const p = JSON.parse(localStorage.getItem("keisanBattleLast") || localStorage.getItem("keisanBattleProtoLast") || "{}");
   if (OPERATIONS[p.op]) state.op = p.op;
-  if (UNIT_BY_ID[p.unit] && UNIT_BY_ID[p.unit].generator !== "future") state.unit = p.unit;
+  // 応用単元を整理した後も、保存済みの単元が現在のカテゴリに属する場合だけ引き継ぐ。
+  if (UNIT_BY_ID[p.unit] && UNIT_BY_ID[p.unit].generator !== "future" && OPERATIONS[state.op].units.some(u => u.id === p.unit)) state.unit = p.unit;
   if (CHARACTERS[p.char]) state.char = p.char;
 } catch (e) {}
 function saveLast() {
@@ -352,7 +352,8 @@ function render(event) {
   $("specialbar").style.width = b.special + "%";
   const specialGain = state.char === "kai" ? 34 : 25;
   $("specialtext").textContent = b.special >= 100 ? "必殺技ゲージ MAX！" : "あと" + Math.ceil((100 - b.special) / specialGain) + "回正解で必殺技！";
-  $("special-use").disabled = b.special < 100 || state.battle.finished;
+  $("special-use").disabled = b.special < 100 || state.battle.finished || b.enemyHp <= 0;
+  $("attack-clock").classList.toggle("hidden", b.playerHp <= 0 || b.enemyHp <= 0);
   if (event.type === "question-needed") {
     state.battle.setQuestion(generateQuestion(UNIT_BY_ID[state.unit]));
     return;

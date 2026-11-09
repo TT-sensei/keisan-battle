@@ -109,7 +109,7 @@ export class Battle {
   }
 
   tick() {
-    if (this.finished || this.nextEnemyAttackAt === null) return;
+    if (this.finished || this.nextEnemyAttackAt === null || this.playerHp <= 0 || this.enemyHp <= 0) return;
     if (Date.now() >= this.nextEnemyAttackAt) {
       this.cpuAttack();
       return;
@@ -144,14 +144,13 @@ export class Battle {
       this.bestCombo = Math.max(this.bestCombo, this.combo);
       // スピードボーナス: 速く正確に解くほど強く打てる（遅くてもペナルティはない）
       const elapsed = this.questionStartedAt === null ? Infinity : Date.now() - this.questionStartedAt;
-      const speedBonus = speedBonusDamage(elapsed, this.level);
-      // 2026-11-04 プレイヤー攻撃力の見直し: 従来（12＋コンボ×2・最大12）では数問の正解で敵HPを
-      // 削り切り、既定の10問正解に届く前に終わっていた。敵HP（レベル帯で100/120/150）に対し、
-      // 倒し切るのに9〜10問の正解が要る配分にし、単元レベルで敵HPの増加にも追随させた。
+      const speedBonus = this.enemyHp > 0 ? speedBonusDamage(elapsed, this.level) : 0;
+      // 攻撃力は敵HPと最終的な勝敗に反映する。敵HPが0になっても、設定問題数までは続ける。
       let damage = 7 + Math.min(5, this.combo) + (this.level - 1);
       if (this.trait === "nami") damage = Math.round(damage * 1.25); // ナミ特性: パワー
       damage += speedBonus;
-      this.enemyHp = Math.max(0, this.enemyHp - damage);
+      if (this.enemyHp > 0) this.enemyHp = Math.max(0, this.enemyHp - damage);
+      else damage = 0;
       this.xp += 8 + Math.min(4, this.combo);
       const specialGain = this.trait === "kai" ? 34 : 25; // カイ特性: 必殺技がたまりやすい
       this.special = Math.min(100, this.special + specialGain);
@@ -162,8 +161,9 @@ export class Battle {
       }
       this.question = null;
       this.questionStartedAt = null;
-      this.resetEnemyAttackTimer();
-      let text = "正解！ " + damage + " ダメージ！";
+      if (this.enemyHp <= 0 || this.playerHp <= 0) this.nextEnemyAttackAt = null;
+      else this.resetEnemyAttackTimer();
+      let text = this.enemyHp <= 0 ? "正解！ 問題を続けよう！" : "正解！ " + damage + " ダメージ！";
       if (speedBonus >= 3) text = "⚡⚡ とてもすばやい正解！ " + damage + " ダメージ！";
       else if (speedBonus >= 2) text = "⚡ すばやい正解！ " + damage + " ダメージ！";
       else if (speedBonus >= 1) text = "はやい正解！ " + damage + " ダメージ！";
@@ -172,10 +172,8 @@ export class Battle {
       this.onFeedback({ kind: "success", text });
       this.onUpdate({ type: "correct", battle: this.snapshot(), damage });
 
-      if (this.enemyHp <= 0) {
-        this.finish(true);
-      } else if (this.correct >= this.maxRounds) {
-        this.finish(this.playerHp > this.enemyHp);
+      if (this.correct >= this.maxRounds) {
+        this.finish(this.enemyHp <= 0 || this.playerHp > this.enemyHp);
       } else {
         this.nextQuestionTimer = setTimeout(() => {
           if (this.finished) return;
@@ -220,27 +218,28 @@ export class Battle {
   }
 
   cpuAttack() {
-    if (this.finished) return;
+    if (this.finished || this.playerHp <= 0 || this.enemyHp <= 0) return;
     this.enemyAttackCount++;
     this.combo = 0;
     this.special = Math.max(0, this.special - 10);
     let damage = this.enemyDamage;
     if (this.trait === "sora") damage = Math.max(1, Math.round(damage * 0.7)); // ソラ特性: まもり
     this.playerHp = Math.max(0, this.playerHp - damage);
-    this.resetEnemyAttackTimer();
+    if (this.playerHp <= 0) this.nextEnemyAttackAt = null;
+    else this.resetEnemyAttackTimer();
     this.onFeedback({ kind: "enemy", text: "ナビアンの攻撃！ " + damage + " ダメージ" });
     this.onUpdate({ type: "cpu", battle: this.snapshot(), damage });
-    if (this.playerHp <= 0) this.finish(false);
+    // HPが0になっても、設定した問題数までは挑戦を続ける。
   }
 
   activateSpecial() {
-    if (this.finished || this.special < 100) return false;
+    if (this.finished || this.special < 100 || this.enemyHp <= 0) return false;
     this.special = 0;
     // 必殺技の威力も攻撃力見直しに合わせて 30 → 20（約2問分の正解に相当）
     this.enemyHp = Math.max(0, this.enemyHp - 20);
+    if (this.enemyHp <= 0) this.nextEnemyAttackAt = null;
     this.onFeedback({ kind: "special", text: "必殺技発動！ 20 ダメージ！" });
     this.onUpdate({ type: "special", battle: this.snapshot(), damage: 20 });
-    if (this.enemyHp <= 0) this.finish(true);
     return true;
   }
 

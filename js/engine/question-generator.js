@@ -103,8 +103,8 @@ function missingAddend(config) {
 
 function missingSubtrahend(config) {
   const c = config || {};
-  const result = rand(1, 9);
-  const missing = rand(1, 9);
+  const result = rand(c.minResult ?? 1, c.maxResult ?? 9);
+  const missing = rand(c.minMissing ?? 1, c.maxMissing ?? 9);
   const total = result + missing;
   return {
     a: total, b: missing, operator: "−", answer: missing,
@@ -412,7 +412,10 @@ function reduceFraction(n, d) {
 function fracText(n, d) { return n + "/" + d; }
 // 約分が実際に起きるときだけ「約分すると」と書く
 function yakubunSuffix(n, d, rn, rd) {
-  return gcd(n, d) > 1 ? "約分すると " + fracText(rn, rd) + " です。" : "答えは " + fracText(rn, rd) + " です。";
+  const g = gcd(n, d);
+  return g > 1
+    ? fracText(n, d) + " を " + g + " で約分すると " + fracText(rn, rd) + " です。"
+    : "答えは " + fracText(rn, rd) + " です。";
 }
 function fractionResult(n, d, display, explanation) {
   const [rn, rd] = reduceFraction(n, d);
@@ -434,7 +437,7 @@ function fractionAdd(config) {
       const [rn, rd] = reduceFraction(n1 + n2, d);
       return fractionResult(n1 + n2, d,
         fracText(n1, d) + " + " + fracText(n2, d),
-        "分母はそのまま、分子どうしをたします。" + n1 + " + " + n2 + " = " + (n1 + n2) + "。答えは " + fracText(rn, rd) + " です。");
+        "分母はそのまま、分子どうしをたします。" + n1 + " + " + n2 + " = " + (n1 + n2) + "。" + yakubunSuffix(n1 + n2, d, rn, rd));
     }
     const d1 = rand(c.minDenominator ?? 2, c.maxDenominator ?? 9);
     const d2 = rand(c.minDenominator ?? 2, c.maxDenominator ?? 9);
@@ -463,7 +466,7 @@ function fractionSub(config) {
       const [rn, rd] = reduceFraction(n1 - n2, d);
       return fractionResult(n1 - n2, d,
         fracText(n1, d) + " − " + fracText(n2, d),
-        "分母はそのまま、分子どうしをひきます。" + n1 + " − " + n2 + " = " + (n1 - n2) + "。答えは " + fracText(rn, rd) + " です。");
+        "分母はそのまま、分子どうしをひきます。" + n1 + " − " + n2 + " = " + (n1 - n2) + "。" + yakubunSuffix(n1 - n2, d, rn, rd));
     }
     const d1 = rand(c.minDenominator ?? 2, c.maxDenominator ?? 9);
     const d2 = rand(c.minDenominator ?? 2, c.maxDenominator ?? 9);
@@ -492,7 +495,7 @@ function fractionMulInt(config) {
     const [rn, rd] = reduceFraction(n * k, d);
     return fractionResult(n * k, d,
       fracText(n, d) + " × " + k,
-      "分子に " + k + " をかけます。" + n + " × " + k + " = " + (n * k) + "。答えは " + fracText(rn, rd) + " です。");
+      "分母はそのまま、分子に " + k + " をかけます。" + n + " × " + k + " = " + (n * k) + "。" + yakubunSuffix(n * k, d, rn, rd));
   }
   throw new Error("分数×整数の問題を作れませんでした。");
 }
@@ -506,7 +509,7 @@ function fractionDivInt(config) {
   const [rn, rd] = reduceFraction(n, d * k);
   return fractionResult(n, d * k,
     fracText(n, d) + " ÷ " + k,
-    "分母に " + k + " をかけます。" + d + " × " + k + " = " + (d * k) + "。答えは " + fracText(rn, rd) + " です。");
+    "分子はそのまま、分母に " + k + " をかけます。" + d + " × " + k + " = " + (d * k) + "。" + yakubunSuffix(n, d * k, rn, rd));
   }
   throw new Error("分数÷整数の問題を作れませんでした。");
 }
