@@ -17,7 +17,8 @@ export const OPERATIONS = {
       { id: "add-three-carry", title: "3けたのたし算（くり上がりあり）", detail: "3けた＋3けた", grade: [3], level: 4, generator: "addition", config: { minA: 100, maxA: 999, minB: 100, maxB: 999, carry: true } },
       { id: "add-four-three-no-carry", title: "4けた＋3けた（くり上がりなし）", detail: "大きな数の筆算", grade: [3, 4], level: 4, generator: "addition", config: { minA: 1000, maxA: 9999, minB: 100, maxB: 999, carry: false } },
       { id: "add-four-three-carry", title: "4けた＋3けた（くり上がりあり）", detail: "何度もくり上がる計算", grade: [3, 4], level: 4, generator: "addition", config: { minA: 1000, maxA: 9999, minB: 100, maxB: 999, carry: true } },
-      { id: "add-four", title: "4けたのたし算", detail: "大きな数のたし算", grade: [3], level: 5, generator: "addition", config: { minA: 1000, maxA: 9999, minB: 1000, maxB: 9999 } }
+      { id: "add-four", title: "4けたのたし算", detail: "大きな数のたし算", grade: [3], level: 5, generator: "addition", config: { minA: 1000, maxA: 9999, minB: 1000, maxB: 9999 } },
+      { id: "sum-three", title: "3つの数の合計", detail: "3つの数を合わせた合計", grade: [3], level: 2, generator: "sum", config: { min: 10, max: 100 } }
     ]
   },
   subtraction: {
@@ -94,23 +95,6 @@ export const OPERATIONS = {
       { id: "frac-div", title: "分数÷分数", detail: "答えは約分して仮分数で答えよう", grade: [6], level: 5, generator: "fractionDiv", config: { minDenominator: 2, maxDenominator: 9 } }
     ]
   },
-  application: {
-    label: "応用",
-    description: "平均・倍数と約数・割合・速さ・比例などに挑戦しよう。",
-    units: [
-      { id: "sum-three", title: "3つの数の合計", detail: "3つの数を合わせた合計", grade: [3], level: 2, generator: "sum", config: { min: 10, max: 100 } },
-      { id: "average-three", title: "3つの数の平均", detail: "3つの数の合計を3でわる", grade: [5], level: 3, generator: "average", config: { minAverage: 10, maxAverage: 100, spread: 12 } },
-      { id: "common-multiple", title: "最小公倍数", detail: "2つの数の最小公倍数", grade: [5], level: 4, generator: "commonMultiple", config: { min: 2, max: 30 } },
-      { id: "common-divisor", title: "最大公約数", detail: "2つの数の最大公約数", grade: [5], level: 4, generator: "commonDivisor", config: { min: 2, max: 60 } },
-      { id: "percentage-part", title: "くらべる数をもとめる", detail: "もとにする量×割合", grade: [5], level: 4, generator: "percentage", config: { minBase: 100, maxBase: 1000 } },
-      { id: "percentage-rate", title: "割合をもとめる", detail: "くらべる数÷もとにする量", grade: [5], level: 4, generator: "percentageRate", config: { minBase: 100, maxBase: 1000 } },
-      { id: "speed-basic", title: "速さ・道のり・時間", detail: "速さの3つのもとめ方に挑戦", grade: [5], level: 4, generator: "speed", config: { minSpeed: 20, maxSpeed: 120, minTime: 2, maxTime: 10 } },
-      { id: "proportion-table", title: "比例の表", detail: "yがxに比例するときのyの値", grade: [6], level: 4, generator: "proportion", config: { minK: 2, maxK: 12, maxX: 9 } },
-      { id: "algebra-x", title: "文字と式（xをもとめる）", detail: "式のxにあてはまる数", grade: [6], level: 4, generator: "algebraX", config: { maxValue: 50 } },
-      { id: "percentage-base", title: "もとにする量をもとめる", detail: "くらべる数÷割合", grade: [5], level: 5, generator: "percentageBase", config: { minBase: 100, maxBase: 1000 } },
-      { id: "ratio-simple", title: "比を簡単にする", detail: "いちばん簡単な整数の比にしよう", grade: [6], level: 5, generator: "ratioSimplify", config: { minG: 2, maxG: 12 } }
-    ]
-  }
 };
 
 export const UNIT_BY_ID = Object.values(OPERATIONS)
