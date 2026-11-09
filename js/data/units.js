@@ -25,7 +25,7 @@ export const OPERATIONS = {
     description: "数の大きさや、くり下がりの有無を選ぼう。",
     units: [
       { id: "sub-within-20", title: "20までのひき算", detail: "2けた−1けた", grade: [1], level: 1, generator: "subtraction", config: { minA: 10, maxA: 20, minB: 1, maxB: 9 } },
-      { id: "sub-missing-number", title: "□の数をもとめる", detail: "20までの数−□＝1けた", grade: [1, 2], level: 2, generator: "missingSubtrahend", config: { min: 1, max: 20 } },
+      { id: "sub-missing-number", title: "□の数をもとめる", detail: "20までの数−□＝1けた", grade: [1, 2], level: 2, generator: "missingSubtrahend", config: { minResult: 1, maxResult: 9, minMissing: 1, maxMissing: 9 } },
       { id: "sub-two-one-no-borrow", title: "2けた−1けた（くり下がりなし）", detail: "2けたの数から1けたをひく", grade: [2], level: 2, generator: "subtraction", config: { minA: 10, maxA: 99, minB: 1, maxB: 9, borrow: false } },
       { id: "sub-two-one-borrow", title: "2けた−1けた（くり下がりあり）", detail: "一の位からくり下がる", grade: [2], level: 2, generator: "subtraction", config: { minA: 10, maxA: 99, minB: 1, maxB: 9, borrow: true } },
       { id: "sub-two-no-borrow", title: "2けたのひき算（くり下がりなし）", detail: "2けた−2けた", grade: [2], level: 2, generator: "subtraction", config: { minA: 10, maxA: 99, minB: 10, maxB: 99, borrow: false } },
