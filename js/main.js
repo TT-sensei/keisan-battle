@@ -41,7 +41,8 @@ const state = { op: "addition", unit: "add-within-20", char: "riku", battle: nul
 try {
   const p = JSON.parse(localStorage.getItem("keisanBattleLast") || localStorage.getItem("keisanBattleProtoLast") || "{}");
   if (OPERATIONS[p.op]) state.op = p.op;
-  if (UNIT_BY_ID[p.unit] && UNIT_BY_ID[p.unit].generator !== "future") state.unit = p.unit;
+  // 応用単元を整理した後も、保存済みの単元が現在のカテゴリに属する場合だけ引き継ぐ。
+  if (UNIT_BY_ID[p.unit] && UNIT_BY_ID[p.unit].generator !== "future" && OPERATIONS[state.op].units.some(u => u.id === p.unit)) state.unit = p.unit;
   if (CHARACTERS[p.char]) state.char = p.char;
 } catch (e) {}
 function saveLast() {
