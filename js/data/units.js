@@ -105,7 +105,7 @@ export const OPERATIONS = {
       { id: "percentage-part", title: "くらべる数をもとめる", detail: "もとにする量×割合", grade: [5], level: 4, generator: "percentage", config: { minBase: 100, maxBase: 1000 } },
       { id: "percentage-rate", title: "割合をもとめる", detail: "くらべる数÷もとにする量", grade: [5], level: 4, generator: "percentageRate", config: { minBase: 100, maxBase: 1000 } },
       { id: "speed-basic", title: "速さ・道のり・時間", detail: "速さの3つのもとめ方に挑戦", grade: [5], level: 4, generator: "speed", config: { minSpeed: 20, maxSpeed: 120, minTime: 2, maxTime: 10 } },
-      { id: "proportion-table", title: "比例の表", detail: "yがxに比例するときのyの値", grade: [5], level: 4, generator: "proportion", config: { minK: 2, maxK: 12, maxX: 9 } },
+      { id: "proportion-table", title: "比例の表", detail: "yがxに比例するときのyの値", grade: [6], level: 4, generator: "proportion", config: { minK: 2, maxK: 12, maxX: 9 } },
       { id: "algebra-x", title: "文字と式（xをもとめる）", detail: "式のxにあてはまる数", grade: [6], level: 4, generator: "algebraX", config: { maxValue: 50 } },
       { id: "percentage-base", title: "もとにする量をもとめる", detail: "くらべる数÷割合", grade: [5], level: 5, generator: "percentageBase", config: { minBase: 100, maxBase: 1000 } },
       { id: "ratio-simple", title: "比を簡単にする", detail: "いちばん簡単な整数の比にしよう", grade: [6], level: 5, generator: "ratioSimplify", config: { minG: 2, maxG: 12 } }
