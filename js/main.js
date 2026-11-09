@@ -16,8 +16,7 @@ const OPS_META = {
   multiplication: { symbol: "×", color: "#e8930c" },
   division: { symbol: "÷", color: "#4da34a" },
   decimals: { symbol: "0.5", color: "#8e6fc8" },
-  fractions: { symbol: "½", color: "#d6699e" },
-  application: { symbol: "✎", color: "#2ea39b" }
+  fractions: { symbol: "½", color: "#d6699e" }
 };
 const TRAITS = {
   riku: "バランス型・とくせいなし", sora: "まもり型・受けるダメージがへる",
